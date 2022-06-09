@@ -66,7 +66,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
 
 public class HighAvailabilityTaskAssignorTest {
     private final AssignmentConfigs configWithoutStandbys = new AssignmentConfigs(

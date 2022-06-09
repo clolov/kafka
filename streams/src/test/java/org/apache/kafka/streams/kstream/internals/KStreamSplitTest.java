@@ -40,8 +40,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertEquals;
-
 public class KStreamSplitTest {
 
     private final String topicName = "topic";

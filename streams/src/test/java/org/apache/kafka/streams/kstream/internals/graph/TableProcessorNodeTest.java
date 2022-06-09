@@ -23,8 +23,6 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-
 public class TableProcessorNodeTest {
     private static class TestProcessor implements Processor<String, String, String, String> {
         @Override

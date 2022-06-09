@@ -23,8 +23,6 @@ import org.apache.kafka.test.MockProcessorNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-
 public class PunctuationQueueTest {
 
     private final MockProcessorNode<String, String, ?, ?> node = new MockProcessorNode<>();

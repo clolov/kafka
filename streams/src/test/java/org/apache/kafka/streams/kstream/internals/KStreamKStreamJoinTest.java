@@ -60,9 +60,7 @@ import static org.apache.kafka.streams.processor.internals.assignment.Assignment
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 public class KStreamKStreamJoinTest {
     private final String topic1 = "topic1";

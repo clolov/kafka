@@ -19,8 +19,6 @@ package org.apache.kafka.streams.kstream.internals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-
 public class NamedInternalTest {
 
     private static final String TEST_PREFIX = "prefix-";

@@ -37,8 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-
 public class GlobalKTableJoinsTest {
 
     private final StreamsBuilder builder = new StreamsBuilder();

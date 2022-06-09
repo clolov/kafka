@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-
 public class KStreamForeachTest {
 
     private final String topicName = "topic";

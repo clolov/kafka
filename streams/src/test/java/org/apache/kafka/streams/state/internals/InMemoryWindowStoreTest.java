@@ -28,6 +28,7 @@ import org.apache.kafka.streams.state.StateSerdes;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.state.WindowStoreIterator;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
@@ -37,8 +38,6 @@ import static java.time.Duration.ofMillis;
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.streams.state.internals.WindowKeySchema.toStoreKeyBinary;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class InMemoryWindowStoreTest extends AbstractWindowBytesStoreTest {
 
@@ -65,7 +64,7 @@ public class InMemoryWindowStoreTest extends AbstractWindowBytesStoreTest {
     @Test
     public void shouldRestore() {
         // should be empty initially
-        assertFalse(windowStore.all().hasNext());
+        Assertions.assertFalse(windowStore.all().hasNext());
 
         final StateSerdes<Integer, String> serdes = new StateSerdes<>("", Serdes.Integer(),
             Serdes.String());
@@ -83,10 +82,10 @@ public class InMemoryWindowStoreTest extends AbstractWindowBytesStoreTest {
         try (final KeyValueIterator<Windowed<Integer>, String> iterator = windowStore
             .fetchAll(0L, 2 * WINDOW_SIZE)) {
 
-            assertEquals(windowedPair(1, "one", 0L), iterator.next());
-            assertEquals(windowedPair(2, "two", WINDOW_SIZE), iterator.next());
-            assertEquals(windowedPair(3, "three", 2 * WINDOW_SIZE), iterator.next());
-            assertFalse(iterator.hasNext());
+            Assertions.assertEquals(windowedPair(1, "one", 0L), iterator.next());
+            Assertions.assertEquals(windowedPair(2, "two", WINDOW_SIZE), iterator.next());
+            Assertions.assertEquals(windowedPair(3, "three", 2 * WINDOW_SIZE), iterator.next());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -105,20 +104,20 @@ public class InMemoryWindowStoreTest extends AbstractWindowBytesStoreTest {
         // This put expires all four previous records, but they should still be returned from already open iterators
         windowStore.put(1, "four", 2 * RETENTION_PERIOD);
 
-        assertEquals(new KeyValue<>(0L, "one"), iterator1.next());
-        assertEquals(new KeyValue<>(5L, "one"), iterator2.next());
+        Assertions.assertEquals(new KeyValue<>(0L, "one"), iterator1.next());
+        Assertions.assertEquals(new KeyValue<>(5L, "one"), iterator2.next());
 
-        assertEquals(new KeyValue<>(15L, "two"), iterator2.next());
-        assertEquals(new KeyValue<>(10L, "two"), iterator1.next());
+        Assertions.assertEquals(new KeyValue<>(15L, "two"), iterator2.next());
+        Assertions.assertEquals(new KeyValue<>(10L, "two"), iterator1.next());
 
-        assertFalse(iterator1.hasNext());
-        assertFalse(iterator2.hasNext());
+        Assertions.assertFalse(iterator1.hasNext());
+        Assertions.assertFalse(iterator2.hasNext());
 
         iterator1.close();
         iterator2.close();
 
         // Make sure expired records are removed now that open iterators are closed
-        assertFalse(windowStore.fetch(1, 0L, 50L).hasNext());
+        Assertions.assertFalse(windowStore.fetch(1, 0L, 50L).hasNext());
     }
 
     @Test
@@ -149,20 +148,20 @@ public class InMemoryWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         // should only have middle 4 values, as (only) the first record was expired at the time of the fetch
         // and the last was inserted after the fetch
-        assertEquals(windowedPair(1, "two", RETENTION_PERIOD / 4), iterator.next());
-        assertEquals(windowedPair(1, "three", RETENTION_PERIOD / 2), iterator.next());
-        assertEquals(windowedPair(1, "four", 3 * (RETENTION_PERIOD / 4)), iterator.next());
-        assertEquals(windowedPair(1, "five", RETENTION_PERIOD), iterator.next());
-        assertFalse(iterator.hasNext());
+        Assertions.assertEquals(windowedPair(1, "two", RETENTION_PERIOD / 4), iterator.next());
+        Assertions.assertEquals(windowedPair(1, "three", RETENTION_PERIOD / 2), iterator.next());
+        Assertions.assertEquals(windowedPair(1, "four", 3 * (RETENTION_PERIOD / 4)), iterator.next());
+        Assertions.assertEquals(windowedPair(1, "five", RETENTION_PERIOD), iterator.next());
+        Assertions.assertFalse(iterator.hasNext());
 
         iterator = windowStore.fetchAll(0L, currentTime);
 
         // If we fetch again after the last put, the second oldest record should have expired and newest should appear in results
-        assertEquals(windowedPair(1, "three", RETENTION_PERIOD / 2), iterator.next());
-        assertEquals(windowedPair(1, "four", 3 * (RETENTION_PERIOD / 4)), iterator.next());
-        assertEquals(windowedPair(1, "five", RETENTION_PERIOD), iterator.next());
-        assertEquals(windowedPair(1, "six", 5 * (RETENTION_PERIOD / 4)), iterator.next());
-        assertFalse(iterator.hasNext());
+        Assertions.assertEquals(windowedPair(1, "three", RETENTION_PERIOD / 2), iterator.next());
+        Assertions.assertEquals(windowedPair(1, "four", 3 * (RETENTION_PERIOD / 4)), iterator.next());
+        Assertions.assertEquals(windowedPair(1, "five", RETENTION_PERIOD), iterator.next());
+        Assertions.assertEquals(windowedPair(1, "six", 5 * (RETENTION_PERIOD / 4)), iterator.next());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -182,7 +181,7 @@ public class InMemoryWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         final Position expected = Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 4L)))));
         final Position actual = inMemoryWindowStore.getPosition();
-        assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 
 }

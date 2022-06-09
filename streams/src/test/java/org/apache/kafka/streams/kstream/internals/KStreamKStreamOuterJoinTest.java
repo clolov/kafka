@@ -54,7 +54,6 @@ import java.util.Set;
 
 import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMillis;
-import static org.junit.Assert.assertEquals;
 
 public class KStreamKStreamOuterJoinTest {
     private final String topic1 = "topic1";

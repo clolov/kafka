@@ -22,6 +22,7 @@ import org.apache.kafka.streams.processor.StateStoreContext;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -29,8 +30,6 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class InMemoryLRUCacheStoreTest extends AbstractKeyValueStoreTest {
 
@@ -98,38 +97,38 @@ public class InMemoryLRUCacheStoreTest extends AbstractKeyValueStoreTest {
         store.put(7, "seven");
         store.put(8, "eight");
         store.put(9, "nine");
-        assertEquals(10, driver.sizeOf(store));
+        Assertions.assertEquals(10, driver.sizeOf(store));
 
         store.put(10, "ten");
         store.flush();
-        assertEquals(10, driver.sizeOf(store));
-        assertTrue(driver.flushedEntryRemoved(0));
-        assertEquals(1, driver.numFlushedEntryRemoved());
+        Assertions.assertEquals(10, driver.sizeOf(store));
+        Assertions.assertTrue(driver.flushedEntryRemoved(0));
+        Assertions.assertEquals(1, driver.numFlushedEntryRemoved());
 
         store.delete(1);
         store.flush();
-        assertEquals(9, driver.sizeOf(store));
-        assertTrue(driver.flushedEntryRemoved(0));
-        assertTrue(driver.flushedEntryRemoved(1));
-        assertEquals(2, driver.numFlushedEntryRemoved());
+        Assertions.assertEquals(9, driver.sizeOf(store));
+        Assertions.assertTrue(driver.flushedEntryRemoved(0));
+        Assertions.assertTrue(driver.flushedEntryRemoved(1));
+        Assertions.assertEquals(2, driver.numFlushedEntryRemoved());
 
         store.put(11, "eleven");
         store.flush();
-        assertEquals(10, driver.sizeOf(store));
-        assertEquals(2, driver.numFlushedEntryRemoved());
+        Assertions.assertEquals(10, driver.sizeOf(store));
+        Assertions.assertEquals(2, driver.numFlushedEntryRemoved());
 
         store.put(2, "two-again");
         store.flush();
-        assertEquals(10, driver.sizeOf(store));
-        assertEquals(2, driver.numFlushedEntryRemoved());
+        Assertions.assertEquals(10, driver.sizeOf(store));
+        Assertions.assertEquals(2, driver.numFlushedEntryRemoved());
 
         store.put(12, "twelve");
         store.flush();
-        assertEquals(10, driver.sizeOf(store));
-        assertTrue(driver.flushedEntryRemoved(0));
-        assertTrue(driver.flushedEntryRemoved(1));
-        assertTrue(driver.flushedEntryRemoved(3));
-        assertEquals(3, driver.numFlushedEntryRemoved());
+        Assertions.assertEquals(10, driver.sizeOf(store));
+        Assertions.assertTrue(driver.flushedEntryRemoved(0));
+        Assertions.assertTrue(driver.flushedEntryRemoved(1));
+        Assertions.assertTrue(driver.flushedEntryRemoved(3));
+        Assertions.assertEquals(3, driver.numFlushedEntryRemoved());
     }
 
     @SuppressWarnings("unchecked")
@@ -155,10 +154,10 @@ public class InMemoryLRUCacheStoreTest extends AbstractKeyValueStoreTest {
         store = createKeyValueStore(driver.context());
         context.restore(store.name(), driver.restoredEntries());
         // Verify that the store's changelog does not get more appends ...
-        assertEquals(0, driver.numFlushedEntryStored());
-        assertEquals(0, driver.numFlushedEntryRemoved());
+        Assertions.assertEquals(0, driver.numFlushedEntryStored());
+        Assertions.assertEquals(0, driver.numFlushedEntryRemoved());
 
         // and there are no other entries ...
-        assertEquals(10, driver.sizeOf(store));
+        Assertions.assertEquals(10, driver.sizeOf(store));
     }
 }

@@ -31,8 +31,6 @@ import java.util.Set;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class KTableReduceTest {
 

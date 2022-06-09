@@ -28,9 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 public class SubscriptionResponseWrapperSerdeTest {

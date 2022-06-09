@@ -33,8 +33,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertArrayEquals;
-
 public class KStreamMapValuesTest {
     private final String topicName = "topic";
     private final MockApiProcessorSupplier<Integer, Integer, Void, Void> supplier = new MockApiProcessorSupplier<>();

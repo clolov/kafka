@@ -33,7 +33,6 @@ import java.util.HashMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertNotNull;
 
 public class QueryableStoreProviderTest {
 

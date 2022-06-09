@@ -28,9 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 public class TimeWindowedSerializerTest {
     private final TimeWindowedSerializer<?> timeWindowedSerializer = new TimeWindowedSerializer<>(Serdes.String().serializer());

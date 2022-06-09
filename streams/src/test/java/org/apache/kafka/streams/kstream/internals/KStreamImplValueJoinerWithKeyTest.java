@@ -46,7 +46,6 @@ import java.util.Properties;
 
 import static java.time.Duration.ofHours;
 import static java.time.Duration.ofMillis;
-import static org.junit.Assert.assertEquals;
 
 public class KStreamImplValueJoinerWithKeyTest {
 

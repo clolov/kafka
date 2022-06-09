@@ -38,6 +38,7 @@ import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -49,8 +50,6 @@ import static java.util.Objects.requireNonNull;
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.test.StreamsTestUtils.valuesToSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 @RunWith(Parameterized.class)
 public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
@@ -141,9 +140,9 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             windowStore.put(1, "four", currentTime);
 
             // should only have 2 values as the first segment is no longer open
-            assertEquals(new KeyValue<>(SEGMENT_INTERVAL, "two"), iterator.next());
-            assertEquals(new KeyValue<>(2 * SEGMENT_INTERVAL, "three"), iterator.next());
-            assertFalse(iterator.hasNext());
+            Assertions.assertEquals(new KeyValue<>(SEGMENT_INTERVAL, "two"), iterator.next());
+            Assertions.assertEquals(new KeyValue<>(2 * SEGMENT_INTERVAL, "three"), iterator.next());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -154,13 +153,13 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
         final long startTime = SEGMENT_INTERVAL * 2;
         final long increment = SEGMENT_INTERVAL / 2;
         windowStore.put(0, "zero", startTime);
-        assertEquals(Utils.mkSet(segments.segmentName(2)), segmentDirs(baseDir));
+        Assertions.assertEquals(Utils.mkSet(segments.segmentName(2)), segmentDirs(baseDir));
 
         windowStore.put(1, "one", startTime + increment);
-        assertEquals(Utils.mkSet(segments.segmentName(2)), segmentDirs(baseDir));
+        Assertions.assertEquals(Utils.mkSet(segments.segmentName(2)), segmentDirs(baseDir));
 
         windowStore.put(2, "two", startTime + increment * 2);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(2),
                 segments.segmentName(3)
@@ -169,7 +168,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
         );
 
         windowStore.put(4, "four", startTime + increment * 4);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(2),
                 segments.segmentName(3),
@@ -179,7 +178,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
         );
 
         windowStore.put(5, "five", startTime + increment * 5);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(2),
                 segments.segmentName(3),
@@ -188,37 +187,37 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             segmentDirs(baseDir)
         );
 
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("zero")),
             valuesToSet(windowStore.fetch(
                 0,
                 ofEpochMilli(startTime - WINDOW_SIZE),
                 ofEpochMilli(startTime + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("one")),
             valuesToSet(windowStore.fetch(
                 1,
                 ofEpochMilli(startTime + increment - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("two")),
             valuesToSet(windowStore.fetch(
                 2,
                 ofEpochMilli(startTime + increment * 2 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 2 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 3,
                 ofEpochMilli(startTime + increment * 3 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 3 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("four")),
             valuesToSet(windowStore.fetch(
                 4,
                 ofEpochMilli(startTime + increment * 4 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 4 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("five")),
             valuesToSet(windowStore.fetch(
                 5,
@@ -226,7 +225,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
                 ofEpochMilli(startTime + increment * 5 + WINDOW_SIZE))));
 
         windowStore.put(6, "six", startTime + increment * 6);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(3),
                 segments.segmentName(4),
@@ -235,43 +234,43 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             segmentDirs(baseDir)
         );
 
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 0,
                 ofEpochMilli(startTime - WINDOW_SIZE),
                 ofEpochMilli(startTime + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 1,
                 ofEpochMilli(startTime + increment - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("two")),
             valuesToSet(windowStore.fetch(
                 2,
                 ofEpochMilli(startTime + increment * 2 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 2 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 3,
                 ofEpochMilli(startTime + increment * 3 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 3 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("four")),
             valuesToSet(windowStore.fetch(
                 4,
                 ofEpochMilli(startTime + increment * 4 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 4 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("five")),
             valuesToSet(windowStore.fetch(
                 5,
                 ofEpochMilli(startTime + increment * 5 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 5 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("six")),
             valuesToSet(windowStore.fetch(
                 6,
@@ -279,7 +278,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
                 ofEpochMilli(startTime + increment * 6 + WINDOW_SIZE))));
 
         windowStore.put(7, "seven", startTime + increment * 7);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(3),
                 segments.segmentName(4),
@@ -288,49 +287,49 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             segmentDirs(baseDir)
         );
 
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 0,
                 ofEpochMilli(startTime - WINDOW_SIZE),
                 ofEpochMilli(startTime + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 1,
                 ofEpochMilli(startTime + increment - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("two")),
             valuesToSet(windowStore.fetch(
                 2,
                 ofEpochMilli(startTime + increment * 2 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 2 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 3,
                 ofEpochMilli(startTime + increment * 3 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 3 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("four")),
             valuesToSet(windowStore.fetch(
                 4,
                 ofEpochMilli(startTime + increment * 4 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 4 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("five")),
             valuesToSet(windowStore.fetch(
                 5,
                 ofEpochMilli(startTime + increment * 5 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 5 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("six")),
             valuesToSet(windowStore.fetch(
                 6,
                 ofEpochMilli(startTime + increment * 6 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 6 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("seven")),
             valuesToSet(windowStore.fetch(
                 7,
@@ -338,7 +337,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
                 ofEpochMilli(startTime + increment * 7 + WINDOW_SIZE))));
 
         windowStore.put(8, "eight", startTime + increment * 8);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(4),
                 segments.segmentName(5),
@@ -347,55 +346,55 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             segmentDirs(baseDir)
         );
 
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 0,
                 ofEpochMilli(startTime - WINDOW_SIZE),
                 ofEpochMilli(startTime + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 1,
                 ofEpochMilli(startTime + increment - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 2,
                 ofEpochMilli(startTime + increment * 2 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 2 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 3,
                 ofEpochMilli(startTime + increment * 3 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 3 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("four")),
             valuesToSet(windowStore.fetch(
                 4,
                 ofEpochMilli(startTime + increment * 4 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 4 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("five")),
             valuesToSet(windowStore.fetch(
                 5,
                 ofEpochMilli(startTime + increment * 5 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 5 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("six")),
             valuesToSet(windowStore.fetch(
                 6,
                 ofEpochMilli(startTime + increment * 6 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 6 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("seven")),
             valuesToSet(windowStore.fetch(
                 7,
                 ofEpochMilli(startTime + increment * 7 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 7 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("eight")),
             valuesToSet(windowStore.fetch(
                 8,
@@ -404,7 +403,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         // check segment directories
         windowStore.flush();
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(4),
                 segments.segmentName(5),
@@ -423,20 +422,20 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         context.setTime(0L);
         windowStore.put(0, "v", 0);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(segments.segmentName(0L)),
             segmentDirs(baseDir)
         );
 
         windowStore.put(0, "v", SEGMENT_INTERVAL - 1);
         windowStore.put(0, "v", SEGMENT_INTERVAL - 1);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(segments.segmentName(0L)),
             segmentDirs(baseDir)
         );
 
         windowStore.put(0, "v", SEGMENT_INTERVAL);
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(segments.segmentName(0L), segments.segmentName(1L)),
             segmentDirs(baseDir)
         );
@@ -450,9 +449,9 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             iter.next();
             fetchedCount++;
         }
-        assertEquals(4, fetchedCount);
+        Assertions.assertEquals(4, fetchedCount);
 
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(segments.segmentName(0L), segments.segmentName(1L)),
             segmentDirs(baseDir)
         );
@@ -465,9 +464,9 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             iter.next();
             fetchedCount++;
         }
-        assertEquals(2, fetchedCount);
+        Assertions.assertEquals(2, fetchedCount);
 
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(segments.segmentName(1L), segments.segmentName(3L)),
             segmentDirs(baseDir)
         );
@@ -480,9 +479,9 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             iter.next();
             fetchedCount++;
         }
-        assertEquals(1, fetchedCount);
+        Assertions.assertEquals(1, fetchedCount);
 
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(segments.segmentName(3L), segments.segmentName(5L)),
             segmentDirs(baseDir)
         );
@@ -518,7 +517,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
         final List<String> actual = Utils.toList(segmentDirs(baseDir).iterator());
         actual.sort(String::compareTo);
 
-        assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
 
         try (final WindowStoreIterator iter = windowStore.fetch(0, ofEpochMilli(0L), ofEpochMilli(1000000L))) {
             while (iter.hasNext()) {
@@ -526,7 +525,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
             }
         }
 
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(4L),
                 segments.segmentName(5L),
@@ -564,55 +563,55 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
                                        Serdes.String());
         windowStore.init((StateStoreContext) context, windowStore);
 
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 0,
                 ofEpochMilli(startTime - WINDOW_SIZE),
                 ofEpochMilli(startTime + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 1,
                 ofEpochMilli(startTime + increment - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 2,
                 ofEpochMilli(startTime + increment * 2 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 2 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 3,
                 ofEpochMilli(startTime + increment * 3 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 3 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 4,
                 ofEpochMilli(startTime + increment * 4 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 4 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 5,
                 ofEpochMilli(startTime + increment * 5 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 5 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 6,
                 ofEpochMilli(startTime + increment * 6 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 6 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 7,
                 ofEpochMilli(startTime + increment * 7 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 7 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 8,
@@ -626,55 +625,55 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         context.restore(STORE_NAME, changeLog);
 
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 0,
                 ofEpochMilli(startTime - WINDOW_SIZE),
                 ofEpochMilli(startTime + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 1,
                 ofEpochMilli(startTime + increment - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 2,
                 ofEpochMilli(startTime + increment * 2 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 2 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.emptyList()),
             valuesToSet(windowStore.fetch(
                 3,
                 ofEpochMilli(startTime + increment * 3 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 3 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("four")),
             valuesToSet(windowStore.fetch(
                 4,
                 ofEpochMilli(startTime + increment * 4 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 4 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("five")),
             valuesToSet(windowStore.fetch(
                 5,
                 ofEpochMilli(startTime + increment * 5 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 5 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("six")),
             valuesToSet(windowStore.fetch(
                 6,
                 ofEpochMilli(startTime + increment * 6 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 6 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("seven")),
             valuesToSet(windowStore.fetch(
                 7,
                 ofEpochMilli(startTime + increment * 7 - WINDOW_SIZE),
                 ofEpochMilli(startTime + increment * 7 + WINDOW_SIZE))));
-        assertEquals(
+        Assertions.assertEquals(
             new HashSet<>(Collections.singletonList("eight")),
             valuesToSet(windowStore.fetch(
                 8,
@@ -683,7 +682,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         // check segment directories
         windowStore.flush();
-        assertEquals(
+        Assertions.assertEquals(
             Utils.mkSet(
                 segments.segmentName(4L),
                 segments.segmentName(5L),
@@ -709,7 +708,7 @@ public class RocksDBWindowStoreTest extends AbstractWindowBytesStoreTest {
 
         final Position expected = Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 4L)))));
         final Position actual = rocksDBWindowStore.getPosition();
-        assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 
     private Set<String> segmentDirs(final File baseDir) {

@@ -36,12 +36,7 @@ import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 public class ThreadCacheTest {
     final String namespace = "0.0-namespace";

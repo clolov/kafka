@@ -29,6 +29,8 @@ import org.apache.kafka.streams.state.Stores;
 import org.junit.Test;
 
 import java.util.HashSet;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -38,7 +40,6 @@ import static java.util.Arrays.asList;
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.test.StreamsTestUtils.valuesToSet;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class RocksDBSessionStoreTest extends AbstractSessionBytesStoreTest {
@@ -114,7 +115,7 @@ public class RocksDBSessionStoreTest extends AbstractSessionBytesStoreTest {
         try (final KeyValueIterator<Windowed<String>, Long> iterator =
             sessionStore.findSessions("a", "b", 0L, Long.MAX_VALUE)
         ) {
-            assertEquals(valuesToSet(iterator), new HashSet<>(asList(2L, 3L, 4L)));
+            Assertions.assertEquals(valuesToSet(iterator), new HashSet<>(asList(2L, 3L, 4L)));
         }
     }
 
@@ -133,6 +134,6 @@ public class RocksDBSessionStoreTest extends AbstractSessionBytesStoreTest {
 
         final Position expected = Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 3L)))));
         final Position actual = rocksDBSessionStore.getPosition();
-        assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 }

@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
 
 public class GraphGraceSearchUtilTest {
     @Test

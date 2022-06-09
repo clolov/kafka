@@ -25,6 +25,7 @@ import org.apache.kafka.streams.processor.internals.ProcessorRecordContext;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.SessionStore;
 import org.apache.kafka.streams.state.Stores;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -35,8 +36,6 @@ import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.test.StreamsTestUtils.valuesToSet;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.hamcrest.Matchers.is;
 
 public class InMemorySessionStoreTest extends AbstractSessionBytesStoreTest {
@@ -67,7 +66,7 @@ public class InMemorySessionStoreTest extends AbstractSessionBytesStoreTest {
         try (final KeyValueIterator<Windowed<String>, Long> iterator =
             sessionStore.findSessions("a", "b", 0L, Long.MAX_VALUE)
         ) {
-            assertEquals(valuesToSet(iterator), new HashSet<>(Arrays.asList(2L, 3L, 4L)));
+            Assertions.assertEquals(valuesToSet(iterator), new HashSet<>(Arrays.asList(2L, 3L, 4L)));
         }
     }
 
@@ -83,11 +82,11 @@ public class InMemorySessionStoreTest extends AbstractSessionBytesStoreTest {
         // Advance stream time to expire the first three record
         sessionStore.put(new Windowed<>("aa", new SessionWindow(100, 2 * RETENTION_PERIOD)), 4L);
 
-        assertEquals(valuesToSet(iterator), new HashSet<>(Arrays.asList(1L, 2L, 3L, 4L)));
-        assertFalse(iterator.hasNext());
+        Assertions.assertEquals(valuesToSet(iterator), new HashSet<>(Arrays.asList(1L, 2L, 3L, 4L)));
+        Assertions.assertFalse(iterator.hasNext());
 
         iterator.close();
-        assertFalse(sessionStore.findSessions("a", "b", 0L, 20L).hasNext());
+        Assertions.assertFalse(sessionStore.findSessions("a", "b", 0L, 20L).hasNext());
     }
 
     @Test

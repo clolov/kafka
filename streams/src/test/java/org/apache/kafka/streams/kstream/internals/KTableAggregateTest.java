@@ -48,7 +48,6 @@ import static java.util.Arrays.asList;
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkProperties;
-import static org.junit.Assert.assertEquals;
 
 public class KTableAggregateTest {
     private final Serde<String> stringSerde = Serdes.String();

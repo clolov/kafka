@@ -61,7 +61,6 @@ import static org.apache.kafka.streams.kstream.WindowedSerdes.sessionWindowedSer
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
 
 public class KTableSuppressProcessorTest {
     private static final long ARBITRARY_LONG = 5L;

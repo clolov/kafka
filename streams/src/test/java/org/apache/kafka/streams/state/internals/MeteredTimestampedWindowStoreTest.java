@@ -51,8 +51,6 @@ import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.niceMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 public class MeteredTimestampedWindowStoreTest {
 

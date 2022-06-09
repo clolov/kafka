@@ -52,12 +52,7 @@ import static org.apache.kafka.streams.state.internals.ThreadCacheTest.memoryCac
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest {
 
@@ -129,25 +124,25 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldSetFlushListener() {
-        assertTrue(store.setFlushListener(null, true));
-        assertTrue(store.setFlushListener(null, false));
+        org.junit.jupiter.api.Assertions.assertTrue(store.setFlushListener(null, true));
+        org.junit.jupiter.api.Assertions.assertTrue(store.setFlushListener(null, false));
     }
 
     @Test
     public void shouldAvoidFlushingDeletionsWithoutDirtyKeys() {
         final int added = addItemsToCache();
         // all dirty entries should have been flushed
-        assertEquals(added, underlyingStore.approximateNumEntries());
-        assertEquals(added, cacheFlushListener.forwarded.size());
+        org.junit.jupiter.api.Assertions.assertEquals(added, underlyingStore.approximateNumEntries());
+        org.junit.jupiter.api.Assertions.assertEquals(added, cacheFlushListener.forwarded.size());
 
         store.put(bytesKey("key"), bytesValue("value"));
-        assertEquals(added, underlyingStore.approximateNumEntries());
-        assertEquals(added, cacheFlushListener.forwarded.size());
+        org.junit.jupiter.api.Assertions.assertEquals(added, underlyingStore.approximateNumEntries());
+        org.junit.jupiter.api.Assertions.assertEquals(added, cacheFlushListener.forwarded.size());
 
         store.put(bytesKey("key"), null);
         store.flush();
-        assertEquals(added, underlyingStore.approximateNumEntries());
-        assertEquals(added, cacheFlushListener.forwarded.size());
+        org.junit.jupiter.api.Assertions.assertEquals(added, underlyingStore.approximateNumEntries());
+        org.junit.jupiter.api.Assertions.assertEquals(added, cacheFlushListener.forwarded.size());
     }
 
     @Test
@@ -216,8 +211,8 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         assertThat(store.get(bytesKey("key")), equalTo(bytesValue("value")));
         assertThat(store.get(bytesKey("key2")), equalTo(bytesValue("value2")));
         // nothing evicted so underlying store should be empty
-        assertEquals(2, cache.size());
-        assertEquals(0, underlyingStore.approximateNumEntries());
+        org.junit.jupiter.api.Assertions.assertEquals(2, cache.size());
+        org.junit.jupiter.api.Assertions.assertEquals(0, underlyingStore.approximateNumEntries());
     }
 
     @Test
@@ -243,19 +238,19 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
             new ProcessorRecordContext(0, 3, 0, "", new RecordHeaders())
         );
 
-        assertEquals(
+        org.junit.jupiter.api.Assertions.assertEquals(
             Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 2L))))),
             store.getPosition()
         );
-        assertEquals(Position.emptyPosition(), underlyingStore.getPosition());
+        org.junit.jupiter.api.Assertions.assertEquals(Position.emptyPosition(), underlyingStore.getPosition());
 
         store.flush();
 
-        assertEquals(
+        org.junit.jupiter.api.Assertions.assertEquals(
             Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 2L))))),
             store.getPosition()
         );
-        assertEquals(
+        org.junit.jupiter.api.Assertions.assertEquals(
             Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 2L))))),
             underlyingStore.getPosition()
         );
@@ -273,23 +268,23 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
     public void shouldFlushEvictedItemsIntoUnderlyingStore() {
         final int added = addItemsToCache();
         // all dirty entries should have been flushed
-        assertEquals(added, underlyingStore.approximateNumEntries());
-        assertEquals(added, store.approximateNumEntries());
-        assertNotNull(underlyingStore.get(Bytes.wrap("0".getBytes())));
+        org.junit.jupiter.api.Assertions.assertEquals(added, underlyingStore.approximateNumEntries());
+        org.junit.jupiter.api.Assertions.assertEquals(added, store.approximateNumEntries());
+        org.junit.jupiter.api.Assertions.assertNotNull(underlyingStore.get(Bytes.wrap("0".getBytes())));
     }
 
     @Test
     public void shouldForwardDirtyItemToListenerWhenEvicted() {
         final int numRecords = addItemsToCache();
-        assertEquals(numRecords, cacheFlushListener.forwarded.size());
+        org.junit.jupiter.api.Assertions.assertEquals(numRecords, cacheFlushListener.forwarded.size());
     }
 
     @Test
     public void shouldForwardDirtyItemsWhenFlushCalled() {
         store.put(bytesKey("1"), bytesValue("a"));
         store.flush();
-        assertEquals("a", cacheFlushListener.forwarded.get("1").newValue);
-        assertNull(cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertEquals("a", cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").oldValue);
     }
 
     @Test
@@ -297,23 +292,23 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         store.setFlushListener(cacheFlushListener, true);
         store.put(bytesKey("1"), bytesValue("a"));
         store.flush();
-        assertEquals("a", cacheFlushListener.forwarded.get("1").newValue);
-        assertNull(cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertEquals("a", cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").oldValue);
         store.put(bytesKey("1"), bytesValue("b"));
         store.put(bytesKey("1"), bytesValue("c"));
         store.flush();
-        assertEquals("c", cacheFlushListener.forwarded.get("1").newValue);
-        assertEquals("a", cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertEquals("c", cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertEquals("a", cacheFlushListener.forwarded.get("1").oldValue);
         store.put(bytesKey("1"), null);
         store.flush();
-        assertNull(cacheFlushListener.forwarded.get("1").newValue);
-        assertEquals("c", cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertEquals("c", cacheFlushListener.forwarded.get("1").oldValue);
         cacheFlushListener.forwarded.clear();
         store.put(bytesKey("1"), bytesValue("a"));
         store.put(bytesKey("1"), bytesValue("b"));
         store.put(bytesKey("1"), null);
         store.flush();
-        assertNull(cacheFlushListener.forwarded.get("1"));
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1"));
         cacheFlushListener.forwarded.clear();
     }
 
@@ -321,22 +316,22 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
     public void shouldNotForwardOldValuesWhenDisabled() {
         store.put(bytesKey("1"), bytesValue("a"));
         store.flush();
-        assertEquals("a", cacheFlushListener.forwarded.get("1").newValue);
-        assertNull(cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertEquals("a", cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").oldValue);
         store.put(bytesKey("1"), bytesValue("b"));
         store.flush();
-        assertEquals("b", cacheFlushListener.forwarded.get("1").newValue);
-        assertNull(cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertEquals("b", cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").oldValue);
         store.put(bytesKey("1"), null);
         store.flush();
-        assertNull(cacheFlushListener.forwarded.get("1").newValue);
-        assertNull(cacheFlushListener.forwarded.get("1").oldValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").newValue);
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1").oldValue);
         cacheFlushListener.forwarded.clear();
         store.put(bytesKey("1"), bytesValue("a"));
         store.put(bytesKey("1"), bytesValue("b"));
         store.put(bytesKey("1"), null);
         store.flush();
-        assertNull(cacheFlushListener.forwarded.get("1"));
+        org.junit.jupiter.api.Assertions.assertNull(cacheFlushListener.forwarded.get("1"));
         cacheFlushListener.forwarded.clear();
     }
 
@@ -351,8 +346,8 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
             }
         }
 
-        assertEquals(items, results.size());
-        assertEquals(Arrays.asList(
+        org.junit.jupiter.api.Assertions.assertEquals(items, results.size());
+        org.junit.jupiter.api.Assertions.assertEquals(Arrays.asList(
             Bytes.wrap("0".getBytes()),
             Bytes.wrap("1".getBytes()),
             Bytes.wrap("2".getBytes())
@@ -371,8 +366,8 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
             }
         }
 
-        assertEquals(items, results.size());
-        assertEquals(Arrays.asList(
+        org.junit.jupiter.api.Assertions.assertEquals(items, results.size());
+        org.junit.jupiter.api.Assertions.assertEquals(Arrays.asList(
             Bytes.wrap("2".getBytes()),
             Bytes.wrap("1".getBytes()),
             Bytes.wrap("0".getBytes())
@@ -392,8 +387,8 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
             }
         }
 
-        assertEquals(items, results.size());
-        assertEquals(Arrays.asList(
+        org.junit.jupiter.api.Assertions.assertEquals(items, results.size());
+        org.junit.jupiter.api.Assertions.assertEquals(Arrays.asList(
             Bytes.wrap("0".getBytes()),
             Bytes.wrap("1".getBytes()),
             Bytes.wrap("2".getBytes())
@@ -412,8 +407,8 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
             }
         }
 
-        assertEquals(items, results.size());
-        assertEquals(Arrays.asList(
+        org.junit.jupiter.api.Assertions.assertEquals(items, results.size());
+        org.junit.jupiter.api.Assertions.assertEquals(Arrays.asList(
             Bytes.wrap("2".getBytes()),
             Bytes.wrap("1".getBytes()),
             Bytes.wrap("0".getBytes())
@@ -483,11 +478,11 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
     public void shouldDeleteItemsFromCache() {
         store.put(bytesKey("a"), bytesValue("a"));
         store.delete(bytesKey("a"));
-        assertNull(store.get(bytesKey("a")));
-        assertFalse(store.range(bytesKey("a"), bytesKey("b")).hasNext());
-        assertFalse(store.reverseRange(bytesKey("a"), bytesKey("b")).hasNext());
-        assertFalse(store.all().hasNext());
-        assertFalse(store.reverseAll().hasNext());
+        org.junit.jupiter.api.Assertions.assertNull(store.get(bytesKey("a")));
+        org.junit.jupiter.api.Assertions.assertFalse(store.range(bytesKey("a"), bytesKey("b")).hasNext());
+        org.junit.jupiter.api.Assertions.assertFalse(store.reverseRange(bytesKey("a"), bytesKey("b")).hasNext());
+        org.junit.jupiter.api.Assertions.assertFalse(store.all().hasNext());
+        org.junit.jupiter.api.Assertions.assertFalse(store.reverseAll().hasNext());
     }
 
     @Test
@@ -495,19 +490,19 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         store.put(bytesKey("a"), bytesValue("a"));
         store.flush();
         store.delete(bytesKey("a"));
-        assertNull(store.get(bytesKey("a")));
-        assertFalse(store.range(bytesKey("a"), bytesKey("b")).hasNext());
-        assertFalse(store.reverseRange(bytesKey("a"), bytesKey("b")).hasNext());
-        assertFalse(store.all().hasNext());
-        assertFalse(store.reverseAll().hasNext());
+        org.junit.jupiter.api.Assertions.assertNull(store.get(bytesKey("a")));
+        org.junit.jupiter.api.Assertions.assertFalse(store.range(bytesKey("a"), bytesKey("b")).hasNext());
+        org.junit.jupiter.api.Assertions.assertFalse(store.reverseRange(bytesKey("a"), bytesKey("b")).hasNext());
+        org.junit.jupiter.api.Assertions.assertFalse(store.all().hasNext());
+        org.junit.jupiter.api.Assertions.assertFalse(store.reverseAll().hasNext());
     }
 
     @Test
     public void shouldClearNamespaceCacheOnClose() {
         store.put(bytesKey("a"), bytesValue("a"));
-        assertEquals(1, cache.size());
+        org.junit.jupiter.api.Assertions.assertEquals(1, cache.size());
         store.close();
-        assertEquals(0, cache.size());
+        org.junit.jupiter.api.Assertions.assertEquals(0, cache.size());
     }
 
     @Test
@@ -621,7 +616,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldReturnUnderlying() {
-        assertEquals(underlyingStore, store.wrapped());
+        org.junit.jupiter.api.Assertions.assertEquals(underlyingStore, store.wrapped());
     }
 
     @Test

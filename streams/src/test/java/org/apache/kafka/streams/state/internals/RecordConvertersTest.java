@@ -26,8 +26,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import static org.apache.kafka.streams.state.internals.RecordConverters.rawValueToTimestampedValue;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
 
 public class RecordConvertersTest {
 

@@ -30,8 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 public class KStreamPrintTest {
 
     private ByteArrayOutputStream byteOutStream;

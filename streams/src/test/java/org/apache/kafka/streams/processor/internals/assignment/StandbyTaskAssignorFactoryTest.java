@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertTrue;
 
 public class StandbyTaskAssignorFactoryTest {
     private static final long ACCEPTABLE_RECOVERY_LAG = 0L;

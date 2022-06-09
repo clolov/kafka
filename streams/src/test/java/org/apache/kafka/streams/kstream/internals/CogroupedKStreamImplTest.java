@@ -19,7 +19,6 @@ package org.apache.kafka.streams.kstream.internals;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Properties;
 import org.apache.kafka.common.serialization.IntegerDeserializer;

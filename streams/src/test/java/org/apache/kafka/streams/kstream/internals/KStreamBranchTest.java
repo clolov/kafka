@@ -34,8 +34,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-
 public class KStreamBranchTest {
 
     private final String topicName = "topic";

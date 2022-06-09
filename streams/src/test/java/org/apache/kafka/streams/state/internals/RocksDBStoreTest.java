@@ -104,11 +104,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.powermock.api.easymock.PowerMock.replay;
 import static org.powermock.api.easymock.PowerMock.verify;
 
@@ -352,7 +348,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
 
         rocksDBStore.init((StateStoreContext) context, rocksDBStore);
 
-        assertTrue(MockRocksDbConfigSetter.called);
+        Assertions.assertTrue(MockRocksDbConfigSetter.called);
         assertThat(MockRocksDbConfigSetter.configMap.get("abc.def"), equalTo(param));
     }
 
@@ -361,7 +357,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         final File tmpDir = TestUtils.tempDirectory();
         final InternalMockProcessorContext tmpContext = new InternalMockProcessorContext(tmpDir, new StreamsConfig(StreamsTestUtils.getStreamsConfig()));
 
-        assertTrue(tmpDir.setReadOnly());
+        Assertions.assertTrue(tmpDir.setReadOnly());
 
         assertThrows(ProcessorStateException.class, () -> rocksDBStore.openDB(tmpContext.appConfigs(), tmpContext.stateDir()));
     }
@@ -383,17 +379,17 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         rocksDBStore.putAll(entries);
         rocksDBStore.flush();
 
-        assertEquals(
+        Assertions.assertEquals(
             "a",
             stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
-        assertEquals(
+        Assertions.assertEquals(
             "b",
             stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "2")))));
-        assertEquals(
+        Assertions.assertEquals(
             "c",
             stringDeserializer.deserialize(
                 null,
@@ -413,7 +409,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
 
         final Position expected = Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 3L)))));
         final Position actual = rocksDBStore.getPosition();
-        assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 
     @Test
@@ -562,17 +558,17 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         rocksDBStore.init((StateStoreContext) context, rocksDBStore);
         context.restore(rocksDBStore.name(), entries);
 
-        assertEquals(
+        Assertions.assertEquals(
             "a",
             stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
-        assertEquals(
+        Assertions.assertEquals(
             "b",
             stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "2")))));
-        assertEquals(
+        Assertions.assertEquals(
             "c",
             stringDeserializer.deserialize(
                 null,
@@ -590,7 +586,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         rocksDBStore.putIfAbsent(keyBytes, valueBytesUpdate);
 
         final String retrievedValue = stringDeserializer.deserialize(null, rocksDBStore.get(keyBytes));
-        assertEquals("A", retrievedValue);
+        Assertions.assertEquals("A", retrievedValue);
     }
 
     @Test
@@ -635,17 +631,17 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
 
             assertThat(keys, equalTo(Utils.mkSet("1", "2", "3")));
 
-            assertEquals(
+            Assertions.assertEquals(
                 "restored",
                 stringDeserializer.deserialize(
                     null,
                     rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
-            assertEquals(
+            Assertions.assertEquals(
                 "b",
                 stringDeserializer.deserialize(
                     null,
                     rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "2")))));
-            assertEquals(
+            Assertions.assertEquals(
                 "c",
                 stringDeserializer.deserialize(
                     null,
@@ -661,17 +657,17 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
 
         context.restore(rocksDBStore.name(), entries);
 
-        assertEquals(
+        Assertions.assertEquals(
             "a",
             stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
-        assertEquals(
+        Assertions.assertEquals(
             "b",
             stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "2")))));
-        assertEquals(
+        Assertions.assertEquals(
             "c",
             stringDeserializer.deserialize(
                 null,
@@ -745,7 +741,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         expectedContents.add(kv1);
 
         try (final KeyValueIterator<Bytes, byte[]> iterator = rocksDBStore.range(null, new Bytes(stringSerializer.serialize(null, "1")))) {
-            assertEquals(expectedContents, getDeserializedList(iterator));
+            Assertions.assertEquals(expectedContents, getDeserializedList(iterator));
         }
     }
 
@@ -787,7 +783,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
             final byte[] valBytes = rocksDBStore.get(new Bytes(keyValue.key));
             assertThat(new String(valBytes, UTF_8), is(expectedValues.get(expectedIndex++)));
         }
-        assertFalse(TestingBloomFilterRocksDBConfigSetter.bloomFiltersSet);
+        Assertions.assertFalse(TestingBloomFilterRocksDBConfigSetter.bloomFiltersSet);
 
         rocksDBStore.close();
         expectedIndex = 0;
@@ -802,7 +798,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
             assertThat(new String(valBytes, UTF_8), is(expectedValues.get(expectedIndex++)));
         }
 
-        assertTrue(TestingBloomFilterRocksDBConfigSetter.bloomFiltersSet);
+        Assertions.assertTrue(TestingBloomFilterRocksDBConfigSetter.bloomFiltersSet);
     }
 
     @Test
@@ -932,9 +928,9 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         store.put(1, "hi");
         store.put(2, "goodbye");
         try (final KeyValueIterator<Integer, String> range = store.range(1, 2)) {
-            assertEquals("hi", range.next().value);
-            assertEquals("goodbye", range.next().value);
-            assertFalse(range.hasNext());
+            Assertions.assertEquals("hi", range.next().value);
+            Assertions.assertEquals("goodbye", range.next().value);
+            Assertions.assertFalse(range.hasNext());
         }
     }
 
@@ -944,9 +940,9 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         store.put(1, "hi");
         store.put(2, "goodbye");
         try (final KeyValueIterator<Integer, String> range = store.all()) {
-            assertEquals("hi", range.next().value);
-            assertEquals("goodbye", range.next().value);
-            assertFalse(range.hasNext());
+            Assertions.assertEquals("hi", range.next().value);
+            Assertions.assertEquals("goodbye", range.next().value);
+            Assertions.assertFalse(range.hasNext());
         }
     }
 
@@ -958,8 +954,8 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         try (final KeyValueIterator<Integer, String> iteratorOne = store.range(1, 5);
              final KeyValueIterator<Integer, String> iteratorTwo = store.range(1, 4)) {
 
-            assertTrue(iteratorOne.hasNext());
-            assertTrue(iteratorTwo.hasNext());
+            Assertions.assertTrue(iteratorOne.hasNext());
+            Assertions.assertTrue(iteratorTwo.hasNext());
 
             store.close();
 
@@ -986,17 +982,17 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         rocksDBStore.init((StateStoreContext) context, rocksDBStore);
         context.restoreWithHeaders(rocksDBStore.name(), entries);
 
-        assertEquals(
+        Assertions.assertEquals(
                 "a",
                 stringDeserializer.deserialize(
                         null,
                         rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
-        assertEquals(
+        Assertions.assertEquals(
                 "b",
                 stringDeserializer.deserialize(
                         null,
                         rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "2")))));
-        assertEquals(
+        Assertions.assertEquals(
                 "c",
                 stringDeserializer.deserialize(
                         null,
@@ -1023,17 +1019,17 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         rocksDBStore.init((StateStoreContext) context, rocksDBStore);
         context.restoreWithHeaders(rocksDBStore.name(), entries);
 
-        assertEquals(
+        Assertions.assertEquals(
                 "a",
                 stringDeserializer.deserialize(
                         null,
                         rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
-        assertEquals(
+        Assertions.assertEquals(
                 "b",
                 stringDeserializer.deserialize(
                         null,
                         rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "2")))));
-        assertEquals(
+        Assertions.assertEquals(
                 "c",
                 stringDeserializer.deserialize(
                         null,
@@ -1062,7 +1058,7 @@ public class RocksDBStoreTest extends AbstractKeyValueStoreTest {
         rocksDBStore.init((StateStoreContext) context, rocksDBStore);
         context.restoreWithHeaders(rocksDBStore.name(), entries);
 
-        assertNull(stringDeserializer.deserialize(
+        Assertions.assertNull(stringDeserializer.deserialize(
                 null,
                 rocksDBStore.get(new Bytes(stringSerializer.serialize(null, "1")))));
 

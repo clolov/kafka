@@ -52,7 +52,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.time.Duration.ofMillis;
-import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("deprecation")
 public class StreamsGraphTest {

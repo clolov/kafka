@@ -26,9 +26,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-
 public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
 
     private final String namespace = "0.0-one";

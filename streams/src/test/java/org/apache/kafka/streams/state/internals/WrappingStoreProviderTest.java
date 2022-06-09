@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.kafka.streams.state.QueryableStoreTypes.windowStore;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class WrappingStoreProviderTest {

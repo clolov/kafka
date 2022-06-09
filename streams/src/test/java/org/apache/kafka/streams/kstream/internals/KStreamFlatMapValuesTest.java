@@ -36,8 +36,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import static org.junit.Assert.assertArrayEquals;
-
 public class KStreamFlatMapValuesTest {
     private final String topicName = "topic";
     private final Properties props = StreamsTestUtils.getStreamsConfig(Serdes.Integer(), Serdes.String());

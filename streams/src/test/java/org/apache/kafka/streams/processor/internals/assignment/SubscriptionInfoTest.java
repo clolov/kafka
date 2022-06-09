@@ -53,10 +53,7 @@ import static org.apache.kafka.streams.processor.internals.assignment.Subscripti
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 public class SubscriptionInfoTest {
     private static final Set<TaskId> ACTIVE_TASKS = new HashSet<>(Arrays.asList(

@@ -32,6 +32,7 @@ import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +45,6 @@ import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class InMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest {
@@ -106,7 +106,7 @@ public class InMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest {
         store = createKeyValueStore(driver.context());
         context.restore(store.name(), driver.restoredEntries());
 
-        assertEquals(3, driver.sizeOf(store));
+        Assertions.assertEquals(3, driver.sizeOf(store));
 
         assertThat(store.get(0), nullValue());
     }
@@ -262,7 +262,7 @@ public class InMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest {
 
         final Position expected = Position.fromMap(mkMap(mkEntry("", mkMap(mkEntry(0, 3L)))));
         final Position actual = inMemoryKeyValueStore.getPosition();
-        assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 
     private byte[] bytesValue(final String value) {

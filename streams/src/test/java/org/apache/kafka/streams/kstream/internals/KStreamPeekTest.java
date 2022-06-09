@@ -34,9 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 public class KStreamPeekTest {
 
     private final String topicName = "topic";
