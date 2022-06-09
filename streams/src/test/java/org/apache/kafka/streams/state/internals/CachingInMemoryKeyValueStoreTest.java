@@ -37,9 +37,9 @@ import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +70,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
     private ThreadCache cache;
     private CacheFlushListenerStub<String, String> cacheFlushListener;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final String storeName = "store";
         underlyingStore = new InMemoryKeyValueStore(storeName);
@@ -83,7 +83,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         store.init((StateStoreContext) context, null);
     }
 
-    @After
+    @AfterEach
     public void after() {
         super.after();
     }

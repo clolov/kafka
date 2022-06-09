@@ -20,7 +20,8 @@ package org.apache.kafka.streams.kstream.internals.graph;
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertTrue;
 
@@ -50,12 +51,11 @@ public class TableProcessorNodeTest {
 
         final String asString = node.toString();
         final String expected = "storeBuilder=null";
-        assertTrue(
-            String.format(
-                "Expected toString to return string with \"%s\", received: %s",
-                expected,
-                asString),
-            asString.contains(expected)
-        );
+        Assertions.assertTrue(
+                asString.contains(expected),
+                String.format(
+                    "Expected toString to return string with \"%s\", received: %s",
+                    expected,
+                    asString));
     }
 }

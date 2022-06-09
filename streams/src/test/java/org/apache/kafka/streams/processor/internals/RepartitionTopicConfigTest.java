@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.processor.internals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class RepartitionTopicConfigTest {
             () -> repartitionTopicConfig.setNumberOfPartitions(2)
         );
 
-        assertEquals(String.format("number of partitions are enforced on topic " +
+        Assertions.assertEquals(String.format("number of partitions are enforced on topic " +
                                    "%s and can't be altered.", name), ex.getMessage());
     }
 
@@ -53,6 +54,6 @@ public class RepartitionTopicConfigTest {
 
         repartitionTopicConfig.setNumberOfPartitions(4);
 
-        assertEquals(repartitionTopicConfig.numberOfPartitions(), Optional.of(4));
+        Assertions.assertEquals(repartitionTopicConfig.numberOfPartitions(), Optional.of(4));
     }
 }

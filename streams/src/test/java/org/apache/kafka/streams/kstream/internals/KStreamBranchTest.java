@@ -28,7 +28,8 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.MockProcessor;
 import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Properties;
@@ -57,7 +58,7 @@ public class KStreamBranchTest {
         stream = builder.stream(topicName, Consumed.with(Serdes.Integer(), Serdes.String()));
         branches = stream.branch(isEven, isMultipleOfThree, isOdd);
 
-        assertEquals(3, branches.length);
+        Assertions.assertEquals(3, branches.length);
 
         final MockProcessorSupplier<Integer, String> supplier = new MockProcessorSupplier<>();
         for (final KStream<Integer, String> branch : branches) {
@@ -72,9 +73,9 @@ public class KStreamBranchTest {
         }
 
         final List<MockProcessor<Integer, String>> processors = supplier.capturedProcessors(3);
-        assertEquals(3, processors.get(0).processed().size());
-        assertEquals(1, processors.get(1).processed().size());
-        assertEquals(2, processors.get(2).processed().size());
+        Assertions.assertEquals(3, processors.get(0).processed().size());
+        Assertions.assertEquals(1, processors.get(1).processed().size());
+        Assertions.assertEquals(2, processors.get(2).processed().size());
     }
 
     @SuppressWarnings({"unchecked", "deprecation"})

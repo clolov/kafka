@@ -21,8 +21,9 @@ import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +37,7 @@ public class KStreamPrintTest {
     private ByteArrayOutputStream byteOutStream;
     private Processor<Integer, String, Void, Void> printProcessor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         byteOutStream = new ByteArrayOutputStream();
 
@@ -74,7 +75,7 @@ public class KStreamPrintTest {
 
         final String[] flushOutDatas = new String(byteOutStream.toByteArray(), StandardCharsets.UTF_8).split("\\r*\\n");
         for (int i = 0; i < flushOutDatas.length; i++) {
-            assertEquals(expectedResult[i], flushOutDatas[i]);
+            Assertions.assertEquals(expectedResult[i], flushOutDatas[i]);
         }
     }
 

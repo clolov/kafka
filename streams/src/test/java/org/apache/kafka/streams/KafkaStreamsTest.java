@@ -69,10 +69,10 @@ import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TestName;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
@@ -175,7 +175,7 @@ public class KafkaStreamsTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         time = new MockTime();
         supplier = new MockClientSupplier();
@@ -402,7 +402,7 @@ public class KafkaStreamsTest {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             streams.close();
 
-            Assert.assertEquals(KafkaStreams.State.NOT_RUNNING, streams.state());
+            Assertions.assertEquals(KafkaStreams.State.NOT_RUNNING, streams.state());
         }
     }
 
@@ -411,19 +411,19 @@ public class KafkaStreamsTest {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             streams.setStateListener(streamsStateListener);
 
-            Assert.assertEquals(0, streamsStateListener.numChanges);
-            Assert.assertEquals(KafkaStreams.State.CREATED, streams.state());
+            Assertions.assertEquals(0, streamsStateListener.numChanges);
+            Assertions.assertEquals(KafkaStreams.State.CREATED, streams.state());
 
             streams.start();
 
             waitForCondition(
                 () -> streamsStateListener.numChanges == 2,
                 "Streams never started.");
-            Assert.assertEquals(KafkaStreams.State.RUNNING, streams.state());
+            Assertions.assertEquals(KafkaStreams.State.RUNNING, streams.state());
             waitForCondition(
                 () -> streamsStateListener.numChanges == 2,
                 "Streams never started.");
-            Assert.assertEquals(KafkaStreams.State.RUNNING, streams.state());
+            Assertions.assertEquals(KafkaStreams.State.RUNNING, streams.state());
 
             for (final StreamThread thread : streams.threads) {
                 threadStatelistenerCapture.getValue().onChange(
@@ -432,8 +432,8 @@ public class KafkaStreamsTest {
                     StreamThread.State.RUNNING);
             }
 
-            Assert.assertEquals(3, streamsStateListener.numChanges);
-            Assert.assertEquals(KafkaStreams.State.REBALANCING, streams.state());
+            Assertions.assertEquals(3, streamsStateListener.numChanges);
+            Assertions.assertEquals(KafkaStreams.State.REBALANCING, streams.state());
 
             for (final StreamThread thread : streams.threads) {
                 threadStatelistenerCapture.getValue().onChange(
@@ -442,8 +442,8 @@ public class KafkaStreamsTest {
                     StreamThread.State.PARTITIONS_REVOKED);
             }
 
-            Assert.assertEquals(3, streamsStateListener.numChanges);
-            Assert.assertEquals(KafkaStreams.State.REBALANCING, streams.state());
+            Assertions.assertEquals(3, streamsStateListener.numChanges);
+            Assertions.assertEquals(KafkaStreams.State.REBALANCING, streams.state());
 
             threadStatelistenerCapture.getValue().onChange(
                 streams.threads.get(NUM_THREADS - 1),
@@ -455,8 +455,8 @@ public class KafkaStreamsTest {
                 StreamThread.State.DEAD,
                 StreamThread.State.PENDING_SHUTDOWN);
 
-            Assert.assertEquals(3, streamsStateListener.numChanges);
-            Assert.assertEquals(KafkaStreams.State.REBALANCING, streams.state());
+            Assertions.assertEquals(3, streamsStateListener.numChanges);
+            Assertions.assertEquals(KafkaStreams.State.REBALANCING, streams.state());
 
             for (final StreamThread thread : streams.threads) {
                 if (thread != streams.threads.get(NUM_THREADS - 1)) {
@@ -467,15 +467,15 @@ public class KafkaStreamsTest {
                 }
             }
 
-            Assert.assertEquals(4, streamsStateListener.numChanges);
-            Assert.assertEquals(KafkaStreams.State.RUNNING, streams.state());
+            Assertions.assertEquals(4, streamsStateListener.numChanges);
+            Assertions.assertEquals(KafkaStreams.State.RUNNING, streams.state());
 
             streams.close();
 
             waitForCondition(
                 () -> streamsStateListener.numChanges == 6,
                 "Streams never closed.");
-            Assert.assertEquals(KafkaStreams.State.NOT_RUNNING, streams.state());
+            Assertions.assertEquals(KafkaStreams.State.NOT_RUNNING, streams.state());
         }
     }
 
@@ -495,10 +495,10 @@ public class KafkaStreamsTest {
             assertThat(appender.getMessages(), not(hasItem(containsString("ERROR"))));
         }
 
-        assertTrue(supplier.consumer.closed());
-        assertTrue(supplier.restoreConsumer.closed());
+        Assertions.assertTrue(supplier.consumer.closed());
+        Assertions.assertTrue(supplier.restoreConsumer.closed());
         for (final MockProducer<byte[], byte[]> p : supplier.producers) {
-            assertTrue(p.closed());
+            Assertions.assertTrue(p.closed());
         }
     }
 
@@ -509,8 +509,8 @@ public class KafkaStreamsTest {
         builder.globalTable("anyTopic");
 
         try (final KafkaStreams streams = new KafkaStreams(builder.build(), props, supplier, time)) {
-            assertEquals(NUM_THREADS, streams.threads.size());
-            assertEquals(streams.state(), KafkaStreams.State.CREATED);
+            Assertions.assertEquals(NUM_THREADS, streams.threads.size());
+            Assertions.assertEquals(streams.state(), KafkaStreams.State.CREATED);
 
             streams.start();
             waitForCondition(
@@ -534,7 +534,7 @@ public class KafkaStreamsTest {
                 () -> streams.state() == KafkaStreams.State.NOT_RUNNING,
                 "Streams never stopped.");
 
-            assertNull(streams.globalStreamThread);
+            Assertions.assertNull(streams.globalStreamThread);
         }
     }
 
@@ -581,13 +581,13 @@ public class KafkaStreamsTest {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             final int newInitCount = MockMetricsReporter.INIT_COUNT.get();
             final int initDiff = newInitCount - oldInitCount;
-            assertTrue("some reporters including MockMetricsReporter should be initialized by calling on construction", initDiff == 1);
+            Assertions.assertTrue(initDiff == 1, "some reporters including MockMetricsReporter should be initialized by calling on construction");
 
             streams.start();
             final int oldCloseCount = MockMetricsReporter.CLOSE_COUNT.get();
             streams.close();
-            assertEquals(streams.state(), KafkaStreams.State.NOT_RUNNING);
-            assertEquals(oldCloseCount + initDiff, MockMetricsReporter.CLOSE_COUNT.get());
+            Assertions.assertEquals(streams.state(), KafkaStreams.State.NOT_RUNNING);
+            Assertions.assertEquals(oldCloseCount + initDiff, MockMetricsReporter.CLOSE_COUNT.get());
         }
     }
 
@@ -598,8 +598,8 @@ public class KafkaStreamsTest {
             final int closeCount = MockMetricsReporter.CLOSE_COUNT.get();
 
             streams.close();
-            Assert.assertEquals("subsequent close() calls should do nothing",
-                closeCount, MockMetricsReporter.CLOSE_COUNT.get());
+            Assertions.assertEquals(
+                    closeCount, MockMetricsReporter.CLOSE_COUNT.get(), "subsequent close() calls should do nothing");
         }
     }
 
@@ -706,7 +706,7 @@ public class KafkaStreamsTest {
             streams.close();
             try {
                 streams.start();
-                fail("Should have throw IllegalStateException");
+                Assertions.fail("Should have throw IllegalStateException");
             } catch (final IllegalStateException expected) {
                 // this is ok
             }
@@ -719,7 +719,7 @@ public class KafkaStreamsTest {
             streams.start();
             try {
                 streams.setGlobalStateRestoreListener(null);
-                fail("Should throw an IllegalStateException");
+                Assertions.fail("Should throw an IllegalStateException");
             } catch (final IllegalStateException e) {
                 // expected
             }
@@ -755,7 +755,7 @@ public class KafkaStreamsTest {
             streams.start();
             try {
                 streams.setStateListener(null);
-                fail("Should throw IllegalStateException");
+                Assertions.fail("Should throw IllegalStateException");
             } catch (final IllegalStateException e) {
                 // expected
             }
@@ -784,9 +784,9 @@ public class KafkaStreamsTest {
 
             try {
                 streams.cleanUp();
-                fail("Should have thrown IllegalStateException");
+                Assertions.fail("Should have thrown IllegalStateException");
             } catch (final IllegalStateException expected) {
-                assertEquals("Cannot clean up while running.", expected.getMessage());
+                Assertions.assertEquals("Cannot clean up while running.", expected.getMessage());
             }
         }
     }
@@ -911,7 +911,7 @@ public class KafkaStreamsTest {
     public void shouldGetQueryMetadataWithSerializerWhenRunningOrRebalancing() {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             streams.start();
-            assertEquals(KeyQueryMetadata.NOT_AVAILABLE, streams.queryMetadataForKey("store", "key", Serdes.String().serializer()));
+            Assertions.assertEquals(KeyQueryMetadata.NOT_AVAILABLE, streams.queryMetadataForKey("store", "key", Serdes.String().serializer()));
         }
     }
 
@@ -966,7 +966,7 @@ public class KafkaStreamsTest {
 
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, mockClientSupplier, time)) {
             streams.start();
-            assertEquals(0, streams.allLocalStorePartitionLags().size());
+            Assertions.assertEquals(0, streams.allLocalStorePartitionLags().size());
         }
     }
 
@@ -974,7 +974,7 @@ public class KafkaStreamsTest {
     public void shouldReturnFalseOnCloseWhenThreadsHaventTerminated() {
         // do not use mock time so that it can really elapse
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier)) {
-            assertFalse(streams.close(Duration.ofMillis(10L)));
+            Assertions.assertFalse(streams.close(Duration.ofMillis(10L)));
         }
     }
 
@@ -989,7 +989,7 @@ public class KafkaStreamsTest {
     public void shouldNotBlockInCloseForZeroDuration() {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             // with mock time that does not elapse, close would not return if it ever waits on the state transition
-            assertFalse(streams.close(Duration.ZERO));
+            Assertions.assertFalse(streams.close(Duration.ZERO));
         }
     }
 
@@ -998,7 +998,7 @@ public class KafkaStreamsTest {
         final KafkaStreams.CloseOptions closeOptions = new KafkaStreams.CloseOptions();
         closeOptions.timeout(Duration.ofMillis(10L));
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier)) {
-            assertFalse(streams.close(closeOptions));
+            Assertions.assertFalse(streams.close(closeOptions));
         }
     }
 
@@ -1016,7 +1016,7 @@ public class KafkaStreamsTest {
         final KafkaStreams.CloseOptions closeOptions = new KafkaStreams.CloseOptions();
         closeOptions.timeout(Duration.ZERO);
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier)) {
-            assertFalse(streams.close(closeOptions));
+            Assertions.assertFalse(streams.close(closeOptions));
         }
     }
 
@@ -1058,7 +1058,7 @@ public class KafkaStreamsTest {
         closeOptions.timeout(Duration.ofMillis(10L));
         closeOptions.leaveGroup(true);
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, mockClientSupplier)) {
-            assertFalse(streams.close(closeOptions));
+            Assertions.assertFalse(streams.close(closeOptions));
         }
     }
 
@@ -1121,7 +1121,7 @@ public class KafkaStreamsTest {
         closeOptions.timeout(Duration.ZERO);
         closeOptions.leaveGroup(true);
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, mockClientSupplier)) {
-            assertFalse(streams.close(closeOptions));
+            Assertions.assertFalse(streams.close(closeOptions));
         }
     }
 
@@ -1271,7 +1271,7 @@ public class KafkaStreamsTest {
     public void shouldThrowTopologyExceptionOnEmptyTopology() {
         try {
             new KafkaStreams(new StreamsBuilder().build(), props, supplier, time);
-            fail("Should have thrown TopologyException");
+            Assertions.fail("Should have thrown TopologyException");
         } catch (final TopologyException e) {
             assertThat(
                 e.getMessage(),
@@ -1297,7 +1297,7 @@ public class KafkaStreamsTest {
         try (final KafkaStreams streams = new KafkaStreams(builder.build(), props, supplier, time)) {
 
             assertThat(streams.threads.size(), equalTo(0));
-            assertEquals(streams.state(), KafkaStreams.State.CREATED);
+            Assertions.assertEquals(streams.state(), KafkaStreams.State.CREATED);
 
             streams.start();
             waitForCondition(

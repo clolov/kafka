@@ -26,9 +26,9 @@ import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.apache.kafka.test.StateStoreProviderStub;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,7 +58,7 @@ public class CompositeReadOnlyWindowStoreTest {
     private ReadOnlyWindowStoreStub<String, String> underlyingWindowStore;
     private ReadOnlyWindowStoreStub<String, String> otherUnderlyingStore;
 
-    @Before
+    @BeforeEach
     public void before() {
         stubProviderOne = new StateStoreProviderStub(false);
         stubProviderTwo = new StateStoreProviderStub(false);
@@ -80,7 +80,7 @@ public class CompositeReadOnlyWindowStoreTest {
         underlyingWindowStore.put("my-key", "my-value", 0L);
         underlyingWindowStore.put("my-key", "my-later-value", 10L);
 
-        assertEquals(
+        Assertions.assertEquals(
                 asList(new KeyValue<>(0L, "my-value"), new KeyValue<>(10L, "my-later-value")),
                 StreamsTestUtils.toList(windowStore.fetch("my-key", ofEpochMilli(0L), ofEpochMilli(25L)))
         );
@@ -92,7 +92,7 @@ public class CompositeReadOnlyWindowStoreTest {
         underlyingWindowStore.put("my-key", "my-value", 0L);
         underlyingWindowStore.put("my-key", "my-later-value", 10L);
 
-        assertEquals(
+        Assertions.assertEquals(
                 asList(new KeyValue<>(10L, "my-later-value"), new KeyValue<>(0L, "my-value")),
                 StreamsTestUtils.toList(windowStore.backwardFetch("my-key", ofEpochMilli(0L), ofEpochMilli(25L)))
         );
@@ -102,7 +102,7 @@ public class CompositeReadOnlyWindowStoreTest {
     public void shouldReturnEmptyIteratorIfNoData() {
         try (final WindowStoreIterator<String> iterator =
                  windowStore.fetch("my-key", ofEpochMilli(0L), ofEpochMilli(25L))) {
-            assertFalse(iterator.hasNext());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -110,7 +110,7 @@ public class CompositeReadOnlyWindowStoreTest {
     public void shouldReturnBackwardEmptyIteratorIfNoData() {
         try (final WindowStoreIterator<String> iterator =
                  windowStore.backwardFetch("my-key", ofEpochMilli(0L), ofEpochMilli(25L))) {
-            assertFalse(iterator.hasNext());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -128,8 +128,8 @@ public class CompositeReadOnlyWindowStoreTest {
         final List<KeyValue<Long, String>> keyTwoResults =
             StreamsTestUtils.toList(windowStore.fetch("key-two", ofEpochMilli(10L), ofEpochMilli(11L)));
 
-        assertEquals(Collections.singletonList(KeyValue.pair(0L, "value-one")), keyOneResults);
-        assertEquals(Collections.singletonList(KeyValue.pair(10L, "value-two")), keyTwoResults);
+        Assertions.assertEquals(Collections.singletonList(KeyValue.pair(0L, "value-one")), keyOneResults);
+        Assertions.assertEquals(Collections.singletonList(KeyValue.pair(10L, "value-two")), keyTwoResults);
     }
 
     @Test
@@ -146,8 +146,8 @@ public class CompositeReadOnlyWindowStoreTest {
         final List<KeyValue<Long, String>> keyTwoResults =
             StreamsTestUtils.toList(windowStore.backwardFetch("key-two", ofEpochMilli(10L), ofEpochMilli(11L)));
 
-        assertEquals(Collections.singletonList(KeyValue.pair(0L, "value-one")), keyOneResults);
-        assertEquals(Collections.singletonList(KeyValue.pair(10L, "value-two")), keyTwoResults);
+        Assertions.assertEquals(Collections.singletonList(KeyValue.pair(0L, "value-one")), keyOneResults);
+        Assertions.assertEquals(Collections.singletonList(KeyValue.pair(10L, "value-two")), keyTwoResults);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class CompositeReadOnlyWindowStoreTest {
 
         final List<KeyValue<Long, String>> results =
             StreamsTestUtils.toList(windowStore.fetch("some-key", ofEpochMilli(0L), ofEpochMilli(2L)));
-        assertEquals(Collections.singletonList(new KeyValue<>(1L, "my-value")), results);
+        Assertions.assertEquals(Collections.singletonList(new KeyValue<>(1L, "my-value")), results);
     }
 
     @Test
@@ -167,7 +167,7 @@ public class CompositeReadOnlyWindowStoreTest {
 
         final List<KeyValue<Long, String>> results =
             StreamsTestUtils.toList(windowStore.backwardFetch("some-key", ofEpochMilli(0L), ofEpochMilli(2L)));
-        assertEquals(Collections.singletonList(new KeyValue<>(1L, "my-value")), results);
+        Assertions.assertEquals(Collections.singletonList(new KeyValue<>(1L, "my-value")), results);
     }
 
     @Test
@@ -212,9 +212,9 @@ public class CompositeReadOnlyWindowStoreTest {
             );
         try {
             store.fetch("key", ofEpochMilli(1), ofEpochMilli(10));
-            Assert.fail("InvalidStateStoreException was expected");
+            Assertions.fail("InvalidStateStoreException was expected");
         } catch (final InvalidStateStoreException e) {
-            Assert.assertEquals("State store is not available anymore and may have been migrated to another instance; " +
+            Assertions.assertEquals("State store is not available anymore and may have been migrated to another instance; " +
                 "please re-discover its location from the state metadata.", e.getMessage());
         }
     }
@@ -230,9 +230,9 @@ public class CompositeReadOnlyWindowStoreTest {
             );
         try {
             store.backwardFetch("key", ofEpochMilli(1), ofEpochMilli(10));
-            Assert.fail("InvalidStateStoreException was expected");
+            Assertions.fail("InvalidStateStoreException was expected");
         } catch (final InvalidStateStoreException e) {
-            Assert.assertEquals("State store is not available anymore and may have been migrated to another instance; " +
+            Assertions.assertEquals("State store is not available anymore and may have been migrated to another instance; " +
                 "please re-discover its location from the state metadata.", e.getMessage());
         }
     }
@@ -251,7 +251,7 @@ public class CompositeReadOnlyWindowStoreTest {
         try (final WindowStoreIterator<Object> windowStoreIterator =
                  store.backwardFetch("key", ofEpochMilli(1), ofEpochMilli(10))) {
 
-            Assert.assertFalse(windowStoreIterator.hasNext());
+            Assertions.assertFalse(windowStoreIterator.hasNext());
         }
     }
 
@@ -269,7 +269,7 @@ public class CompositeReadOnlyWindowStoreTest {
         try (final WindowStoreIterator<Object> windowStoreIterator =
                  store.fetch("key", ofEpochMilli(1), ofEpochMilli(10))) {
 
-            Assert.assertFalse(windowStoreIterator.hasNext());
+            Assertions.assertFalse(windowStoreIterator.hasNext());
         }
     }
 

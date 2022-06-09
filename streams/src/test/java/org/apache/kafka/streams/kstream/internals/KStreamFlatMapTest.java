@@ -30,7 +30,8 @@ import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -74,7 +75,7 @@ public class KStreamFlatMapTest {
             }
         }
 
-        assertEquals(6, supplier.theCapturedProcessor().processed().size());
+        Assertions.assertEquals(6, supplier.theCapturedProcessor().processed().size());
 
         final KeyValueTimestamp[] expected = {new KeyValueTimestamp<>("10", "V1", 0),
             new KeyValueTimestamp<>("20", "V2", 0),
@@ -84,7 +85,7 @@ public class KStreamFlatMapTest {
             new KeyValueTimestamp<>("32", "V3", 0)};
 
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], supplier.theCapturedProcessor().processed().get(i));
+            Assertions.assertEquals(expected[i], supplier.theCapturedProcessor().processed().get(i));
         }
     }
 

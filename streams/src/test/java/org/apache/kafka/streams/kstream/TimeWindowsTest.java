@@ -17,7 +17,8 @@
 package org.apache.kafka.streams.kstream;
 
 import org.apache.kafka.streams.kstream.internals.TimeWindow;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Map;
@@ -39,15 +40,15 @@ public class TimeWindowsTest {
     @SuppressWarnings("deprecation")
     @Test
     public void shouldSetWindowSize() {
-        assertEquals(ANY_SIZE, TimeWindows.of(ofMillis(ANY_SIZE)).sizeMs);
-        assertEquals(ANY_SIZE, TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE)).sizeMs);
-        assertEquals(ANY_SIZE, TimeWindows.ofSizeAndGrace(ofMillis(ANY_SIZE), ofMillis(ANY_GRACE)).sizeMs);
+        Assertions.assertEquals(ANY_SIZE, TimeWindows.of(ofMillis(ANY_SIZE)).sizeMs);
+        Assertions.assertEquals(ANY_SIZE, TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE)).sizeMs);
+        Assertions.assertEquals(ANY_SIZE, TimeWindows.ofSizeAndGrace(ofMillis(ANY_SIZE), ofMillis(ANY_GRACE)).sizeMs);
     }
 
     @Test
     public void shouldSetWindowAdvance() {
         final long anyAdvance = 4;
-        assertEquals(anyAdvance, TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE)).advanceBy(ofMillis(anyAdvance)).advanceMs);
+        Assertions.assertEquals(anyAdvance, TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE)).advanceBy(ofMillis(anyAdvance)).advanceMs);
     }
 
     @Test
@@ -72,7 +73,7 @@ public class TimeWindowsTest {
         final TimeWindows windowSpec = TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE));
         try {
             windowSpec.advanceBy(ofMillis(0));
-            fail("should not accept zero advance parameter");
+            Assertions.fail("should not accept zero advance parameter");
         } catch (final IllegalArgumentException e) {
             // expected
         }
@@ -83,7 +84,7 @@ public class TimeWindowsTest {
         final TimeWindows windowSpec = TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE));
         try {
             windowSpec.advanceBy(ofMillis(-1));
-            fail("should not accept negative advance parameter");
+            Assertions.fail("should not accept negative advance parameter");
         } catch (final IllegalArgumentException e) {
             // expected
         }
@@ -94,7 +95,7 @@ public class TimeWindowsTest {
         final TimeWindows windowSpec = TimeWindows.ofSizeWithNoGrace(ofMillis(ANY_SIZE));
         try {
             windowSpec.advanceBy(ofMillis(ANY_SIZE + 1));
-            fail("should not accept advance greater than window size");
+            Assertions.fail("should not accept advance greater than window size");
         } catch (final IllegalArgumentException e) {
             // expected
         }
@@ -106,7 +107,7 @@ public class TimeWindowsTest {
 
         try {
             TimeWindows.ofSizeAndGrace(ofMillis(3L), ofMillis(-1L));
-            fail("should not accept negatives");
+            Assertions.fail("should not accept negatives");
         } catch (final IllegalArgumentException e) {
             //expected
         }
@@ -115,36 +116,36 @@ public class TimeWindowsTest {
     @SuppressWarnings("deprecation")
     @Test
     public void oldAPIShouldSetDefaultGracePeriod() {
-        assertEquals(Duration.ofDays(1).toMillis(), DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD);
-        assertEquals(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD - 3L, TimeWindows.of(ofMillis(3L)).gracePeriodMs());
-        assertEquals(0L, TimeWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD)).gracePeriodMs());
-        assertEquals(0L, TimeWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD + 1L)).gracePeriodMs());
+        Assertions.assertEquals(Duration.ofDays(1).toMillis(), DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD);
+        Assertions.assertEquals(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD - 3L, TimeWindows.of(ofMillis(3L)).gracePeriodMs());
+        Assertions.assertEquals(0L, TimeWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD)).gracePeriodMs());
+        Assertions.assertEquals(0L, TimeWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD + 1L)).gracePeriodMs());
     }
 
     @Test
     public void shouldComputeWindowsForHoppingWindows() {
         final TimeWindows windows = TimeWindows.ofSizeWithNoGrace(ofMillis(12L)).advanceBy(ofMillis(5L));
         final Map<Long, TimeWindow> matched = windows.windowsFor(21L);
-        assertEquals(12L / 5L + 1, matched.size());
-        assertEquals(new TimeWindow(10L, 22L), matched.get(10L));
-        assertEquals(new TimeWindow(15L, 27L), matched.get(15L));
-        assertEquals(new TimeWindow(20L, 32L), matched.get(20L));
+        Assertions.assertEquals(12L / 5L + 1, matched.size());
+        Assertions.assertEquals(new TimeWindow(10L, 22L), matched.get(10L));
+        Assertions.assertEquals(new TimeWindow(15L, 27L), matched.get(15L));
+        Assertions.assertEquals(new TimeWindow(20L, 32L), matched.get(20L));
     }
 
     @Test
     public void shouldComputeWindowsForBarelyOverlappingHoppingWindows() {
         final TimeWindows windows = TimeWindows.ofSizeWithNoGrace(ofMillis(6L)).advanceBy(ofMillis(5L));
         final Map<Long, TimeWindow> matched = windows.windowsFor(7L);
-        assertEquals(1, matched.size());
-        assertEquals(new TimeWindow(5L, 11L), matched.get(5L));
+        Assertions.assertEquals(1, matched.size());
+        Assertions.assertEquals(new TimeWindow(5L, 11L), matched.get(5L));
     }
 
     @Test
     public void shouldComputeWindowsForTumblingWindows() {
         final TimeWindows windows = TimeWindows.ofSizeWithNoGrace(ofMillis(12L));
         final Map<Long, TimeWindow> matched = windows.windowsFor(21L);
-        assertEquals(1, matched.size());
-        assertEquals(new TimeWindow(12L, 24L), matched.get(12L));
+        Assertions.assertEquals(1, matched.size());
+        Assertions.assertEquals(new TimeWindow(12L, 24L), matched.get(12L));
     }
 
 
@@ -190,7 +191,7 @@ public class TimeWindowsTest {
             TimeWindows.ofSizeAndGrace(ofMillis(3), ofMillis(2)).advanceBy(ofMillis(2))
         );
 
-        assertNotEquals(
+        Assertions.assertNotEquals(
             TimeWindows.ofSizeAndGrace(ofMillis(3), ofMillis(1)).advanceBy(ofMillis(2)),
             TimeWindows.ofSizeAndGrace(ofMillis(3), ofMillis(2)).advanceBy(ofMillis(2))
         );

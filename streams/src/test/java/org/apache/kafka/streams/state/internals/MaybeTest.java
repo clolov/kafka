@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.state.internals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
@@ -44,7 +45,7 @@ public class MaybeTest {
         final Maybe<Object> undefined = Maybe.undefined();
         try {
             undefined.getNullableValue();
-            fail();
+            Assertions.fail();
         } catch (final NoSuchElementException e) {
             // no assertion necessary
         }

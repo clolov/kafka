@@ -18,7 +18,8 @@ package org.apache.kafka.streams.processor;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.errors.StreamsException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,7 +51,7 @@ public class UsePartitionTimeOnInvalidTimestampTest extends TimestampExtractorTe
         final ConsumerRecord<Object, Object> record = new ConsumerRecord<>("anyTopic", 0, 0, null, null);
         try {
             extractor.extract(record, -1);
-            fail("should have thrown StreamsException");
+            Assertions.fail("should have thrown StreamsException");
         } catch (final StreamsException expected) { }
     }
 }

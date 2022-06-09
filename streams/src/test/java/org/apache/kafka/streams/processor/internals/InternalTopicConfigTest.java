@@ -18,7 +18,8 @@ package org.apache.kafka.streams.processor.internals;
 
 import org.apache.kafka.common.config.TopicConfig;
 import org.apache.kafka.common.errors.InvalidTopicException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,7 +50,7 @@ public class InternalTopicConfigTest {
         final WindowedChangelogTopicConfig topicConfig = new WindowedChangelogTopicConfig("name", Collections.emptyMap());
 
         final Map<String, String> properties = topicConfig.getProperties(Collections.emptyMap(), 0);
-        assertEquals("CreateTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
+        Assertions.assertEquals("CreateTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
     }
 
     @Test
@@ -57,7 +58,7 @@ public class InternalTopicConfigTest {
         final UnwindowedChangelogTopicConfig topicConfig = new UnwindowedChangelogTopicConfig("name", Collections.emptyMap());
 
         final Map<String, String> properties = topicConfig.getProperties(Collections.emptyMap(), 0);
-        assertEquals("CreateTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
+        Assertions.assertEquals("CreateTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
     }
 
     @Test
@@ -65,14 +66,14 @@ public class InternalTopicConfigTest {
         final RepartitionTopicConfig topicConfig = new RepartitionTopicConfig("name", Collections.emptyMap());
 
         final Map<String, String> properties = topicConfig.getProperties(Collections.emptyMap(), 0);
-        assertEquals("CreateTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
+        Assertions.assertEquals("CreateTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
     }
 
     @Test
     public void shouldAugmentRetentionMsWithWindowedChangelog() {
         final WindowedChangelogTopicConfig topicConfig = new WindowedChangelogTopicConfig("name", Collections.emptyMap());
         topicConfig.setRetentionMs(10);
-        assertEquals("30", topicConfig.getProperties(Collections.emptyMap(), 20).get(TopicConfig.RETENTION_MS_CONFIG));
+        Assertions.assertEquals("30", topicConfig.getProperties(Collections.emptyMap(), 20).get(TopicConfig.RETENTION_MS_CONFIG));
     }
 
     @Test
@@ -83,7 +84,7 @@ public class InternalTopicConfigTest {
         final WindowedChangelogTopicConfig topicConfig = new WindowedChangelogTopicConfig("name", configs);
 
         final Map<String, String> properties = topicConfig.getProperties(Collections.emptyMap(), 0);
-        assertEquals("LogAppendTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
+        Assertions.assertEquals("LogAppendTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
     }
 
     @Test
@@ -96,9 +97,9 @@ public class InternalTopicConfigTest {
         final UnwindowedChangelogTopicConfig topicConfig = new UnwindowedChangelogTopicConfig("name", configs);
 
         final Map<String, String> properties = topicConfig.getProperties(Collections.emptyMap(), 0);
-        assertEquals("1000", properties.get(TopicConfig.RETENTION_MS_CONFIG));
-        assertEquals("10000", properties.get(TopicConfig.RETENTION_BYTES_CONFIG));
-        assertEquals("LogAppendTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
+        Assertions.assertEquals("1000", properties.get(TopicConfig.RETENTION_MS_CONFIG));
+        Assertions.assertEquals("10000", properties.get(TopicConfig.RETENTION_BYTES_CONFIG));
+        Assertions.assertEquals("LogAppendTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class InternalTopicConfigTest {
         final RepartitionTopicConfig topicConfig = new RepartitionTopicConfig("name", configs);
 
         final Map<String, String> properties = topicConfig.getProperties(Collections.emptyMap(), 0);
-        assertEquals("1000", properties.get(TopicConfig.RETENTION_MS_CONFIG));
-        assertEquals("LogAppendTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
+        Assertions.assertEquals("1000", properties.get(TopicConfig.RETENTION_MS_CONFIG));
+        Assertions.assertEquals("LogAppendTime", properties.get(TopicConfig.MESSAGE_TIMESTAMP_TYPE_CONFIG));
     }
 }

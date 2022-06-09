@@ -17,7 +17,8 @@
 package org.apache.kafka.streams.kstream.internals;
 
 import org.apache.kafka.streams.kstream.TimeWindows;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -45,9 +46,9 @@ public class TimeWindowTest {
          * This:        [-------)
          * Other: [-----)
          */
-        assertFalse(window.overlap(new TimeWindow(0, 25)));
-        assertFalse(window.overlap(new TimeWindow(0, start - 1)));
-        assertFalse(window.overlap(new TimeWindow(0, start)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(0, 25)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(0, start - 1)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(0, start)));
     }
 
     @Test
@@ -56,13 +57,13 @@ public class TimeWindowTest {
          * This:        [-------)
          * Other: [---------)
          */
-        assertTrue(window.overlap(new TimeWindow(0, start + 1)));
-        assertTrue(window.overlap(new TimeWindow(0, 75)));
-        assertTrue(window.overlap(new TimeWindow(0, end - 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(0, start + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(0, 75)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(0, end - 1)));
 
-        assertTrue(window.overlap(new TimeWindow(start - 1, start + 1)));
-        assertTrue(window.overlap(new TimeWindow(start - 1, 75)));
-        assertTrue(window.overlap(new TimeWindow(start - 1, end - 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start - 1, start + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start - 1, 75)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start - 1, end - 1)));
     }
 
     @Test
@@ -71,17 +72,17 @@ public class TimeWindowTest {
          * This:        [-------)
          * Other: [------------------)
          */
-        assertTrue(window.overlap(new TimeWindow(0, end)));
-        assertTrue(window.overlap(new TimeWindow(0, end + 1)));
-        assertTrue(window.overlap(new TimeWindow(0, 150)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(0, end)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(0, end + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(0, 150)));
 
-        assertTrue(window.overlap(new TimeWindow(start - 1, end)));
-        assertTrue(window.overlap(new TimeWindow(start - 1, end + 1)));
-        assertTrue(window.overlap(new TimeWindow(start - 1, 150)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start - 1, end)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start - 1, end + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start - 1, 150)));
 
-        assertTrue(window.overlap(new TimeWindow(start, end)));
-        assertTrue(window.overlap(new TimeWindow(start, end + 1)));
-        assertTrue(window.overlap(new TimeWindow(start, 150)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, end)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, end + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, 150)));
     }
 
     @Test
@@ -90,9 +91,9 @@ public class TimeWindowTest {
          * This:        [-------)
          * Other:         [---)
          */
-        assertTrue(window.overlap(new TimeWindow(start, 75)));
-        assertTrue(window.overlap(new TimeWindow(start, end)));
-        assertTrue(window.overlap(new TimeWindow(75, end)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, 75)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, end)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(75, end)));
     }
 
     @Test
@@ -101,10 +102,10 @@ public class TimeWindowTest {
          * This:        [-------)
          * Other:           [-------)
          */
-        assertTrue(window.overlap(new TimeWindow(start, end + 1)));
-        assertTrue(window.overlap(new TimeWindow(start, 150)));
-        assertTrue(window.overlap(new TimeWindow(75, end + 1)));
-        assertTrue(window.overlap(new TimeWindow(75, 150)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, end + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(start, 150)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(75, end + 1)));
+        Assertions.assertTrue(window.overlap(new TimeWindow(75, 150)));
     }
 
     @Test
@@ -113,10 +114,10 @@ public class TimeWindowTest {
          * This:        [-------)
          * Other:               [------)
          */
-        assertFalse(window.overlap(new TimeWindow(end, end + 1)));
-        assertFalse(window.overlap(new TimeWindow(end, 150)));
-        assertFalse(window.overlap(new TimeWindow(end + 1, 150)));
-        assertFalse(window.overlap(new TimeWindow(125, 150)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(end, end + 1)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(end, 150)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(end + 1, 150)));
+        Assertions.assertFalse(window.overlap(new TimeWindow(125, 150)));
     }
 
     @Test
@@ -131,8 +132,8 @@ public class TimeWindowTest {
         final Map<Long, TimeWindow> matched = windows.windowsFor(21L);
 
         final Long[] expected = matched.keySet().toArray(new Long[0]);
-        assertEquals(expected[0].longValue(), 10L);
-        assertEquals(expected[1].longValue(), 15L);
-        assertEquals(expected[2].longValue(), 20L);
+        Assertions.assertEquals(expected[0].longValue(), 10L);
+        Assertions.assertEquals(expected[1].longValue(), 15L);
+        Assertions.assertEquals(expected[2].longValue(), 20L);
     }
 }

@@ -22,8 +22,9 @@ import org.apache.kafka.common.utils.LogContext;
 import org.apache.kafka.streams.processor.internals.MockStreamsMetrics;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
@@ -34,7 +35,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
     private KeyValueStore<Bytes, byte[]> store;
     private ThreadCache cache;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         store = new InMemoryKeyValueStore(namespace);
         cache = new ThreadCache(new LogContext("testCache "), 10000L, new MockStreamsMetrics(new Metrics()));
@@ -61,7 +62,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         while (iterator.hasNext()) {
             final byte[] value = iterator.next().value;
             values[index++] = value;
-            assertArrayEquals(bytes[bytesIndex++], value);
+            Assertions.assertArrayEquals(bytes[bytesIndex++], value);
         }
         iterator.close();
     }
@@ -89,7 +90,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         while (iterator.hasNext()) {
             final byte[] value = iterator.next().value;
             values[index++] = value;
-            assertArrayEquals(bytes[bytesIndex--], value);
+            Assertions.assertArrayEquals(bytes[bytesIndex--], value);
         }
         iterator.close();
     }
@@ -100,8 +101,8 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         store.put(Bytes.wrap(bytes[0]), bytes[0]);
         cache.put(namespace, Bytes.wrap(bytes[1]), new LRUCacheEntry(null));
         try (final MergedSortedCacheKeyValueBytesStoreIterator iterator = createIterator()) {
-            assertArrayEquals(bytes[0], iterator.next().key.get());
-            assertFalse(iterator.hasNext());
+            Assertions.assertArrayEquals(bytes[0], iterator.next().key.get());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -111,8 +112,8 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         cache.put(namespace, Bytes.wrap(bytes[0]), new LRUCacheEntry(null));
         store.put(Bytes.wrap(bytes[1]), bytes[1]);
         try (final MergedSortedCacheKeyValueBytesStoreIterator iterator = createIterator()) {
-            assertArrayEquals(bytes[1], iterator.next().key.get());
-            assertFalse(iterator.hasNext());
+            Assertions.assertArrayEquals(bytes[1], iterator.next().key.get());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -122,7 +123,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         cache.put(namespace, Bytes.wrap(bytes[0]), new LRUCacheEntry(null));
         store.put(Bytes.wrap(bytes[0]), bytes[0]);
         try (final MergedSortedCacheKeyValueBytesStoreIterator iterator = createIterator()) {
-            assertFalse(iterator.hasNext());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -134,7 +135,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
             store.put(aBytes, aByte);
             cache.put(namespace, aBytes, new LRUCacheEntry(null));
         }
-        assertFalse(createIterator().hasNext());
+        Assertions.assertFalse(createIterator().hasNext());
     }
 
     @Test
@@ -143,7 +144,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         for (final byte[] aByte : bytes) {
             cache.put(namespace, Bytes.wrap(aByte), new LRUCacheEntry(null));
         }
-        assertFalse(createIterator().hasNext());
+        Assertions.assertFalse(createIterator().hasNext());
     }
 
     @Test
@@ -161,14 +162,14 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         cache.put(namespace, Bytes.wrap(bytes[11]), new LRUCacheEntry(null));
 
         try (final MergedSortedCacheKeyValueBytesStoreIterator iterator = createIterator()) {
-            assertArrayEquals(bytes[0], iterator.next().key.get());
-            assertArrayEquals(bytes[4], iterator.next().key.get());
-            assertArrayEquals(bytes[5], iterator.next().key.get());
-            assertArrayEquals(bytes[6], iterator.next().key.get());
-            assertArrayEquals(bytes[7], iterator.next().key.get());
-            assertArrayEquals(bytes[9], iterator.next().key.get());
-            assertArrayEquals(bytes[10], iterator.next().key.get());
-            assertFalse(iterator.hasNext());
+            Assertions.assertArrayEquals(bytes[0], iterator.next().key.get());
+            Assertions.assertArrayEquals(bytes[4], iterator.next().key.get());
+            Assertions.assertArrayEquals(bytes[5], iterator.next().key.get());
+            Assertions.assertArrayEquals(bytes[6], iterator.next().key.get());
+            Assertions.assertArrayEquals(bytes[7], iterator.next().key.get());
+            Assertions.assertArrayEquals(bytes[9], iterator.next().key.get());
+            Assertions.assertArrayEquals(bytes[10], iterator.next().key.get());
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -195,7 +196,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         while (iterator.hasNext()) {
             final byte[] keys = iterator.peekNextKey().get();
             values[index++] = keys;
-            assertArrayEquals(bytes[bytesIndex++], keys);
+            Assertions.assertArrayEquals(bytes[bytesIndex++], keys);
             iterator.next();
         }
         iterator.close();
@@ -224,7 +225,7 @@ public class MergedSortedCacheKeyValueBytesStoreIteratorTest {
         while (iterator.hasNext()) {
             final byte[] keys = iterator.peekNextKey().get();
             values[index++] = keys;
-            assertArrayEquals(bytes[bytesIndex--], keys);
+            Assertions.assertArrayEquals(bytes[bytesIndex--], keys);
             iterator.next();
         }
         iterator.close();

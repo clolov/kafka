@@ -26,8 +26,8 @@ import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsSame.sameInstance;
@@ -44,7 +44,7 @@ public class TransformerSupplierAdapterTest extends EasyMockSupport {
     final String key = "Hello";
     final String value = "World";
 
-    @Before
+    @BeforeEach
     public void before() {
         context = mock(ProcessorContext.class);
         transformer = mock(Transformer.class);

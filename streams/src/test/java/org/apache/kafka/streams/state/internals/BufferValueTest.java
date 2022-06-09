@@ -18,7 +18,8 @@ package org.apache.kafka.streams.state.internals;
 
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.streams.processor.internals.ProcessorRecordContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -34,20 +35,20 @@ public class BufferValueTest {
     @Test
     public void shouldDeduplicateNullValues() {
         final BufferValue bufferValue = new BufferValue(null, null, null, null);
-        assertSame(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertSame(bufferValue.priorValue(), bufferValue.oldValue());
     }
 
     @Test
     public void shouldDeduplicateIndenticalValues() {
         final byte[] bytes = {(byte) 0};
         final BufferValue bufferValue = new BufferValue(bytes, bytes, null, null);
-        assertSame(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertSame(bufferValue.priorValue(), bufferValue.oldValue());
     }
 
     @Test
     public void shouldDeduplicateEqualValues() {
         final BufferValue bufferValue = new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 0}, null, null);
-        assertSame(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertSame(bufferValue.priorValue(), bufferValue.oldValue());
     }
 
     @Test
@@ -55,9 +56,9 @@ public class BufferValueTest {
         final byte[] priorValue = {(byte) 0};
         final byte[] oldValue = {(byte) 1};
         final BufferValue bufferValue = new BufferValue(priorValue, oldValue, null, null);
-        assertSame(priorValue, bufferValue.priorValue());
-        assertSame(oldValue, bufferValue.oldValue());
-        assertNotEquals(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertSame(priorValue, bufferValue.priorValue());
+        Assertions.assertSame(oldValue, bufferValue.oldValue());
+        Assertions.assertNotEquals(bufferValue.priorValue(), bufferValue.oldValue());
     }
 
     @Test
@@ -65,9 +66,9 @@ public class BufferValueTest {
         final byte[] priorValue = null;
         final byte[] oldValue = {(byte) 1};
         final BufferValue bufferValue = new BufferValue(priorValue, oldValue, null, null);
-        assertNull(bufferValue.priorValue());
-        assertSame(oldValue, bufferValue.oldValue());
-        assertNotEquals(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertNull(bufferValue.priorValue());
+        Assertions.assertSame(oldValue, bufferValue.oldValue());
+        Assertions.assertNotEquals(bufferValue.priorValue(), bufferValue.oldValue());
     }
 
     @Test
@@ -75,22 +76,22 @@ public class BufferValueTest {
         final byte[] priorValue = {(byte) 0};
         final byte[] oldValue = null;
         final BufferValue bufferValue = new BufferValue(priorValue, oldValue, null, null);
-        assertSame(priorValue, bufferValue.priorValue());
-        assertNull(bufferValue.oldValue());
-        assertNotEquals(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertSame(priorValue, bufferValue.priorValue());
+        Assertions.assertNull(bufferValue.oldValue());
+        Assertions.assertNotEquals(bufferValue.priorValue(), bufferValue.oldValue());
     }
 
     @Test
     public void shouldAccountForDeduplicationInSizeEstimate() {
         final ProcessorRecordContext context = new ProcessorRecordContext(0L, 0L, 0, "topic", new RecordHeaders());
-        assertEquals(25L, new BufferValue(null, null, null, context).residentMemorySizeEstimate());
-        assertEquals(26L, new BufferValue(new byte[] {(byte) 0}, null, null, context).residentMemorySizeEstimate());
-        assertEquals(26L, new BufferValue(null, new byte[] {(byte) 0}, null, context).residentMemorySizeEstimate());
-        assertEquals(26L, new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 0}, null, context).residentMemorySizeEstimate());
-        assertEquals(27L, new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 1}, null, context).residentMemorySizeEstimate());
+        Assertions.assertEquals(25L, new BufferValue(null, null, null, context).residentMemorySizeEstimate());
+        Assertions.assertEquals(26L, new BufferValue(new byte[] {(byte) 0}, null, null, context).residentMemorySizeEstimate());
+        Assertions.assertEquals(26L, new BufferValue(null, new byte[] {(byte) 0}, null, context).residentMemorySizeEstimate());
+        Assertions.assertEquals(26L, new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 0}, null, context).residentMemorySizeEstimate());
+        Assertions.assertEquals(27L, new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 1}, null, context).residentMemorySizeEstimate());
 
         // new value should get counted, but doesn't get deduplicated
-        assertEquals(28L, new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 1}, new byte[] {(byte) 0}, context).residentMemorySizeEstimate());
+        Assertions.assertEquals(28L, new BufferValue(new byte[] {(byte) 0}, new byte[] {(byte) 1}, new byte[] {(byte) 0}, context).residentMemorySizeEstimate());
     }
 
     @Test
@@ -203,6 +204,6 @@ public class BufferValueTest {
 
         final BufferValue bufferValue = BufferValue.deserialize(serialValue);
         assertThat(bufferValue, is(new BufferValue(duplicate, duplicate, null, context)));
-        assertSame(bufferValue.priorValue(), bufferValue.oldValue());
+        Assertions.assertSame(bufferValue.priorValue(), bufferValue.oldValue());
     }
 }

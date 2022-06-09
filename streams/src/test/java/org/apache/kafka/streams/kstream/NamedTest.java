@@ -17,7 +17,8 @@
 package org.apache.kafka.streams.kstream;
 
 import org.apache.kafka.streams.errors.TopologyException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -40,7 +41,7 @@ public class NamedTest {
         for (final String name : invalidNames) {
             try {
                 Named.validate(name);
-                fail("No exception was thrown for named with invalid name: " + name);
+                Assertions.fail("No exception was thrown for named with invalid name: " + name);
             } catch (final TopologyException e) {
                 // success
             }

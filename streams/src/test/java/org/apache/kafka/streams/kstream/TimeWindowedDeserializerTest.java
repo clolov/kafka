@@ -22,7 +22,8 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.streams.StreamsConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +43,8 @@ public class TimeWindowedDeserializerTest {
     public void testTimeWindowedDeserializerConstructor() {
         timeWindowedDeserializer.configure(props, true);
         final Deserializer<?> inner = timeWindowedDeserializer.innerDeserializer();
-        assertNotNull("Inner deserializer should be not null", inner);
-        assertTrue("Inner deserializer type should be StringDeserializer", inner instanceof StringDeserializer);
+        Assertions.assertNotNull(inner, "Inner deserializer should be not null");
+        Assertions.assertTrue(inner instanceof StringDeserializer, "Inner deserializer type should be StringDeserializer");
         assertThat(timeWindowedDeserializer.getWindowSize(), is(5000000L));
     }
 
@@ -54,7 +55,7 @@ public class TimeWindowedDeserializerTest {
         final TimeWindowedDeserializer<?> deserializer = new TimeWindowedDeserializer<>();
         deserializer.configure(props, false);
         assertThat(deserializer.getWindowSize(), is(500L));
-        assertTrue(deserializer.innerDeserializer() instanceof ByteArrayDeserializer);
+        Assertions.assertTrue(deserializer.innerDeserializer() instanceof ByteArrayDeserializer);
     }
 
     @Test

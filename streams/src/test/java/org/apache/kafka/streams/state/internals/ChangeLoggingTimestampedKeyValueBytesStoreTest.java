@@ -31,9 +31,9 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -57,7 +57,7 @@ public class ChangeLoggingTimestampedKeyValueBytesStoreTest {
     // timestamp is 98 what is ASCII of 'b'
     private final byte[] rawWorld = "\0\0\0\0\0\0\0bworld".getBytes();
 
-    @Before
+    @BeforeEach
     public void before() {
         final InternalMockProcessorContext context = mockContext();
         context.setTime(0);
@@ -74,7 +74,7 @@ public class ChangeLoggingTimestampedKeyValueBytesStoreTest {
         );
     }
 
-    @After
+    @AfterEach
     public void after() {
         store.close();
     }

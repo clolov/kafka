@@ -28,9 +28,9 @@ import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.KeyValueStoreTestDriver;
 import org.apache.kafka.test.InternalMockProcessorContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +60,7 @@ public abstract class AbstractKeyValueStoreTest {
     protected KeyValueStore<Integer, String> store;
     protected KeyValueStoreTestDriver<Integer, String> driver;
 
-    @Before
+    @BeforeEach
     public void before() {
         driver = KeyValueStoreTestDriver.create(Integer.class, String.class);
         context = (InternalMockProcessorContext) driver.context();
@@ -68,7 +68,7 @@ public abstract class AbstractKeyValueStoreTest {
         store = createKeyValueStore(context);
     }
 
-    @After
+    @AfterEach
     public void after() {
         store.close();
         driver.clear();
@@ -94,7 +94,7 @@ public abstract class AbstractKeyValueStoreTest {
             @Override
             public byte[] serialize(final String topic, final String data) {
                 if (++numCalls > 3) {
-                    fail("Value serializer is called; it should never happen");
+                    Assertions.fail("Value serializer is called; it should never happen");
                 }
 
                 return super.serialize(topic, data);
@@ -112,7 +112,7 @@ public abstract class AbstractKeyValueStoreTest {
 
         // should not include deleted records in iterator
         final Map<Integer, String> expectedContents = Collections.singletonMap(2, "two");
-        assertEquals(expectedContents, getContents(store.all()));
+        Assertions.assertEquals(expectedContents, getContents(store.all()));
     }
 
     @Test
@@ -141,7 +141,7 @@ public abstract class AbstractKeyValueStoreTest {
 
         // should not include deleted records in iterator
         final Map<Integer, String> expectedContents = Collections.singletonMap(2, "two");
-        assertEquals(expectedContents, getContents(store.all()));
+        Assertions.assertEquals(expectedContents, getContents(store.all()));
     }
 
     @Test
@@ -152,44 +152,44 @@ public abstract class AbstractKeyValueStoreTest {
         store.put(2, "two");
         store.put(4, "four");
         store.put(5, "five");
-        assertEquals(5, driver.sizeOf(store));
-        assertEquals("zero", store.get(0));
-        assertEquals("one", store.get(1));
-        assertEquals("two", store.get(2));
-        assertNull(store.get(3));
-        assertEquals("four", store.get(4));
-        assertEquals("five", store.get(5));
+        Assertions.assertEquals(5, driver.sizeOf(store));
+        Assertions.assertEquals("zero", store.get(0));
+        Assertions.assertEquals("one", store.get(1));
+        Assertions.assertEquals("two", store.get(2));
+        Assertions.assertNull(store.get(3));
+        Assertions.assertEquals("four", store.get(4));
+        Assertions.assertEquals("five", store.get(5));
         // Flush now so that for caching store, we will not skip the deletion following an put
         store.flush();
         store.delete(5);
-        assertEquals(4, driver.sizeOf(store));
+        Assertions.assertEquals(4, driver.sizeOf(store));
 
         // Flush the store and verify all current entries were properly flushed ...
         store.flush();
-        assertEquals("zero", driver.flushedEntryStored(0));
-        assertEquals("one", driver.flushedEntryStored(1));
-        assertEquals("two", driver.flushedEntryStored(2));
-        assertEquals("four", driver.flushedEntryStored(4));
-        assertNull(driver.flushedEntryStored(5));
+        Assertions.assertEquals("zero", driver.flushedEntryStored(0));
+        Assertions.assertEquals("one", driver.flushedEntryStored(1));
+        Assertions.assertEquals("two", driver.flushedEntryStored(2));
+        Assertions.assertEquals("four", driver.flushedEntryStored(4));
+        Assertions.assertNull(driver.flushedEntryStored(5));
 
-        assertFalse(driver.flushedEntryRemoved(0));
-        assertFalse(driver.flushedEntryRemoved(1));
-        assertFalse(driver.flushedEntryRemoved(2));
-        assertFalse(driver.flushedEntryRemoved(4));
-        assertTrue(driver.flushedEntryRemoved(5));
+        Assertions.assertFalse(driver.flushedEntryRemoved(0));
+        Assertions.assertFalse(driver.flushedEntryRemoved(1));
+        Assertions.assertFalse(driver.flushedEntryRemoved(2));
+        Assertions.assertFalse(driver.flushedEntryRemoved(4));
+        Assertions.assertTrue(driver.flushedEntryRemoved(5));
 
         final HashMap<Integer, String> expectedContents = new HashMap<>();
         expectedContents.put(2, "two");
         expectedContents.put(4, "four");
 
         // Check range iteration ...
-        assertEquals(expectedContents, getContents(store.range(2, 4)));
-        assertEquals(expectedContents, getContents(store.range(2, 6)));
+        Assertions.assertEquals(expectedContents, getContents(store.range(2, 4)));
+        Assertions.assertEquals(expectedContents, getContents(store.range(2, 6)));
 
         // Check all iteration ...
         expectedContents.put(0, "zero");
         expectedContents.put(1, "one");
-        assertEquals(expectedContents, getContents(store.all()));
+        Assertions.assertEquals(expectedContents, getContents(store.all()));
     }
 
     @Test
@@ -200,44 +200,44 @@ public abstract class AbstractKeyValueStoreTest {
         store.put(2, "two");
         store.put(4, "four");
         store.put(5, "five");
-        assertEquals(5, driver.sizeOf(store));
-        assertEquals("zero", store.get(0));
-        assertEquals("one", store.get(1));
-        assertEquals("two", store.get(2));
-        assertNull(store.get(3));
-        assertEquals("four", store.get(4));
-        assertEquals("five", store.get(5));
+        Assertions.assertEquals(5, driver.sizeOf(store));
+        Assertions.assertEquals("zero", store.get(0));
+        Assertions.assertEquals("one", store.get(1));
+        Assertions.assertEquals("two", store.get(2));
+        Assertions.assertNull(store.get(3));
+        Assertions.assertEquals("four", store.get(4));
+        Assertions.assertEquals("five", store.get(5));
         // Flush now so that for caching store, we will not skip the deletion following an put
         store.flush();
         store.delete(5);
-        assertEquals(4, driver.sizeOf(store));
+        Assertions.assertEquals(4, driver.sizeOf(store));
 
         // Flush the store and verify all current entries were properly flushed ...
         store.flush();
-        assertEquals("zero", driver.flushedEntryStored(0));
-        assertEquals("one", driver.flushedEntryStored(1));
-        assertEquals("two", driver.flushedEntryStored(2));
-        assertEquals("four", driver.flushedEntryStored(4));
-        assertNull(driver.flushedEntryStored(5));
+        Assertions.assertEquals("zero", driver.flushedEntryStored(0));
+        Assertions.assertEquals("one", driver.flushedEntryStored(1));
+        Assertions.assertEquals("two", driver.flushedEntryStored(2));
+        Assertions.assertEquals("four", driver.flushedEntryStored(4));
+        Assertions.assertNull(driver.flushedEntryStored(5));
 
-        assertFalse(driver.flushedEntryRemoved(0));
-        assertFalse(driver.flushedEntryRemoved(1));
-        assertFalse(driver.flushedEntryRemoved(2));
-        assertFalse(driver.flushedEntryRemoved(4));
-        assertTrue(driver.flushedEntryRemoved(5));
+        Assertions.assertFalse(driver.flushedEntryRemoved(0));
+        Assertions.assertFalse(driver.flushedEntryRemoved(1));
+        Assertions.assertFalse(driver.flushedEntryRemoved(2));
+        Assertions.assertFalse(driver.flushedEntryRemoved(4));
+        Assertions.assertTrue(driver.flushedEntryRemoved(5));
 
         final HashMap<Integer, String> expectedContents = new HashMap<>();
         expectedContents.put(2, "two");
         expectedContents.put(4, "four");
 
         // Check range iteration ...
-        assertEquals(expectedContents, getContents(store.reverseRange(2, 4)));
-        assertEquals(expectedContents, getContents(store.reverseRange(2, 6)));
+        Assertions.assertEquals(expectedContents, getContents(store.reverseRange(2, 4)));
+        Assertions.assertEquals(expectedContents, getContents(store.reverseRange(2, 6)));
 
         // Check all iteration ...
         expectedContents.put(0, "zero");
         expectedContents.put(1, "one");
-        assertEquals(expectedContents, getContents(store.reverseAll()));
+        Assertions.assertEquals(expectedContents, getContents(store.reverseAll()));
     }
 
     @Test
@@ -248,29 +248,29 @@ public abstract class AbstractKeyValueStoreTest {
         store.put(2, "two");
         store.put(4, "four");
         store.put(5, "five");
-        assertEquals(5, driver.sizeOf(store));
-        assertEquals("zero", store.get(0));
-        assertEquals("one", store.get(1));
-        assertEquals("two", store.get(2));
-        assertNull(store.get(3));
-        assertEquals("four", store.get(4));
-        assertEquals("five", store.get(5));
+        Assertions.assertEquals(5, driver.sizeOf(store));
+        Assertions.assertEquals("zero", store.get(0));
+        Assertions.assertEquals("one", store.get(1));
+        Assertions.assertEquals("two", store.get(2));
+        Assertions.assertNull(store.get(3));
+        Assertions.assertEquals("four", store.get(4));
+        Assertions.assertEquals("five", store.get(5));
         store.flush();
         store.delete(5);
 
         // Flush the store and verify all current entries were properly flushed ...
         store.flush();
-        assertEquals("zero", driver.flushedEntryStored(0));
-        assertEquals("one", driver.flushedEntryStored(1));
-        assertEquals("two", driver.flushedEntryStored(2));
-        assertEquals("four", driver.flushedEntryStored(4));
-        assertNull(driver.flushedEntryStored(5));
+        Assertions.assertEquals("zero", driver.flushedEntryStored(0));
+        Assertions.assertEquals("one", driver.flushedEntryStored(1));
+        Assertions.assertEquals("two", driver.flushedEntryStored(2));
+        Assertions.assertEquals("four", driver.flushedEntryStored(4));
+        Assertions.assertNull(driver.flushedEntryStored(5));
 
-        assertFalse(driver.flushedEntryRemoved(0));
-        assertFalse(driver.flushedEntryRemoved(1));
-        assertFalse(driver.flushedEntryRemoved(2));
-        assertFalse(driver.flushedEntryRemoved(4));
-        assertTrue(driver.flushedEntryRemoved(5));
+        Assertions.assertFalse(driver.flushedEntryRemoved(0));
+        Assertions.assertFalse(driver.flushedEntryRemoved(1));
+        Assertions.assertFalse(driver.flushedEntryRemoved(2));
+        Assertions.assertFalse(driver.flushedEntryRemoved(4));
+        Assertions.assertTrue(driver.flushedEntryRemoved(5));
     }
 
     @Test
@@ -289,10 +289,10 @@ public abstract class AbstractKeyValueStoreTest {
         context.restore(store.name(), driver.restoredEntries());
 
         // Verify that the store's contents were properly restored ...
-        assertEquals(0, driver.checkForRestoredEntries(store));
+        Assertions.assertEquals(0, driver.checkForRestoredEntries(store));
 
         // and there are no other entries ...
-        assertEquals(4, driver.sizeOf(store));
+        Assertions.assertEquals(4, driver.sizeOf(store));
     }
 
     @Test
@@ -310,38 +310,38 @@ public abstract class AbstractKeyValueStoreTest {
         store = createKeyValueStore(driver.context());
         context.restore(store.name(), driver.restoredEntries());
         // Verify that the store's contents were properly restored ...
-        assertEquals(0, driver.checkForRestoredEntries(store));
+        Assertions.assertEquals(0, driver.checkForRestoredEntries(store));
 
         // and there are no other entries ...
-        assertEquals(4, driver.sizeOf(store));
+        Assertions.assertEquals(4, driver.sizeOf(store));
     }
 
     @Test
     public void testPutIfAbsent() {
         // Verify that the store reads and writes correctly ...
-        assertNull(store.putIfAbsent(0, "zero"));
-        assertNull(store.putIfAbsent(1, "one"));
-        assertNull(store.putIfAbsent(2, "two"));
-        assertNull(store.putIfAbsent(4, "four"));
-        assertEquals("four", store.putIfAbsent(4, "unexpected value"));
-        assertEquals(4, driver.sizeOf(store));
-        assertEquals("zero", store.get(0));
-        assertEquals("one", store.get(1));
-        assertEquals("two", store.get(2));
-        assertNull(store.get(3));
-        assertEquals("four", store.get(4));
+        Assertions.assertNull(store.putIfAbsent(0, "zero"));
+        Assertions.assertNull(store.putIfAbsent(1, "one"));
+        Assertions.assertNull(store.putIfAbsent(2, "two"));
+        Assertions.assertNull(store.putIfAbsent(4, "four"));
+        Assertions.assertEquals("four", store.putIfAbsent(4, "unexpected value"));
+        Assertions.assertEquals(4, driver.sizeOf(store));
+        Assertions.assertEquals("zero", store.get(0));
+        Assertions.assertEquals("one", store.get(1));
+        Assertions.assertEquals("two", store.get(2));
+        Assertions.assertNull(store.get(3));
+        Assertions.assertEquals("four", store.get(4));
 
         // Flush the store and verify all current entries were properly flushed ...
         store.flush();
-        assertEquals("zero", driver.flushedEntryStored(0));
-        assertEquals("one", driver.flushedEntryStored(1));
-        assertEquals("two", driver.flushedEntryStored(2));
-        assertEquals("four", driver.flushedEntryStored(4));
+        Assertions.assertEquals("zero", driver.flushedEntryStored(0));
+        Assertions.assertEquals("one", driver.flushedEntryStored(1));
+        Assertions.assertEquals("two", driver.flushedEntryStored(2));
+        Assertions.assertEquals("four", driver.flushedEntryStored(4));
 
-        assertFalse(driver.flushedEntryRemoved(0));
-        assertFalse(driver.flushedEntryRemoved(1));
-        assertFalse(driver.flushedEntryRemoved(2));
-        assertFalse(driver.flushedEntryRemoved(4));
+        Assertions.assertFalse(driver.flushedEntryRemoved(0));
+        Assertions.assertFalse(driver.flushedEntryRemoved(1));
+        Assertions.assertFalse(driver.flushedEntryRemoved(2));
+        Assertions.assertFalse(driver.flushedEntryRemoved(4));
     }
 
     @Test
@@ -395,7 +395,7 @@ public abstract class AbstractKeyValueStoreTest {
         expectedContents.add(new KeyValue<>(1, "one"));
 
         try (final KeyValueIterator<Integer, String> iterator = store.range(null, 1)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -410,7 +410,7 @@ public abstract class AbstractKeyValueStoreTest {
         expectedContents.add(new KeyValue<>(2, "two"));
 
         try (final KeyValueIterator<Integer, String> iterator = store.range(1, null)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -426,7 +426,7 @@ public abstract class AbstractKeyValueStoreTest {
         expectedContents.add(new KeyValue<>(2, "two"));
 
         try (final KeyValueIterator<Integer, String> iterator = store.range(null, null)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -441,7 +441,7 @@ public abstract class AbstractKeyValueStoreTest {
         expectedContents.add(new KeyValue<>(0, "zero"));
 
         try (final KeyValueIterator<Integer, String> iterator = store.reverseRange(null, 1)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -456,7 +456,7 @@ public abstract class AbstractKeyValueStoreTest {
         expectedContents.add(new KeyValue<>(1, "one"));
 
         try (final KeyValueIterator<Integer, String> iterator = store.reverseRange(1, null)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -472,13 +472,13 @@ public abstract class AbstractKeyValueStoreTest {
         expectedContents.add(new KeyValue<>(0, "zero"));
 
         try (final KeyValueIterator<Integer, String> iterator = store.reverseRange(null, null)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
     @Test
     public void testSize() {
-        assertEquals("A newly created store should have no entries", 0, store.approximateNumEntries());
+        Assertions.assertEquals(0, store.approximateNumEntries(), "A newly created store should have no entries");
 
         store.put(0, "zero");
         store.put(1, "one");
@@ -486,7 +486,7 @@ public abstract class AbstractKeyValueStoreTest {
         store.put(4, "four");
         store.put(5, "five");
         store.flush();
-        assertEquals(5, store.approximateNumEntries());
+        Assertions.assertEquals(5, store.approximateNumEntries());
     }
 
     @Test
@@ -532,7 +532,7 @@ public abstract class AbstractKeyValueStoreTest {
         store.put(1, "one");
         store.put(2, "two");
         store.delete(2);
-        assertNull(store.get(2));
+        Assertions.assertNull(store.get(2));
     }
 
     @Test
@@ -546,8 +546,8 @@ public abstract class AbstractKeyValueStoreTest {
 
         final Iterator<KeyValue<Integer, String>> iterator = store.range(2, 2);
 
-        assertEquals(iterator.next().value, store.get(2));
-        assertFalse(iterator.hasNext());
+        Assertions.assertEquals(iterator.next().value, store.get(2));
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -561,8 +561,8 @@ public abstract class AbstractKeyValueStoreTest {
 
         final Iterator<KeyValue<Integer, String>> iterator = store.reverseRange(2, 2);
 
-        assertEquals(iterator.next().value, store.get(2));
-        assertFalse(iterator.hasNext());
+        Assertions.assertEquals(iterator.next().value, store.get(2));
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -573,7 +573,7 @@ public abstract class AbstractKeyValueStoreTest {
 
             store.put(1, "one");
 
-            assertEquals(new KeyValue<>(0, "zero"), results.next());
+            Assertions.assertEquals(new KeyValue<>(0, "zero"), results.next());
         }
     }
 
@@ -581,7 +581,7 @@ public abstract class AbstractKeyValueStoreTest {
     public void shouldNotThrowInvalidRangeExceptionWithNegativeFromKey() {
         try (final LogCaptureAppender appender = LogCaptureAppender.createAndRegister()) {
             try (final KeyValueIterator<Integer, String> iterator = store.range(-1, 1)) {
-                assertFalse(iterator.hasNext());
+                Assertions.assertFalse(iterator.hasNext());
             }
 
             final List<String> messages = appender.getMessages();
@@ -599,7 +599,7 @@ public abstract class AbstractKeyValueStoreTest {
     public void shouldNotThrowInvalidReverseRangeExceptionWithNegativeFromKey() {
         try (final LogCaptureAppender appender = LogCaptureAppender.createAndRegister()) {
             try (final KeyValueIterator<Integer, String> iterator = store.reverseRange(-1, 1)) {
-                assertFalse(iterator.hasNext());
+                Assertions.assertFalse(iterator.hasNext());
             }
 
             final List<String> messages = appender.getMessages();
@@ -617,7 +617,7 @@ public abstract class AbstractKeyValueStoreTest {
     public void shouldNotThrowInvalidRangeExceptionWithFromLargerThanTo() {
         try (final LogCaptureAppender appender = LogCaptureAppender.createAndRegister()) {
             try (final KeyValueIterator<Integer, String> iterator = store.range(2, 1)) {
-                assertFalse(iterator.hasNext());
+                Assertions.assertFalse(iterator.hasNext());
             }
 
             final List<String> messages = appender.getMessages();
@@ -635,7 +635,7 @@ public abstract class AbstractKeyValueStoreTest {
     public void shouldNotThrowInvalidReverseRangeExceptionWithFromLargerThanTo() {
         try (final LogCaptureAppender appender = LogCaptureAppender.createAndRegister()) {
             try (final KeyValueIterator<Integer, String> iterator = store.reverseRange(2, 1)) {
-                assertFalse(iterator.hasNext());
+                Assertions.assertFalse(iterator.hasNext());
             }
 
             final List<String> messages = appender.getMessages();

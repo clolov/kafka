@@ -18,7 +18,8 @@ package org.apache.kafka.streams.processor.internals;
 
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeaders;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -52,7 +53,7 @@ public class ProcessorRecordContextTest {
             new RecordHeaders()
         );
 
-        assertEquals(MIN_SIZE, context.residentMemorySizeEstimate());
+        Assertions.assertEquals(MIN_SIZE, context.residentMemorySizeEstimate());
     }
 
     @Test
@@ -65,7 +66,7 @@ public class ProcessorRecordContextTest {
             new RecordHeaders()
         );
 
-        assertEquals(MIN_SIZE, context.residentMemorySizeEstimate());
+        Assertions.assertEquals(MIN_SIZE, context.residentMemorySizeEstimate());
     }
 
     @Test
@@ -78,7 +79,7 @@ public class ProcessorRecordContextTest {
             new RecordHeaders()
         );
 
-        assertEquals(MIN_SIZE + 5L, context.residentMemorySizeEstimate());
+        Assertions.assertEquals(MIN_SIZE + 5L, context.residentMemorySizeEstimate());
     }
 
     @Test
@@ -93,7 +94,7 @@ public class ProcessorRecordContextTest {
             headers
         );
 
-        assertEquals(MIN_SIZE + 10L + 12L, context.residentMemorySizeEstimate());
+        Assertions.assertEquals(MIN_SIZE + 10L + 12L, context.residentMemorySizeEstimate());
     }
 
     @Test
@@ -108,6 +109,6 @@ public class ProcessorRecordContextTest {
             headers
         );
 
-        assertEquals(MIN_SIZE + 10L, context.residentMemorySizeEstimate());
+        Assertions.assertEquals(MIN_SIZE + 10L, context.residentMemorySizeEstimate());
     }
 }

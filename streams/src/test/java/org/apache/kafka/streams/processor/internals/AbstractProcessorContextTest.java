@@ -39,8 +39,9 @@ import org.apache.kafka.streams.state.RocksDBConfigSetter;
 import org.apache.kafka.streams.state.internals.ThreadCache;
 import org.apache.kafka.streams.state.internals.ThreadCache.DirtyEntryFlushListener;
 import org.apache.kafka.test.MockKeyValueStore;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Properties;
@@ -62,7 +63,7 @@ public class AbstractProcessorContextTest {
     private final Headers headers = new RecordHeaders(new Header[]{new RecordHeader("key", "value".getBytes())});
     private final ProcessorRecordContext recordContext = new ProcessorRecordContext(10, System.currentTimeMillis(), 1, "foo", headers);
 
-    @Before
+    @BeforeEach
     public void before() {
         context.setRecordContext(recordContext);
     }
@@ -72,7 +73,7 @@ public class AbstractProcessorContextTest {
         context.initialize();
         try {
             context.register(stateStore, null);
-            fail("should throw illegal state exception when context already initialized");
+            Assertions.fail("should throw illegal state exception when context already initialized");
         } catch (final IllegalStateException e) {
             // pass
         }

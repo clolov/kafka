@@ -23,8 +23,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.LogContext;
 import org.apache.kafka.common.utils.MockTime;
 import org.apache.kafka.common.utils.Utils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -48,7 +49,7 @@ public class StateConsumerTest {
     private GlobalStreamThread.StateConsumer stateConsumer;
     private TaskStub stateMaintainer;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         partitionOffsets.put(topicOne, 20L);
         partitionOffsets.put(topicTwo, 30L);
@@ -59,14 +60,14 @@ public class StateConsumerTest {
     @Test
     public void shouldAssignPartitionsToConsumer() {
         stateConsumer.initialize();
-        assertEquals(Utils.mkSet(topicOne, topicTwo), consumer.assignment());
+        Assertions.assertEquals(Utils.mkSet(topicOne, topicTwo), consumer.assignment());
     }
 
     @Test
     public void shouldSeekToInitialOffsets() {
         stateConsumer.initialize();
-        assertEquals(20L, consumer.position(topicOne));
-        assertEquals(30L, consumer.position(topicTwo));
+        Assertions.assertEquals(20L, consumer.position(topicOne));
+        Assertions.assertEquals(30L, consumer.position(topicTwo));
     }
 
     @Test
@@ -75,7 +76,7 @@ public class StateConsumerTest {
         consumer.addRecord(new ConsumerRecord<>("topic-one", 1, 20L, new byte[0], new byte[0]));
         consumer.addRecord(new ConsumerRecord<>("topic-one", 1, 21L, new byte[0], new byte[0]));
         stateConsumer.pollAndUpdate();
-        assertEquals(2, stateMaintainer.updatedPartitions.get(topicOne).intValue());
+        Assertions.assertEquals(2, stateMaintainer.updatedPartitions.get(topicOne).intValue());
     }
 
     @Test
@@ -85,8 +86,8 @@ public class StateConsumerTest {
         consumer.addRecord(new ConsumerRecord<>("topic-two", 1, 31L, new byte[0], new byte[0]));
         consumer.addRecord(new ConsumerRecord<>("topic-two", 1, 32L, new byte[0], new byte[0]));
         stateConsumer.pollAndUpdate();
-        assertEquals(1, stateMaintainer.updatedPartitions.get(topicOne).intValue());
-        assertEquals(2, stateMaintainer.updatedPartitions.get(topicTwo).intValue());
+        Assertions.assertEquals(1, stateMaintainer.updatedPartitions.get(topicOne).intValue());
+        Assertions.assertEquals(2, stateMaintainer.updatedPartitions.get(topicTwo).intValue());
     }
 
     @Test
@@ -96,7 +97,7 @@ public class StateConsumerTest {
         time.sleep(FLUSH_INTERVAL);
 
         stateConsumer.pollAndUpdate();
-        assertTrue(stateMaintainer.flushed);
+        Assertions.assertTrue(stateMaintainer.flushed);
     }
 
     @Test
@@ -105,25 +106,25 @@ public class StateConsumerTest {
         consumer.addRecord(new ConsumerRecord<>("topic-one", 1, 20L, new byte[0], new byte[0]));
         time.sleep(FLUSH_INTERVAL / 2);
         stateConsumer.pollAndUpdate();
-        assertFalse(stateMaintainer.flushed);
+        Assertions.assertFalse(stateMaintainer.flushed);
     }
 
     @Test
     public void shouldCloseConsumer() throws IOException {
         stateConsumer.close(false);
-        assertTrue(consumer.closed());
+        Assertions.assertTrue(consumer.closed());
     }
 
     @Test
     public void shouldCloseStateMaintainer() throws IOException {
         stateConsumer.close(false);
-        assertTrue(stateMaintainer.closed);
+        Assertions.assertTrue(stateMaintainer.closed);
     }
 
     @Test
     public void shouldWipeStoreOnClose() throws IOException {
         stateConsumer.close(true);
-        assertTrue(stateMaintainer.wipeStore);
+        Assertions.assertTrue(stateMaintainer.wipeStore);
     }
 
     private static class TaskStub implements GlobalStateMaintainer {

@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.processor.internals.assignment;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,13 +34,13 @@ public class StandbyTaskAssignorFactoryTest {
     @Test
     public void shouldReturnClientTagAwareStandbyTaskAssignorWhenRackAwareAssignmentTagsIsSet() {
         final StandbyTaskAssignor standbyTaskAssignor = StandbyTaskAssignorFactory.create(newAssignmentConfigs(singletonList("az")));
-        assertTrue(standbyTaskAssignor instanceof ClientTagAwareStandbyTaskAssignor);
+        Assertions.assertTrue(standbyTaskAssignor instanceof ClientTagAwareStandbyTaskAssignor);
     }
 
     @Test
     public void shouldReturnDefaultStandbyTaskAssignorWhenRackAwareAssignmentTagsIsEmpty() {
         final StandbyTaskAssignor standbyTaskAssignor = StandbyTaskAssignorFactory.create(newAssignmentConfigs(Collections.emptyList()));
-        assertTrue(standbyTaskAssignor instanceof DefaultStandbyTaskAssignor);
+        Assertions.assertTrue(standbyTaskAssignor instanceof DefaultStandbyTaskAssignor);
     }
 
     private static AssignorConfiguration.AssignmentConfigs newAssignmentConfigs(final List<String> rackAwareAssignmentTags) {

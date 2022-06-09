@@ -22,7 +22,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import org.apache.kafka.common.config.ConfigException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class HostInfoTest {
     
@@ -37,12 +38,12 @@ public class HostInfoTest {
 
     @Test
     public void shouldReturnNullHostInfoForNullEndPoint() {
-        assertNull(HostInfo.buildFromEndpoint(null));
+        Assertions.assertNull(HostInfo.buildFromEndpoint(null));
     }
 
     @Test
     public void shouldReturnNullHostInfoForEmptyEndPoint() {
-        assertNull(HostInfo.buildFromEndpoint("  "));
+        Assertions.assertNull(HostInfo.buildFromEndpoint("  "));
     }
 
     @Test

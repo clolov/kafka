@@ -40,8 +40,9 @@ import org.apache.kafka.streams.test.TestRecord;
 import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -81,7 +82,7 @@ public class KTableSourceTest {
             inputTopic.pipeInput("B", null, 15L);
         }
 
-        assertEquals(
+        Assertions.assertEquals(
             asList(new KeyValueTimestamp<>("A", 1, 10L),
                 new KeyValueTimestamp<>("B", 2, 11L),
                 new KeyValueTimestamp<>("C", 3, 12L),
@@ -91,7 +92,7 @@ public class KTableSourceTest {
             supplier.theCapturedProcessor().processed());
     }
 
-    @Ignore // we have disabled KIP-557 until KAFKA-12508 can be properly addressed
+    @Disabled // we have disabled KIP-557 until KAFKA-12508 can be properly addressed
     @Test
     public void testKTableSourceEmitOnChange() {
         final StreamsBuilder builder = new StreamsBuilder();
@@ -115,12 +116,12 @@ public class KTableSourceTest {
             // should be updated in this scenario
             inputTopic.pipeInput("A", 1, 9L);
 
-            assertEquals(
+            Assertions.assertEquals(
                 1.0,
                 getMetricByName(driver.metrics(), "idempotent-update-skip-total", "stream-processor-node-metrics").metricValue()
             );
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(new TestRecord<>("A", 1, Instant.ofEpochMilli(10L)),
                            new TestRecord<>("B", 2, Instant.ofEpochMilli(11L)),
                            new TestRecord<>("B", 3, Instant.ofEpochMilli(13L)),
@@ -220,29 +221,29 @@ public class KTableSourceTest {
             inputTopic1.pipeInput("B", "01", 20L);
             inputTopic1.pipeInput("C", "01", 15L);
 
-            assertEquals(ValueAndTimestamp.make("01", 10L), getter1.get("A"));
-            assertEquals(ValueAndTimestamp.make("01", 20L), getter1.get("B"));
-            assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make("01", 10L), getter1.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make("01", 20L), getter1.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
 
             inputTopic1.pipeInput("A", "02", 30L);
             inputTopic1.pipeInput("B", "02", 5L);
 
-            assertEquals(ValueAndTimestamp.make("02", 30L), getter1.get("A"));
-            assertEquals(ValueAndTimestamp.make("02", 5L), getter1.get("B"));
-            assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make("02", 30L), getter1.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make("02", 5L), getter1.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
 
             inputTopic1.pipeInput("A", "03", 29L);
 
-            assertEquals(ValueAndTimestamp.make("03", 29L), getter1.get("A"));
-            assertEquals(ValueAndTimestamp.make("02", 5L), getter1.get("B"));
-            assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make("03", 29L), getter1.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make("02", 5L), getter1.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
 
             inputTopic1.pipeInput("A", null, 50L);
             inputTopic1.pipeInput("B", null, 3L);
 
-            assertNull(getter1.get("A"));
-            assertNull(getter1.get("B"));
-            assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
+            Assertions.assertNull(getter1.get("A"));
+            Assertions.assertNull(getter1.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make("01", 15L), getter1.get("C"));
         }
     }
 
@@ -308,7 +309,7 @@ public class KTableSourceTest {
         final KTableImpl<String, String, String> table1 =
             (KTableImpl<String, String, String>) builder.table(topic1, stringConsumed);
         table1.enableSendingOldValues(true);
-        assertTrue(table1.sendingOldValueEnabled());
+        Assertions.assertTrue(table1.sendingOldValueEnabled());
 
         final MockApiProcessorSupplier<String, Integer, Void, Void> supplier = new MockApiProcessorSupplier<>();
         final Topology topology = builder.build().addProcessor("proc1", supplier, table1.name);

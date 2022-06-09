@@ -23,8 +23,9 @@ import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.Task.TaskType;
 import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.streams.state.internals.ThreadCache;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.mock;
 public class ProcessorContextTest {
     private ProcessorContext context;
 
-    @Before
+    @BeforeEach
     public void prepare() {
         final StreamsConfig streamsConfig = mock(StreamsConfig.class);
         doReturn("add-id").when(streamsConfig).getString(StreamsConfig.APPLICATION_ID_CONFIG);
@@ -61,7 +62,7 @@ public class ProcessorContextTest {
     public void shouldNotAllowToScheduleZeroMillisecondPunctuation() {
         try {
             context.schedule(Duration.ofMillis(0L), null, null);
-            fail("Should have thrown IllegalArgumentException");
+            Assertions.fail("Should have thrown IllegalArgumentException");
         } catch (final IllegalArgumentException expected) {
             assertThat(expected.getMessage(), equalTo("The minimum supported scheduling interval is 1 millisecond."));
         }
@@ -71,7 +72,7 @@ public class ProcessorContextTest {
     public void shouldNotAllowToScheduleSubMillisecondPunctuation() {
         try {
             context.schedule(Duration.ofNanos(999_999L), null, null);
-            fail("Should have thrown IllegalArgumentException");
+            Assertions.fail("Should have thrown IllegalArgumentException");
         } catch (final IllegalArgumentException expected) {
             assertThat(expected.getMessage(), equalTo("The minimum supported scheduling interval is 1 millisecond."));
         }

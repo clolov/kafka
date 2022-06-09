@@ -41,8 +41,9 @@ import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
@@ -84,7 +85,7 @@ public class MeteredTimestampedWindowStoreTest {
         EasyMock.expect(innerStoreMock.name()).andStubReturn(STORE_NAME);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final StreamsMetricsImpl streamsMetrics =
             new StreamsMetricsImpl(metrics, "test", StreamsConfig.METRICS_LATEST, new MockTime());
@@ -201,7 +202,7 @@ public class MeteredTimestampedWindowStoreTest {
         EasyMock.replay(innerStoreMock);
 
         store.init((StateStoreContext) context, store);
-        assertNull(store.fetch("a", 0));
+        Assertions.assertNull(store.fetch("a", 0));
     }
 
     @Test
@@ -222,7 +223,7 @@ public class MeteredTimestampedWindowStoreTest {
             store.put("key", ValueAndTimestamp.make(42L, 60000), 60000L);
         } catch (final StreamsException exception) {
             if (exception.getCause() instanceof ClassCastException) {
-                fail("Serdes are not correctly set from processor context.");
+                Assertions.fail("Serdes are not correctly set from processor context.");
             }
             throw exception;
         }
@@ -246,7 +247,7 @@ public class MeteredTimestampedWindowStoreTest {
             store.put("key", ValueAndTimestamp.make(42L, 60000), 60000L);
         } catch (final StreamsException exception) {
             if (exception.getCause() instanceof ClassCastException) {
-                fail("Serdes are not correctly set from constructor parameters.");
+                Assertions.fail("Serdes are not correctly set from constructor parameters.");
             }
             throw exception;
         }

@@ -24,8 +24,9 @@ import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.streams.state.internals.metrics.RocksDBMetricsRecorder;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ public class KeyValueSegmentTest {
     private final RocksDBMetricsRecorder metricsRecorder =
         new RocksDBMetricsRecorder("metrics-scope", "store-name");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         metricsRecorder.init(
             new StreamsMetricsImpl(new Metrics(), "test-client", StreamsConfig.METRICS_LATEST, new MockTime()),
@@ -69,12 +70,12 @@ public class KeyValueSegmentTest {
 
         segment.openDB(mockContext.appConfigs(), mockContext.stateDir());
 
-        assertTrue(new File(directoryPath, "window").exists());
-        assertTrue(new File(directoryPath + File.separator + "window", "segment").exists());
-        assertTrue(new File(directoryPath + File.separator + "window", "segment").list().length > 0);
+        Assertions.assertTrue(new File(directoryPath, "window").exists());
+        Assertions.assertTrue(new File(directoryPath + File.separator + "window", "segment").exists());
+        Assertions.assertTrue(new File(directoryPath + File.separator + "window", "segment").list().length > 0);
         segment.destroy();
-        assertFalse(new File(directoryPath + File.separator + "window", "segment").exists());
-        assertTrue(new File(directoryPath, "window").exists());
+        Assertions.assertFalse(new File(directoryPath + File.separator + "window", "segment").exists());
+        Assertions.assertTrue(new File(directoryPath, "window").exists());
 
         segment.close();
     }
@@ -103,9 +104,9 @@ public class KeyValueSegmentTest {
         final KeyValueSegment segmentDifferentId = new KeyValueSegment("anyName", "anyName", 1L, metricsRecorder);
 
         final Set<KeyValueSegment> set = new HashSet<>();
-        assertTrue(set.add(segment));
-        assertFalse(set.add(segmentSameId));
-        assertTrue(set.add(segmentDifferentId));
+        Assertions.assertTrue(set.add(segment));
+        Assertions.assertFalse(set.add(segmentSameId));
+        Assertions.assertTrue(set.add(segmentDifferentId));
 
         segment.close();
     }

@@ -21,7 +21,8 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.internals.SessionWindow;
 import org.apache.kafka.test.KeyValueIteratorStub;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -56,13 +57,13 @@ public class MergedSortedCacheWrappedSessionStoreIteratorTest {
     @Test
     public void shouldHaveNextFromStore() {
         final MergedSortedCacheSessionStoreIterator mergeIterator = createIterator(storeKvs, Collections.emptyIterator(), false);
-        assertTrue(mergeIterator.hasNext());
+        Assertions.assertTrue(mergeIterator.hasNext());
     }
 
     @Test
     public void shouldHaveNextFromReverseStore() {
         final MergedSortedCacheSessionStoreIterator mergeIterator = createIterator(storeKvs, Collections.emptyIterator(), true);
-        assertTrue(mergeIterator.hasNext());
+        Assertions.assertTrue(mergeIterator.hasNext());
     }
 
     @Test
@@ -92,13 +93,13 @@ public class MergedSortedCacheWrappedSessionStoreIteratorTest {
     @Test
     public void shouldHaveNextFromCache() {
         final MergedSortedCacheSessionStoreIterator mergeIterator = createIterator(Collections.emptyIterator(), cacheKvs, false);
-        assertTrue(mergeIterator.hasNext());
+        Assertions.assertTrue(mergeIterator.hasNext());
     }
 
     @Test
     public void shouldHaveNextFromReverseCache() {
         final MergedSortedCacheSessionStoreIterator mergeIterator = createIterator(Collections.emptyIterator(), cacheKvs, true);
-        assertTrue(mergeIterator.hasNext());
+        Assertions.assertTrue(mergeIterator.hasNext());
     }
 
     @Test
@@ -130,7 +131,7 @@ public class MergedSortedCacheWrappedSessionStoreIteratorTest {
         final MergedSortedCacheSessionStoreIterator iterator = createIterator(storeKvs, cacheKvs, true);
         assertThat(iterator.next(), equalTo(KeyValue.pair(new Windowed<>(storeKey, storeWindow), storeKey.get())));
         assertThat(iterator.next(), equalTo(KeyValue.pair(new Windowed<>(cacheKey, cacheWindow), cacheKey.get())));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -138,7 +139,7 @@ public class MergedSortedCacheWrappedSessionStoreIteratorTest {
         final MergedSortedCacheSessionStoreIterator iterator = createIterator(storeKvs, cacheKvs, false);
         assertThat(iterator.next(), equalTo(KeyValue.pair(new Windowed<>(cacheKey, cacheWindow), cacheKey.get())));
         assertThat(iterator.next(), equalTo(KeyValue.pair(new Windowed<>(storeKey, storeWindow), storeKey.get())));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     private MergedSortedCacheSessionStoreIterator createIterator(final Iterator<KeyValue<Windowed<Bytes>, byte[]>> storeKvs,

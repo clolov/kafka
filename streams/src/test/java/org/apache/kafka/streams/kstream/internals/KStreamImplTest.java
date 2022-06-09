@@ -77,8 +77,9 @@ import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -203,7 +204,7 @@ public class KStreamImplTest {
 
     private final Serde<String> mySerde = new Serdes.StringSerde();
 
-    @Before
+    @BeforeEach
     public void before() {
         builder = new StreamsBuilder();
         testStream = builder.stream("source");
@@ -1325,7 +1326,7 @@ public class KStreamImplTest {
 
         streams2[1].repartition().process(new MockProcessorSupplier<>());
 
-        assertEquals(2 + // sources
+        Assertions.assertEquals(2 + // sources
                 2 + // stream1
                 1 + // stream2
                 1 + // stream3
@@ -1355,86 +1356,86 @@ public class KStreamImplTest {
         final ValueMapper<String, Iterable<String>> flatMapper = Collections::singleton;
         final ValueJoiner<String, String, String> joiner = (value1, value2) -> value1;
 
-        assertEquals(((AbstractStream) stream1.filter((key, value) -> false)).keySerde(), consumedInternal.keySerde());
-        assertEquals(((AbstractStream) stream1.filter((key, value) -> false)).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.filter((key, value) -> false)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.filter((key, value) -> false)).valueSerde(), consumedInternal.valueSerde());
 
-        assertEquals(((AbstractStream) stream1.filterNot((key, value) -> false)).keySerde(), consumedInternal.keySerde());
-        assertEquals(((AbstractStream) stream1.filterNot((key, value) -> false)).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.filterNot((key, value) -> false)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.filterNot((key, value) -> false)).valueSerde(), consumedInternal.valueSerde());
 
-        assertNull(((AbstractStream) stream1.selectKey(selector)).keySerde());
-        assertEquals(((AbstractStream) stream1.selectKey(selector)).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.selectKey(selector)).keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.selectKey(selector)).valueSerde(), consumedInternal.valueSerde());
 
-        assertNull(((AbstractStream) stream1.map(KeyValue::new)).keySerde());
-        assertNull(((AbstractStream) stream1.map(KeyValue::new)).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.map(KeyValue::new)).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.map(KeyValue::new)).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.mapValues(mapper)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.mapValues(mapper)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.mapValues(mapper)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.mapValues(mapper)).valueSerde());
 
-        assertNull(((AbstractStream) stream1.flatMap(flatSelector)).keySerde());
-        assertNull(((AbstractStream) stream1.flatMap(flatSelector)).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.flatMap(flatSelector)).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.flatMap(flatSelector)).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.flatMapValues(flatMapper)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.flatMapValues(flatMapper)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.flatMapValues(flatMapper)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.flatMapValues(flatMapper)).valueSerde());
 
-        assertNull(((AbstractStream) stream1.transform(transformerSupplier)).keySerde());
-        assertNull(((AbstractStream) stream1.transform(transformerSupplier)).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.transform(transformerSupplier)).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.transform(transformerSupplier)).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.transformValues(valueTransformerSupplier)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.transformValues(valueTransformerSupplier)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.transformValues(valueTransformerSupplier)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.transformValues(valueTransformerSupplier)).valueSerde());
 
-        assertNull(((AbstractStream) stream1.merge(stream1)).keySerde());
-        assertNull(((AbstractStream) stream1.merge(stream1)).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.merge(stream1)).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.merge(stream1)).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.through("topic-3")).keySerde(), consumedInternal.keySerde());
-        assertEquals(((AbstractStream) stream1.through("topic-3")).valueSerde(), consumedInternal.valueSerde());
-        assertEquals(((AbstractStream) stream1.through("topic-3", Produced.with(mySerde, mySerde))).keySerde(), mySerde);
-        assertEquals(((AbstractStream) stream1.through("topic-3", Produced.with(mySerde, mySerde))).valueSerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.through("topic-3")).keySerde(), consumedInternal.keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.through("topic-3")).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.through("topic-3", Produced.with(mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.through("topic-3", Produced.with(mySerde, mySerde))).valueSerde(), mySerde);
 
-        assertEquals(((AbstractStream) stream1.repartition()).keySerde(), consumedInternal.keySerde());
-        assertEquals(((AbstractStream) stream1.repartition()).valueSerde(), consumedInternal.valueSerde());
-        assertEquals(((AbstractStream) stream1.repartition(Repartitioned.with(mySerde, mySerde))).keySerde(), mySerde);
-        assertEquals(((AbstractStream) stream1.repartition(Repartitioned.with(mySerde, mySerde))).valueSerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.repartition()).keySerde(), consumedInternal.keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.repartition()).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.repartition(Repartitioned.with(mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.repartition(Repartitioned.with(mySerde, mySerde))).valueSerde(), mySerde);
 
-        assertEquals(((AbstractStream) stream1.groupByKey()).keySerde(), consumedInternal.keySerde());
-        assertEquals(((AbstractStream) stream1.groupByKey()).valueSerde(), consumedInternal.valueSerde());
-        assertEquals(((AbstractStream) stream1.groupByKey(Grouped.with(mySerde, mySerde))).keySerde(), mySerde);
-        assertEquals(((AbstractStream) stream1.groupByKey(Grouped.with(mySerde, mySerde))).valueSerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.groupByKey()).keySerde(), consumedInternal.keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.groupByKey()).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.groupByKey(Grouped.with(mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.groupByKey(Grouped.with(mySerde, mySerde))).valueSerde(), mySerde);
 
-        assertNull(((AbstractStream) stream1.groupBy(selector)).keySerde());
-        assertEquals(((AbstractStream) stream1.groupBy(selector)).valueSerde(), consumedInternal.valueSerde());
-        assertEquals(((AbstractStream) stream1.groupBy(selector, Grouped.with(mySerde, mySerde))).keySerde(), mySerde);
-        assertEquals(((AbstractStream) stream1.groupBy(selector, Grouped.with(mySerde, mySerde))).valueSerde(), mySerde);
+        Assertions.assertNull(((AbstractStream) stream1.groupBy(selector)).keySerde());
+        Assertions.assertEquals(((AbstractStream) stream1.groupBy(selector)).valueSerde(), consumedInternal.valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.groupBy(selector, Grouped.with(mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertEquals(((AbstractStream) stream1.groupBy(selector, Grouped.with(mySerde, mySerde))).valueSerde(), mySerde);
 
-        assertNull(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).keySerde());
-        assertNull(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).valueSerde());
-        assertEquals(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
-        assertNull(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertNull(((AbstractStream) stream1.join(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).valueSerde());
 
-        assertNull(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).keySerde());
-        assertNull(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).valueSerde());
-        assertEquals(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
-        assertNull(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertNull(((AbstractStream) stream1.leftJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).valueSerde());
 
-        assertNull(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).keySerde());
-        assertNull(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).valueSerde());
-        assertEquals(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
-        assertNull(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).valueSerde());
+        Assertions.assertNull(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)))).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertNull(((AbstractStream) stream1.outerJoin(stream1, joiner, JoinWindows.of(Duration.ofMillis(100L)), StreamJoined.with(mySerde, mySerde, mySerde))).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.join(table1, joiner)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.join(table1, joiner)).valueSerde());
-        assertEquals(((AbstractStream) stream1.join(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
-        assertNull(((AbstractStream) stream1.join(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.join(table1, joiner)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.join(table1, joiner)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.join(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertNull(((AbstractStream) stream1.join(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.leftJoin(table1, joiner)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.leftJoin(table1, joiner)).valueSerde());
-        assertEquals(((AbstractStream) stream1.leftJoin(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
-        assertNull(((AbstractStream) stream1.leftJoin(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.leftJoin(table1, joiner)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.leftJoin(table1, joiner)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.leftJoin(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).keySerde(), mySerde);
+        Assertions.assertNull(((AbstractStream) stream1.leftJoin(table1, joiner, Joined.with(mySerde, mySerde, mySerde))).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.join(table2, selector, joiner)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.join(table2, selector, joiner)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.join(table2, selector, joiner)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.join(table2, selector, joiner)).valueSerde());
 
-        assertEquals(((AbstractStream) stream1.leftJoin(table2, selector, joiner)).keySerde(), consumedInternal.keySerde());
-        assertNull(((AbstractStream) stream1.leftJoin(table2, selector, joiner)).valueSerde());
+        Assertions.assertEquals(((AbstractStream) stream1.leftJoin(table2, selector, joiner)).keySerde(), consumedInternal.keySerde());
+        Assertions.assertNull(((AbstractStream) stream1.leftJoin(table2, selector, joiner)).valueSerde());
     }
 
     @Deprecated
@@ -1449,10 +1450,10 @@ public class KStreamImplTest {
 
         final ProcessorTopology processorTopology = TopologyWrapper.getInternalTopologyBuilder(builder.build()).setApplicationId("X").buildTopology();
         assertThat(processorTopology.source("topic-6").getTimestampExtractor(), instanceOf(FailOnInvalidTimestamp.class));
-        assertNull(processorTopology.source("topic-4").getTimestampExtractor());
-        assertNull(processorTopology.source("topic-3").getTimestampExtractor());
-        assertNull(processorTopology.source("topic-2").getTimestampExtractor());
-        assertNull(processorTopology.source("topic-1").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-4").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-3").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-2").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-1").getTimestampExtractor());
     }
 
     @Test
@@ -1466,10 +1467,10 @@ public class KStreamImplTest {
 
         final ProcessorTopology processorTopology = TopologyWrapper.getInternalTopologyBuilder(builder.build()).setApplicationId("X").buildTopology();
         assertThat(processorTopology.source("X-topic-6-repartition").getTimestampExtractor(), instanceOf(FailOnInvalidTimestamp.class));
-        assertNull(processorTopology.source("topic-4").getTimestampExtractor());
-        assertNull(processorTopology.source("topic-3").getTimestampExtractor());
-        assertNull(processorTopology.source("topic-2").getTimestampExtractor());
-        assertNull(processorTopology.source("topic-1").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-4").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-3").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-2").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic-1").getTimestampExtractor());
     }
 
     @Deprecated
@@ -1563,7 +1564,7 @@ public class KStreamImplTest {
 
         for (final SourceNode<?, ?> sourceNode : topology.sources()) {
             if (sourceNode.name().equals(originalSourceNode.name())) {
-                assertNull(sourceNode.getTimestampExtractor());
+                Assertions.assertNull(sourceNode.getTimestampExtractor());
             } else {
                 assertThat(sourceNode.getTimestampExtractor(), instanceOf(FailOnInvalidTimestamp.class));
             }
@@ -1593,7 +1594,7 @@ public class KStreamImplTest {
 
         for (final SourceNode<?, ?> sourceNode : topology.sources()) {
             if (sourceNode.name().equals(originalSourceNode.name())) {
-                assertNull(sourceNode.getTimestampExtractor());
+                Assertions.assertNull(sourceNode.getTimestampExtractor());
             } else {
                 assertThat(sourceNode.getTimestampExtractor(), instanceOf(FailOnInvalidTimestamp.class));
             }
@@ -1614,10 +1615,10 @@ public class KStreamImplTest {
         final Pattern repartitionTopicPattern = Pattern.compile("Sink: .*-repartition");
         final String topology = builder.build().describe().toString();
         final Matcher matcher = repartitionTopicPattern.matcher(topology);
-        assertTrue(matcher.find());
+        Assertions.assertTrue(matcher.find());
         final String match = matcher.group();
         assertThat(match, notNullValue());
-        assertTrue(match.endsWith("repartition"));
+        Assertions.assertTrue(match.endsWith("repartition"));
     }
 
     @Test
@@ -1642,7 +1643,7 @@ public class KStreamImplTest {
             inputTopic1.pipeInput("D", "dd");
         }
 
-        assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 0),
+        Assertions.assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 0),
             new KeyValueTimestamp<>("B", "bb", 0),
             new KeyValueTimestamp<>("C", "cc", 0),
             new KeyValueTimestamp<>("D", "dd", 0)), processorSupplier.theCapturedProcessor().processed());
@@ -1683,7 +1684,7 @@ public class KStreamImplTest {
             inputTopic1.pipeInput("H", "hh", 6L);
         }
 
-        assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 1),
+        Assertions.assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 1),
             new KeyValueTimestamp<>("B", "bb", 9),
             new KeyValueTimestamp<>("C", "cc", 2),
             new KeyValueTimestamp<>("D", "dd", 8),
@@ -1719,7 +1720,7 @@ public class KStreamImplTest {
             inputTopic7.pipeInput("E", "ee", 3L);
         }
 
-        assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 1),
+        Assertions.assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 1),
             new KeyValueTimestamp<>("B", "bb", 5),
             new KeyValueTimestamp<>("C", "cc", 10),
             new KeyValueTimestamp<>("D", "dd", 8),
@@ -1757,7 +1758,7 @@ public class KStreamImplTest {
             inputTopic.pipeInput("E", "ee", 3L);
         }
 
-        assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 1),
+        Assertions.assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 1),
             new KeyValueTimestamp<>("B", "bb", 5),
             new KeyValueTimestamp<>("C", "cc", 10),
             new KeyValueTimestamp<>("D", "dd", 8),
@@ -2696,7 +2697,7 @@ public class KStreamImplTest {
             outputExpectRecords.add(new TestRecord<>("A", "05", Instant.ofEpochMilli(10L)));
             outputExpectRecords.add(new TestRecord<>("A", "06", Instant.ofEpochMilli(8L)));
 
-            assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
+            Assertions.assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
         }
     }
 
@@ -2772,10 +2773,10 @@ public class KStreamImplTest {
             inputTopic.pipeInput("A", "000000", 8L);
 
             final KeyValueStore<String, Integer> sumStore = driver.getKeyValueStore("sum");
-            assertEquals(12, sumStore.get("A").intValue());
-            assertEquals(2, sumStore.get("B").intValue());
-            assertEquals(3, sumStore.get("C").intValue());
-            assertEquals(4, sumStore.get("D").intValue());
+            Assertions.assertEquals(12, sumStore.get("A").intValue());
+            Assertions.assertEquals(2, sumStore.get("B").intValue());
+            Assertions.assertEquals(3, sumStore.get("C").intValue());
+            Assertions.assertEquals(4, sumStore.get("D").intValue());
         }
     }
 
@@ -2863,10 +2864,10 @@ public class KStreamImplTest {
             inputTopic.pipeInput("A", "000000", 8L);
 
             final KeyValueStore<String, Integer> sumStore = driver.getKeyValueStore("sum");
-            assertEquals(12, sumStore.get("A").intValue());
-            assertEquals(2, sumStore.get("B").intValue());
-            assertEquals(3, sumStore.get("C").intValue());
-            assertEquals(4, sumStore.get("D").intValue());
+            Assertions.assertEquals(12, sumStore.get("A").intValue());
+            Assertions.assertEquals(2, sumStore.get("B").intValue());
+            Assertions.assertEquals(3, sumStore.get("C").intValue());
+            Assertions.assertEquals(4, sumStore.get("D").intValue());
         }
     }
 
@@ -2932,7 +2933,7 @@ public class KStreamImplTest {
             outputExpectRecords.add(new TestRecord<>("A", 5, Instant.ofEpochMilli(10L)));
             outputExpectRecords.add(new TestRecord<>("A", 6, Instant.ofEpochMilli(8L)));
 
-            assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
+            Assertions.assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
         }
     }
 
@@ -2998,7 +2999,7 @@ public class KStreamImplTest {
             outputExpectRecords.add(new TestRecord<>("A", 5, Instant.ofEpochMilli(10L)));
             outputExpectRecords.add(new TestRecord<>("A", 6, Instant.ofEpochMilli(8L)));
 
-            assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
+            Assertions.assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
         }
     }
 
@@ -3107,7 +3108,7 @@ public class KStreamImplTest {
             outputExpectRecords.add(new TestRecord<>(0, "05", Instant.ofEpochMilli(10L)));
             outputExpectRecords.add(new TestRecord<>(0, "06", Instant.ofEpochMilli(8L)));
 
-            assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
+            Assertions.assertEquals(outputTopic.readRecordsToList(), outputExpectRecords);
         }
     }
 
@@ -3446,7 +3447,7 @@ public class KStreamImplTest {
             inputTopic.pipeInput("C", "yellow", 15L);
             inputTopic.pipeInput("D", "green", 11L);
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(
                     new TestRecord<>("green", 1L, Instant.ofEpochMilli(10)),
                     new TestRecord<>("green", 2L, Instant.ofEpochMilli(10)),
@@ -3518,9 +3519,9 @@ public class KStreamImplTest {
             expectedStore.putIfAbsent("C", 24);
             expectedStore.putIfAbsent("D", 6);
 
-            assertEquals(expectedStore, asMap(store));
+            Assertions.assertEquals(expectedStore, asMap(store));
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(
                     new TestRecord<>("A", 6, Instant.ofEpochMilli(10)),
                     new TestRecord<>("B", 6, Instant.ofEpochMilli(9)),

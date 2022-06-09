@@ -17,8 +17,9 @@
 package org.apache.kafka.streams.processor.internals.assignment;
 
 import org.apache.kafka.streams.processor.TaskId;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -52,7 +53,7 @@ public class StandbyTaskAssignmentUtilsTest {
     private Map<UUID, ClientState> clients;
     private ConstrainedPrioritySet clientsByTaskLoad;
 
-    @Before
+    @BeforeEach
     public void setup() {
 
         clients = getClientStatesMap(ACTIVE_TASKS.stream().map(StandbyTaskAssignmentUtilsTest::mkState).toArray(ClientState[]::new));
@@ -76,8 +77,8 @@ public class StandbyTaskAssignmentUtilsTest {
                                                                                                                    taskId,
                                                                                                                    logMock));
 
-        assertTrue(ACTIVE_TASKS.stream().allMatch(activeTask -> tasksToRemainingStandbys.get(activeTask) == 1));
-        assertTrue(areStandbyTasksPresentForAllActiveTasks(2));
+        Assertions.assertTrue(ACTIVE_TASKS.stream().allMatch(activeTask -> tasksToRemainingStandbys.get(activeTask) == 1));
+        Assertions.assertTrue(areStandbyTasksPresentForAllActiveTasks(2));
         verify(logMock, times(ACTIVE_TASKS.size())).warn(anyString(), anyInt(), anyInt(), any());
     }
 
@@ -94,8 +95,8 @@ public class StandbyTaskAssignmentUtilsTest {
                                                                                                                    taskId,
                                                                                                                    logMock));
 
-        assertTrue(ACTIVE_TASKS.stream().allMatch(activeTask -> tasksToRemainingStandbys.get(activeTask) == 0));
-        assertTrue(areStandbyTasksPresentForAllActiveTasks(1));
+        Assertions.assertTrue(ACTIVE_TASKS.stream().allMatch(activeTask -> tasksToRemainingStandbys.get(activeTask) == 0));
+        Assertions.assertTrue(areStandbyTasksPresentForAllActiveTasks(1));
         verifyNoInteractions(logMock);
     }
 

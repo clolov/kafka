@@ -16,11 +16,11 @@
  */
 package org.apache.kafka.streams.state.internals;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class was taken from Hive org.apache.hive.common.util;

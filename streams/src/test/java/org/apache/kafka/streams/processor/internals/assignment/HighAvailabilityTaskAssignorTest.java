@@ -18,7 +18,8 @@ package org.apache.kafka.streams.processor.internals.assignment;
 
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.assignment.AssignorConfiguration.AssignmentConfigs;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -227,7 +228,7 @@ public class HighAvailabilityTaskAssignorTest {
         assertThat(clientState3, hasActiveTasks(3));
         final AssignmentTestUtils.TaskSkewReport taskSkewReport = analyzeTaskAssignmentBalance(clientStates);
         if (taskSkewReport.totalSkewedTasks() == 0) {
-            fail("Expected a skewed task assignment, but was: " + taskSkewReport);
+            Assertions.fail("Expected a skewed task assignment, but was: " + taskSkewReport);
         }
     }
 

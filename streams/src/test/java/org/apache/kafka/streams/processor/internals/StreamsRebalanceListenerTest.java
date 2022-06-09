@@ -23,8 +23,8 @@ import org.apache.kafka.streams.errors.TaskAssignmentException;
 import org.apache.kafka.streams.processor.internals.StreamThread.State;
 import org.apache.kafka.streams.processor.internals.assignment.AssignorError;
 import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
@@ -54,7 +54,7 @@ public class StreamsRebalanceListenerTest {
         assignmentErrorCode
     );
 
-    @Before
+    @BeforeEach
     public void before() {
         expect(streamThread.state()).andStubReturn(null);
         expect(taskManager.activeTaskIds()).andStubReturn(null);

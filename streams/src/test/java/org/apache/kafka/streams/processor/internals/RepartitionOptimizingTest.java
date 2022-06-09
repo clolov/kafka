@@ -48,9 +48,8 @@ import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,7 +106,7 @@ public class RepartitionOptimizingTest {
     private final List<String> expectedCollectedProcessorValues =
         Arrays.asList("FOO", "BAR", "BAZ");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         streamsConfiguration = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.String());
         streamsConfiguration.setProperty(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, Integer.toString(1024 * 10));
@@ -116,7 +115,7 @@ public class RepartitionOptimizingTest {
         processorValueCollector.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         topologyTestDriver.close();
     }
@@ -204,13 +203,13 @@ public class RepartitionOptimizingTest {
         // Verify the topology
         final String topologyString = topology.describe().toString();
         if (optimizationConfig.equals(StreamsConfig.OPTIMIZE)) {
-            assertEquals(EXPECTED_OPTIMIZED_TOPOLOGY, topologyString);
+            Assertions.assertEquals(EXPECTED_OPTIMIZED_TOPOLOGY, topologyString);
         } else {
-            assertEquals(EXPECTED_UNOPTIMIZED_TOPOLOGY, topologyString);
+            Assertions.assertEquals(EXPECTED_UNOPTIMIZED_TOPOLOGY, topologyString);
         }
 
         // Verify the number of repartition topics
-        assertEquals(expectedNumberRepartitionTopics, getCountOfRepartitionTopicsFound(topologyString));
+        Assertions.assertEquals(expectedNumberRepartitionTopics, getCountOfRepartitionTopicsFound(topologyString));
 
         // Verify the values collected by the processor
         assertThat(3, equalTo(processorValueCollector.size()));

@@ -23,7 +23,8 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.apache.kafka.test.GenericInMemoryTimestampedKeyValueStore;
 import org.apache.kafka.test.InternalMockProcessorContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -54,16 +55,16 @@ public class KTableReduceTest {
         context.setCurrentNode(new ProcessorNode<>("reduce", reduceProcessor, singleton("myStore")));
 
         reduceProcessor.process(new Record<>("A", new Change<>(singleton("a"), null), 10L));
-        assertEquals(ValueAndTimestamp.make(singleton("a"), 10L), myStore.get("A"));
+        Assertions.assertEquals(ValueAndTimestamp.make(singleton("a"), 10L), myStore.get("A"));
         reduceProcessor.process(new Record<>("A", new Change<>(singleton("b"), singleton("a")), 15L));
-        assertEquals(ValueAndTimestamp.make(singleton("b"), 15L), myStore.get("A"));
+        Assertions.assertEquals(ValueAndTimestamp.make(singleton("b"), 15L), myStore.get("A"));
         reduceProcessor.process(new Record<>("A", new Change<>(null, singleton("b")), 12L));
-        assertEquals(ValueAndTimestamp.make(emptySet(), 15L), myStore.get("A"));
+        Assertions.assertEquals(ValueAndTimestamp.make(emptySet(), 15L), myStore.get("A"));
     }
 
     private Set<String> differenceNotNullArgs(final Set<String> left, final Set<String> right) {
-        assertNotNull(left);
-        assertNotNull(right);
+        Assertions.assertNotNull(left);
+        Assertions.assertNotNull(right);
 
         final HashSet<String> strings = new HashSet<>(left);
         strings.removeAll(right);
@@ -71,8 +72,8 @@ public class KTableReduceTest {
     }
 
     private Set<String> unionNotNullArgs(final Set<String> left, final Set<String> right) {
-        assertNotNull(left);
-        assertNotNull(right);
+        Assertions.assertNotNull(left);
+        Assertions.assertNotNull(right);
 
         final HashSet<String> strings = new HashSet<>();
         strings.addAll(left);

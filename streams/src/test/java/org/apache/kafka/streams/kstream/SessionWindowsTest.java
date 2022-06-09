@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.kstream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
@@ -38,8 +39,8 @@ public class SessionWindowsTest {
     public void shouldSetWindowGap() {
         final long anyGap = 42L;
 
-        assertEquals(anyGap, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(anyGap)).inactivityGap());
-        assertEquals(anyGap, SessionWindows.ofInactivityGapAndGrace(ofMillis(anyGap), ofMillis(ANY_GRACE)).inactivityGap());
+        Assertions.assertEquals(anyGap, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(anyGap)).inactivityGap());
+        Assertions.assertEquals(anyGap, SessionWindows.ofInactivityGapAndGrace(ofMillis(anyGap), ofMillis(ANY_GRACE)).inactivityGap());
     }
 
     @Test
@@ -48,7 +49,7 @@ public class SessionWindowsTest {
 
         try {
             SessionWindows.ofInactivityGapAndGrace(ofMillis(3L), ofMillis(-1L));
-            fail("should not accept negatives");
+            Assertions.fail("should not accept negatives");
         } catch (final IllegalArgumentException e) {
             //expected
         }
@@ -56,25 +57,25 @@ public class SessionWindowsTest {
 
     @Test
     public void noGraceAPIShouldNotSetGracePeriod() {
-        assertEquals(0L, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(3L)).gracePeriodMs());
-        assertEquals(0L, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(ANY_SIZE)).gracePeriodMs());
-        assertEquals(0L, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(ANY_OTHER_SIZE)).gracePeriodMs());
+        Assertions.assertEquals(0L, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(3L)).gracePeriodMs());
+        Assertions.assertEquals(0L, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(ANY_SIZE)).gracePeriodMs());
+        Assertions.assertEquals(0L, SessionWindows.ofInactivityGapWithNoGrace(ofMillis(ANY_OTHER_SIZE)).gracePeriodMs());
     }
 
     @Test
     public void withGraceAPIShouldSetGracePeriod() {
-        assertEquals(ANY_GRACE, SessionWindows.ofInactivityGapAndGrace(ofMillis(3L), ofMillis(ANY_GRACE)).gracePeriodMs());
-        assertEquals(ANY_GRACE, SessionWindows.ofInactivityGapAndGrace(ofMillis(ANY_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
-        assertEquals(ANY_GRACE, SessionWindows.ofInactivityGapAndGrace(ofMillis(ANY_OTHER_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
+        Assertions.assertEquals(ANY_GRACE, SessionWindows.ofInactivityGapAndGrace(ofMillis(3L), ofMillis(ANY_GRACE)).gracePeriodMs());
+        Assertions.assertEquals(ANY_GRACE, SessionWindows.ofInactivityGapAndGrace(ofMillis(ANY_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
+        Assertions.assertEquals(ANY_GRACE, SessionWindows.ofInactivityGapAndGrace(ofMillis(ANY_OTHER_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
     }
 
     @SuppressWarnings("deprecation")
     @Test
     public void oldAPIShouldSetDefaultGracePeriod() {
-        assertEquals(Duration.ofDays(1).toMillis(), DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD);
-        assertEquals(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD - 3L, SessionWindows.with(ofMillis(3L)).gracePeriodMs());
-        assertEquals(0L, SessionWindows.with(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD)).gracePeriodMs());
-        assertEquals(0L, SessionWindows.with(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD + 1L)).gracePeriodMs());
+        Assertions.assertEquals(Duration.ofDays(1).toMillis(), DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD);
+        Assertions.assertEquals(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD - 3L, SessionWindows.with(ofMillis(3L)).gracePeriodMs());
+        Assertions.assertEquals(0L, SessionWindows.with(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD)).gracePeriodMs());
+        Assertions.assertEquals(0L, SessionWindows.with(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD + 1L)).gracePeriodMs());
     }
 
     @Test

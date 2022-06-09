@@ -26,8 +26,9 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.internals.MockStreamsMetrics;
 import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +53,7 @@ public class NamedCacheTest {
     private final StreamsMetricsImpl metrics = new MockStreamsMetrics(innerMetrics);
     private final MetricName cacheSizeBytesTotal = new MetricName("cache-size-bytes-total", "stream-task-metrics", "", mkMap(mkEntry("thread-id", "Test worker"), mkEntry("task-id", "dummy")));
 
-    @Before
+    @BeforeEach
     public void setUp() {
         cache = new NamedCache("dummy-name", metrics);
     }
@@ -72,12 +73,12 @@ public class NamedCacheTest {
                 new LRUCacheEntry(value, new RecordHeaders(), true, 1, 1, 1, ""));
             final LRUCacheEntry head = cache.first();
             final LRUCacheEntry tail = cache.last();
-            assertEquals(new String(head.value()), stringStringKeyValue.value);
-            assertEquals(new String(tail.value()), toInsert.get(0).value);
-            assertEquals(cache.flushes(), 0);
-            assertEquals(cache.hits(), 0);
-            assertEquals(cache.misses(), 0);
-            assertEquals(cache.overwrites(), 0);
+            Assertions.assertEquals(new String(head.value()), stringStringKeyValue.value);
+            Assertions.assertEquals(new String(tail.value()), toInsert.get(0).value);
+            Assertions.assertEquals(cache.flushes(), 0);
+            Assertions.assertEquals(cache.hits(), 0);
+            Assertions.assertEquals(cache.misses(), 0);
+            Assertions.assertEquals(cache.overwrites(), 0);
         }
     }
 
@@ -90,7 +91,7 @@ public class NamedCacheTest {
         final long size = cache.sizeInBytes();
         assertThat(metrics.metrics().get(cacheSizeBytesTotal).metricValue(), is((double) size));
         // 1 byte key + 24 bytes overhead
-        assertEquals((value.size() + 25) * 3, size);
+        Assertions.assertEquals((value.size() + 25) * 3, size);
     }
 
     @Test
@@ -99,10 +100,10 @@ public class NamedCacheTest {
         cache.put(Bytes.wrap(new byte[]{1}), new LRUCacheEntry(new byte[]{11}));
         cache.put(Bytes.wrap(new byte[]{2}), new LRUCacheEntry(new byte[]{12}));
 
-        assertArrayEquals(new byte[] {10}, cache.get(Bytes.wrap(new byte[] {0})).value());
-        assertArrayEquals(new byte[] {11}, cache.get(Bytes.wrap(new byte[] {1})).value());
-        assertArrayEquals(new byte[] {12}, cache.get(Bytes.wrap(new byte[] {2})).value());
-        assertEquals(cache.hits(), 3);
+        Assertions.assertArrayEquals(new byte[] {10}, cache.get(Bytes.wrap(new byte[] {0})).value());
+        Assertions.assertArrayEquals(new byte[] {11}, cache.get(Bytes.wrap(new byte[] {1})).value());
+        Assertions.assertArrayEquals(new byte[] {12}, cache.get(Bytes.wrap(new byte[] {2})).value());
+        Assertions.assertEquals(cache.hits(), 3);
     }
 
     @Test
@@ -111,16 +112,16 @@ public class NamedCacheTest {
         cache.putIfAbsent(Bytes.wrap(new byte[]{0}), new LRUCacheEntry(new byte[]{20}));
         cache.putIfAbsent(Bytes.wrap(new byte[]{1}), new LRUCacheEntry(new byte[]{30}));
 
-        assertArrayEquals(new byte[] {10}, cache.get(Bytes.wrap(new byte[] {0})).value());
-        assertArrayEquals(new byte[] {30}, cache.get(Bytes.wrap(new byte[] {1})).value());
+        Assertions.assertArrayEquals(new byte[] {10}, cache.get(Bytes.wrap(new byte[] {0})).value());
+        Assertions.assertArrayEquals(new byte[] {30}, cache.get(Bytes.wrap(new byte[] {1})).value());
     }
 
     @Test
     public void shouldDeleteAndUpdateSize() {
         cache.put(Bytes.wrap(new byte[]{0}), new LRUCacheEntry(new byte[]{10}));
         final LRUCacheEntry deleted = cache.delete(Bytes.wrap(new byte[]{0}));
-        assertArrayEquals(new byte[] {10}, deleted.value());
-        assertEquals(0, cache.sizeInBytes());
+        Assertions.assertArrayEquals(new byte[] {10}, deleted.value());
+        Assertions.assertEquals(0, cache.sizeInBytes());
         assertThat(metrics.metrics().get(cacheSizeBytesTotal).metricValue(), is((double) 0));
     }
 
@@ -130,9 +131,9 @@ public class NamedCacheTest {
                                    KeyValue.pair(new byte[] {1}, new LRUCacheEntry(new byte[]{1})),
                                    KeyValue.pair(new byte[] {2}, new LRUCacheEntry(new byte[]{2}))));
 
-        assertArrayEquals(new byte[]{0}, cache.get(Bytes.wrap(new byte[]{0})).value());
-        assertArrayEquals(new byte[]{1}, cache.get(Bytes.wrap(new byte[]{1})).value());
-        assertArrayEquals(new byte[]{2}, cache.get(Bytes.wrap(new byte[]{2})).value());
+        Assertions.assertArrayEquals(new byte[]{0}, cache.get(Bytes.wrap(new byte[]{0})).value());
+        Assertions.assertArrayEquals(new byte[]{1}, cache.get(Bytes.wrap(new byte[]{1})).value());
+        Assertions.assertArrayEquals(new byte[]{2}, cache.get(Bytes.wrap(new byte[]{2})).value());
     }
 
     @Test
@@ -141,8 +142,8 @@ public class NamedCacheTest {
             KeyValue.pair(new byte[] {0}, new LRUCacheEntry(new byte[]{1})),
             KeyValue.pair(new byte[] {0}, new LRUCacheEntry(new byte[]{2}))));
 
-        assertArrayEquals(new byte[]{2}, cache.get(Bytes.wrap(new byte[]{0})).value());
-        assertEquals(cache.overwrites(), 2);
+        Assertions.assertArrayEquals(new byte[]{2}, cache.get(Bytes.wrap(new byte[]{0})).value());
+        Assertions.assertEquals(cache.overwrites(), 2);
     }
 
     @Test
@@ -152,8 +153,8 @@ public class NamedCacheTest {
         cache.put(Bytes.wrap(new byte[]{2}), new LRUCacheEntry(new byte[]{30}));
 
         cache.evict();
-        assertNull(cache.get(Bytes.wrap(new byte[]{0})));
-        assertEquals(2, cache.size());
+        Assertions.assertNull(cache.get(Bytes.wrap(new byte[]{0})));
+        Assertions.assertEquals(2, cache.size());
     }
 
     @Test
@@ -167,13 +168,13 @@ public class NamedCacheTest {
 
         cache.evict();
 
-        assertEquals(2, flushed.size());
-        assertEquals(Bytes.wrap(new byte[] {0}), flushed.get(0).key());
-        assertEquals(headers, flushed.get(0).entry().context().headers());
-        assertArrayEquals(new byte[] {10}, flushed.get(0).newValue());
-        assertEquals(Bytes.wrap(new byte[] {2}), flushed.get(1).key());
-        assertArrayEquals(new byte[] {30}, flushed.get(1).newValue());
-        assertEquals(cache.flushes(), 1);
+        Assertions.assertEquals(2, flushed.size());
+        Assertions.assertEquals(Bytes.wrap(new byte[] {0}), flushed.get(0).key());
+        Assertions.assertEquals(headers, flushed.get(0).entry().context().headers());
+        Assertions.assertArrayEquals(new byte[] {10}, flushed.get(0).newValue());
+        Assertions.assertEquals(Bytes.wrap(new byte[] {2}), flushed.get(1).key());
+        Assertions.assertArrayEquals(new byte[] {30}, flushed.get(1).newValue());
+        Assertions.assertEquals(cache.flushes(), 1);
     }
 
     @Test
@@ -194,8 +195,8 @@ public class NamedCacheTest {
         cache.put(Bytes.wrap(new byte[]{0}), new LRUCacheEntry(null, headers, true, 0, 0, 0, ""));
         cache.put(Bytes.wrap(new byte[]{1}), new LRUCacheEntry(new byte[]{20}, new RecordHeaders(), true, 0, 0, 0, ""));
         cache.flush();
-        assertEquals(1, cache.size());
-        assertNotNull(cache.get(Bytes.wrap(new byte[]{1})));
+        Assertions.assertEquals(1, cache.size());
+        Assertions.assertNotNull(cache.get(Bytes.wrap(new byte[]{1})));
     }
 
     @Test
@@ -205,7 +206,7 @@ public class NamedCacheTest {
         cache.put(Bytes.wrap(new byte[]{0}), dirty);
         cache.put(Bytes.wrap(new byte[]{1}), clean);
         cache.put(Bytes.wrap(new byte[]{2}), clean);
-        assertEquals(3 * cache.head().size(), cache.sizeInBytes());
+        Assertions.assertEquals(3 * cache.head().size(), cache.sizeInBytes());
         cache.setListener(dirty1 -> {
             cache.put(Bytes.wrap(new byte[]{3}), clean);
             // evict key 1
@@ -214,7 +215,7 @@ public class NamedCacheTest {
             cache.evict();
         });
 
-        assertEquals(3 * cache.head().size(), cache.sizeInBytes());
+        Assertions.assertEquals(3 * cache.head().size(), cache.sizeInBytes());
         // Evict key 0
         cache.evict();
         final Bytes entryFour = Bytes.wrap(new byte[]{4});
@@ -223,22 +224,22 @@ public class NamedCacheTest {
         // check that the LRU is still correct
         final NamedCache.LRUNode head = cache.head();
         final NamedCache.LRUNode tail = cache.tail();
-        assertEquals(2, cache.size());
-        assertEquals(2 * head.size(), cache.sizeInBytes());
+        Assertions.assertEquals(2, cache.size());
+        Assertions.assertEquals(2 * head.size(), cache.sizeInBytes());
         // dirty should be the newest
-        assertEquals(entryFour, head.key());
-        assertEquals(Bytes.wrap(new byte[] {3}), tail.key());
-        assertSame(tail, head.next());
-        assertNull(head.previous());
-        assertSame(head, tail.previous());
-        assertNull(tail.next());
+        Assertions.assertEquals(entryFour, head.key());
+        Assertions.assertEquals(Bytes.wrap(new byte[] {3}), tail.key());
+        Assertions.assertSame(tail, head.next());
+        Assertions.assertNull(head.previous());
+        Assertions.assertSame(head, tail.previous());
+        Assertions.assertNull(tail.next());
 
         // evict key 3
         cache.evict();
-        assertSame(cache.head(), cache.tail());
-        assertEquals(entryFour, cache.head().key());
-        assertNull(cache.head().next());
-        assertNull(cache.head().previous());
+        Assertions.assertSame(cache.head(), cache.tail());
+        Assertions.assertEquals(entryFour, cache.head().key());
+        Assertions.assertNull(cache.head().next());
+        Assertions.assertNull(cache.head().previous());
     }
 
     @Test
@@ -253,6 +254,6 @@ public class NamedCacheTest {
 
     @Test
     public void shouldReturnNullIfKeyIsNull() {
-        assertNull(cache.get(null));
+        Assertions.assertNull(cache.get(null));
     }
 }

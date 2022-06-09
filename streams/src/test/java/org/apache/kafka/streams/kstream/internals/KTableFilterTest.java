@@ -38,8 +38,9 @@ import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -56,7 +57,7 @@ public class KTableFilterTest {
     private final Consumed<String, Integer> consumed = Consumed.with(Serdes.String(), Serdes.Integer());
     private final Properties props = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.Integer());
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // disable caching at the config level
         props.setProperty(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, "0");
@@ -108,9 +109,9 @@ public class KTableFilterTest {
         final KTable<String, Integer> table2 = table1.filter(predicate);
         final KTable<String, Integer> table3 = table1.filterNot(predicate);
 
-        assertNull(table1.queryableStoreName());
-        assertNull(table2.queryableStoreName());
-        assertNull(table3.queryableStoreName());
+        Assertions.assertNull(table1.queryableStoreName());
+        Assertions.assertNull(table2.queryableStoreName());
+        Assertions.assertNull(table3.queryableStoreName());
 
         doTestKTable(builder, table2, table3, topic1);
     }
@@ -124,9 +125,9 @@ public class KTableFilterTest {
         final KTable<String, Integer> table2 = table1.filter(predicate, Materialized.as("store2"));
         final KTable<String, Integer> table3 = table1.filterNot(predicate);
 
-        assertNull(table1.queryableStoreName());
-        assertEquals("store2", table2.queryableStoreName());
-        assertNull(table3.queryableStoreName());
+        Assertions.assertNull(table1.queryableStoreName());
+        Assertions.assertEquals("store2", table2.queryableStoreName());
+        Assertions.assertNull(table3.queryableStoreName());
 
         doTestKTable(builder, table2, table3, topic1);
     }
@@ -159,45 +160,45 @@ public class KTableFilterTest {
             inputTopic.pipeInput("B", 1, 10L);
             inputTopic.pipeInput("C", 1, 15L);
 
-            assertNull(getter2.get("A"));
-            assertNull(getter2.get("B"));
-            assertNull(getter2.get("C"));
+            Assertions.assertNull(getter2.get("A"));
+            Assertions.assertNull(getter2.get("B"));
+            Assertions.assertNull(getter2.get("C"));
 
-            assertEquals(ValueAndTimestamp.make(1, 5L), getter3.get("A"));
-            assertEquals(ValueAndTimestamp.make(1, 10L), getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 5L), getter3.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 10L), getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
 
             inputTopic.pipeInput("A", 2, 10L);
             inputTopic.pipeInput("B", 2, 5L);
 
-            assertEquals(ValueAndTimestamp.make(2, 10L), getter2.get("A"));
-            assertEquals(ValueAndTimestamp.make(2, 5L), getter2.get("B"));
-            assertNull(getter2.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 10L), getter2.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 5L), getter2.get("B"));
+            Assertions.assertNull(getter2.get("C"));
 
-            assertNull(getter3.get("A"));
-            assertNull(getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
+            Assertions.assertNull(getter3.get("A"));
+            Assertions.assertNull(getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
 
             inputTopic.pipeInput("A", 3, 15L);
 
-            assertNull(getter2.get("A"));
-            assertEquals(ValueAndTimestamp.make(2, 5L), getter2.get("B"));
-            assertNull(getter2.get("C"));
+            Assertions.assertNull(getter2.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 5L), getter2.get("B"));
+            Assertions.assertNull(getter2.get("C"));
 
-            assertEquals(ValueAndTimestamp.make(3, 15L), getter3.get("A"));
-            assertNull(getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(3, 15L), getter3.get("A"));
+            Assertions.assertNull(getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
 
             inputTopic.pipeInput("A", null, 10L);
             inputTopic.pipeInput("B", null, 20L);
 
-            assertNull(getter2.get("A"));
-            assertNull(getter2.get("B"));
-            assertNull(getter2.get("C"));
+            Assertions.assertNull(getter2.get("A"));
+            Assertions.assertNull(getter2.get("B"));
+            Assertions.assertNull(getter2.get("C"));
 
-            assertNull(getter3.get("A"));
-            assertNull(getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
+            Assertions.assertNull(getter3.get("A"));
+            Assertions.assertNull(getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 15L), getter3.get("C"));
         }
     }
 
@@ -215,10 +216,10 @@ public class KTableFilterTest {
         final KTableImpl<String, Integer, Integer> table4 =
             (KTableImpl<String, Integer, Integer>) table1.filterNot(predicate);
 
-        assertNull(table1.queryableStoreName());
-        assertEquals("store2", table2.queryableStoreName());
-        assertEquals("store3", table3.queryableStoreName());
-        assertNull(table4.queryableStoreName());
+        Assertions.assertNull(table1.queryableStoreName());
+        Assertions.assertEquals("store2", table2.queryableStoreName());
+        Assertions.assertEquals("store3", table3.queryableStoreName());
+        Assertions.assertNull(table4.queryableStoreName());
 
         doTestValueGetter(builder, table2, table3, topic1);
     }

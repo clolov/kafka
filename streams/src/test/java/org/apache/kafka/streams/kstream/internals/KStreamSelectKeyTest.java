@@ -27,7 +27,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -68,9 +69,9 @@ public class KStreamSelectKeyTest {
             }
         }
 
-        assertEquals(3, supplier.theCapturedProcessor().processed().size());
+        Assertions.assertEquals(3, supplier.theCapturedProcessor().processed().size());
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], supplier.theCapturedProcessor().processed().get(i));
+            Assertions.assertEquals(expected[i], supplier.theCapturedProcessor().processed().get(i));
         }
     }
 

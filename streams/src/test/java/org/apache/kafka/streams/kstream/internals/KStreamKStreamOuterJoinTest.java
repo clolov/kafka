@@ -40,8 +40,9 @@ import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -61,7 +62,7 @@ public class KStreamKStreamOuterJoinTest {
     private final Consumed<Integer, String> consumed = Consumed.with(Serdes.Integer(), Serdes.String());
     private final static Properties PROPS = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.String());
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         PROPS.put(InternalConfig.EMIT_INTERVAL_MS_KSTREAMS_OUTER_JOIN_SPURIOUS_RESULTS_FIX, 0L);
     }
@@ -94,7 +95,7 @@ public class KStreamKStreamOuterJoinTest {
             final MockApiProcessor<Integer, String, Void, Void> processor = supplier.theCapturedProcessor();
 
             // Only 2 window stores should be available
-            assertEquals(2, driver.getAllStateStores().size());
+            Assertions.assertEquals(2, driver.getAllStateStores().size());
 
             inputTopic1.pipeInput(0, "A0", 0L);
             inputTopic1.pipeInput(0, "A0-0", 0L);
@@ -469,8 +470,8 @@ public class KStreamKStreamOuterJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), PROPS)) {
             final TestInputTopic<Integer, String> inputTopic1 =
@@ -568,8 +569,8 @@ public class KStreamKStreamOuterJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), PROPS)) {
             final TestInputTopic<Integer, String> inputTopic1 =
@@ -579,7 +580,7 @@ public class KStreamKStreamOuterJoinTest {
             final MockApiProcessor<Integer, String, Void, Void> processor = supplier.theCapturedProcessor();
 
             // 2 window stores + 1 shared window store should be available
-            assertEquals(3, driver.getAllStateStores().size());
+            Assertions.assertEquals(3, driver.getAllStateStores().size());
 
             // push two items to the primary stream; the other window is empty; this should not
             // produce any items because window has not expired
@@ -681,8 +682,8 @@ public class KStreamKStreamOuterJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), PROPS)) {
             final TestInputTopic<Integer, String> inputTopic1 =

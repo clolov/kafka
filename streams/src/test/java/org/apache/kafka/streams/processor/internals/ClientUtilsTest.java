@@ -37,7 +37,8 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.streams.errors.StreamsException;
 import org.easymock.EasyMock;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -116,13 +117,13 @@ public class ClientUtilsTest {
     @Test
     public void fetchCommittedOffsetsShouldReturnEmptyMapIfPartitionsAreEmpty() {
         final Consumer<byte[], byte[]> consumer = EasyMock.createMock(Consumer.class);
-        assertTrue(fetchCommittedOffsets(emptySet(), consumer).isEmpty());
+        Assertions.assertTrue(fetchCommittedOffsets(emptySet(), consumer).isEmpty());
     }
 
     @Test
     public void fetchEndOffsetsShouldReturnEmptyMapIfPartitionsAreEmpty() {
         final Admin adminClient = EasyMock.createMock(AdminClient.class);
-        assertTrue(fetchEndOffsets(emptySet(), adminClient).isEmpty());
+        Assertions.assertTrue(fetchEndOffsets(emptySet(), adminClient).isEmpty());
     }
 
     @Test

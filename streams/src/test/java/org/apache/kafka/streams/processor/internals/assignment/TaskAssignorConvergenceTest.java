@@ -18,7 +18,8 @@ package org.apache.kafka.streams.processor.internals.assignment;
 
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.assignment.AssignorConfiguration.AssignmentConfigs;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -375,13 +376,12 @@ public class TaskAssignorConvergenceTest {
         assertBalancedStatefulAssignment(allStatefulTasks, clientStates, failureContext);
         final AssignmentTestUtils.TaskSkewReport taskSkewReport = AssignmentTestUtils.analyzeTaskAssignmentBalance(harness.clientStates);
         if (taskSkewReport.totalSkewedTasks() > 0) {
-            fail(
-                new StringBuilder().append("Expected a balanced task assignment, but was: ")
-                                   .append(taskSkewReport)
-                                   .append('\n')
-                                   .append(failureContext)
-                                   .toString()
-            );
+            Assertions.fail(
+                    new StringBuilder().append("Expected a balanced task assignment, but was: ")
+                                       .append(taskSkewReport)
+                                       .append('\n')
+                                       .append(failureContext)
+                                       .toString());
         }
     }
 
@@ -423,7 +423,7 @@ public class TaskAssignorConvergenceTest {
                 new StringBuilder().append("Rebalances have not converged after iteration cutoff: ")
                                    .append(iterationLimit)
                                    .append(harness.history);
-            fail(message.toString());
+            Assertions.fail(message.toString());
         }
     }
 

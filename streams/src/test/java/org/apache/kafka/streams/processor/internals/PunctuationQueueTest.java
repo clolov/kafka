@@ -20,7 +20,8 @@ import org.apache.kafka.streams.processor.Cancellable;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.processor.Punctuator;
 import org.apache.kafka.test.MockProcessorNode;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,28 +41,28 @@ public class PunctuationQueueTest {
         final ProcessorNodePunctuator processorNodePunctuator = (node, timestamp, type, punctuator) -> punctuator.punctuate(timestamp);
 
         queue.mayPunctuate(now, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 99L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 100L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 199L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 200L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(2, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(2, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 1001L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 1002L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 1100L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(4, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(4, node.mockProcessor.punctuatedStreamTime().size());
     }
 
     @Test
@@ -75,28 +76,28 @@ public class PunctuationQueueTest {
             (node, timestamp, type, punctuator) -> punctuator.punctuate(timestamp);
 
         queue.mayPunctuate(now, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 49L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 50L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 149L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 150L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(2, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(2, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 1051L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 1052L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(3, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 1150L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(4, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(4, node.mockProcessor.punctuatedStreamTime().size());
     }
 
     @Test
@@ -113,12 +114,12 @@ public class PunctuationQueueTest {
         };
 
         queue.mayPunctuate(now, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(0, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 100L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
 
         queue.mayPunctuate(now + 200L, PunctuationType.STREAM_TIME, processorNodePunctuator);
-        assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
+        Assertions.assertEquals(1, node.mockProcessor.punctuatedStreamTime().size());
     }
 }

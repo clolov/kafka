@@ -27,7 +27,8 @@ import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,11 +77,11 @@ public class KStreamForeachTest {
             }
         }
 
-        assertEquals(expectedRecords.size(), actualRecords.size());
+        Assertions.assertEquals(expectedRecords.size(), actualRecords.size());
         for (int i = 0; i < expectedRecords.size(); i++) {
             final KeyValue<Integer, String> expectedRecord = expectedRecords.get(i);
             final KeyValue<Integer, String> actualRecord = actualRecords.get(i);
-            assertEquals(expectedRecord, actualRecord);
+            Assertions.assertEquals(expectedRecord, actualRecord);
         }
     }
 

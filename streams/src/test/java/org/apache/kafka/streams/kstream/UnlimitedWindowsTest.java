@@ -17,7 +17,8 @@
 package org.apache.kafka.streams.kstream;
 
 import org.apache.kafka.streams.kstream.internals.UnlimitedWindow;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class UnlimitedWindowsTest {
 
     @Test
     public void shouldSetWindowStartTime() {
-        assertEquals(ANY_START_TIME, UnlimitedWindows.of().startOn(ofEpochMilli(ANY_START_TIME)).startMs);
+        Assertions.assertEquals(ANY_START_TIME, UnlimitedWindows.of().startOn(ofEpochMilli(ANY_START_TIME)).startMs);
     }
 
     @Test
@@ -46,8 +47,8 @@ public class UnlimitedWindowsTest {
     public void shouldIncludeRecordsThatHappenedOnWindowStart() {
         final UnlimitedWindows w = UnlimitedWindows.of().startOn(ofEpochMilli(ANY_START_TIME));
         final Map<Long, UnlimitedWindow> matchedWindows = w.windowsFor(w.startMs);
-        assertEquals(1, matchedWindows.size());
-        assertEquals(new UnlimitedWindow(ANY_START_TIME), matchedWindows.get(ANY_START_TIME));
+        Assertions.assertEquals(1, matchedWindows.size());
+        Assertions.assertEquals(new UnlimitedWindow(ANY_START_TIME), matchedWindows.get(ANY_START_TIME));
     }
 
     @Test
@@ -55,8 +56,8 @@ public class UnlimitedWindowsTest {
         final UnlimitedWindows w = UnlimitedWindows.of().startOn(ofEpochMilli(ANY_START_TIME));
         final long timestamp = w.startMs + 1;
         final Map<Long, UnlimitedWindow> matchedWindows = w.windowsFor(timestamp);
-        assertEquals(1, matchedWindows.size());
-        assertEquals(new UnlimitedWindow(ANY_START_TIME), matchedWindows.get(ANY_START_TIME));
+        Assertions.assertEquals(1, matchedWindows.size());
+        Assertions.assertEquals(new UnlimitedWindow(ANY_START_TIME), matchedWindows.get(ANY_START_TIME));
     }
 
     @Test
@@ -64,7 +65,7 @@ public class UnlimitedWindowsTest {
         final UnlimitedWindows w = UnlimitedWindows.of().startOn(ofEpochMilli(ANY_START_TIME));
         final long timestamp = w.startMs - 1;
         final Map<Long, UnlimitedWindow> matchedWindows = w.windowsFor(timestamp);
-        assertTrue(matchedWindows.isEmpty());
+        Assertions.assertTrue(matchedWindows.isEmpty());
     }
 
     @Test

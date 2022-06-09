@@ -20,8 +20,8 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.errors.StreamsException;
 import org.apache.kafka.streams.state.internals.ValueAndTimestampSerde;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
@@ -63,7 +63,7 @@ public class StateSerdesTest {
 
         for (final Class keyClass : supportedBuildInTypes) {
             for (final Class valueClass : supportedBuildInTypes) {
-                Assert.assertNotNull(StateSerdes.withBuiltinTypes("anyName", keyClass, valueClass));
+                Assertions.assertNotNull(StateSerdes.withBuiltinTypes("anyName", keyClass, valueClass));
             }
         }
     }

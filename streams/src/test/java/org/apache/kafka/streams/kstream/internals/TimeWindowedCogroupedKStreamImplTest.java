@@ -48,8 +48,8 @@ import org.apache.kafka.streams.test.TestRecord;
 import org.apache.kafka.test.MockAggregator;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("deprecation")
 public class TimeWindowedCogroupedKStreamImplTest {
@@ -68,7 +68,7 @@ public class TimeWindowedCogroupedKStreamImplTest {
 
     private final Properties props = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.String());
 
-    @Before
+    @BeforeEach
     public void setup() {
         final KStream<String, String> stream = builder.stream(TOPIC, Consumed
             .with(Serdes.String(), Serdes.String()));

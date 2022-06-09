@@ -54,9 +54,8 @@ import org.apache.kafka.streams.errors.StreamsException;
 import org.apache.kafka.streams.processor.internals.InternalTopicManager.ValidationResult;
 import org.apache.kafka.streams.processor.internals.testutil.LogCaptureAppender;
 import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,7 +116,7 @@ public class InternalTopicManagerTest {
         }
     };
 
-    @Before
+    @BeforeEach
     public void init() {
         threadName = Thread.currentThread().getName();
 
@@ -129,7 +128,7 @@ public class InternalTopicManagerTest {
         );
     }
 
-    @After
+    @AfterEach
     public void shutdown() {
         mockAdminClient.close();
     }
@@ -615,7 +614,7 @@ public class InternalTopicManagerTest {
             topic1,
             Collections.singletonList(new TopicPartitionInfo(0, broker1, singleReplica, Collections.emptyList())),
             null);
-        assertEquals(Collections.singletonMap(topic1, 1),
+        Assertions.assertEquals(Collections.singletonMap(topic1, 1),
             internalTopicManager.getNumPartitions(Collections.singleton(topic1), Collections.emptySet()));
     }
 
@@ -632,18 +631,18 @@ public class InternalTopicManagerTest {
         internalTopicManager.makeReady(Collections.singletonMap(topic2, topicConfig2));
         internalTopicManager.makeReady(Collections.singletonMap(topic3, topicConfig3));
 
-        assertEquals(mkSet(topic1, topic2, topic3), mockAdminClient.listTopics().names().get());
-        assertEquals(new TopicDescription(topic1, false, new ArrayList<TopicPartitionInfo>() {
+        Assertions.assertEquals(mkSet(topic1, topic2, topic3), mockAdminClient.listTopics().names().get());
+        Assertions.assertEquals(new TopicDescription(topic1, false, new ArrayList<TopicPartitionInfo>() {
             {
                 add(new TopicPartitionInfo(0, broker1, singleReplica, Collections.emptyList()));
             }
         }), mockAdminClient.describeTopics(Collections.singleton(topic1)).topicNameValues().get(topic1).get());
-        assertEquals(new TopicDescription(topic2, false, new ArrayList<TopicPartitionInfo>() {
+        Assertions.assertEquals(new TopicDescription(topic2, false, new ArrayList<TopicPartitionInfo>() {
             {
                 add(new TopicPartitionInfo(0, broker1, singleReplica, Collections.emptyList()));
             }
         }), mockAdminClient.describeTopics(Collections.singleton(topic2)).topicNameValues().get(topic2).get());
-        assertEquals(new TopicDescription(topic3, false, new ArrayList<TopicPartitionInfo>() {
+        Assertions.assertEquals(new TopicDescription(topic3, false, new ArrayList<TopicPartitionInfo>() {
             {
                 add(new TopicPartitionInfo(0, broker1, singleReplica, Collections.emptyList()));
             }
@@ -653,15 +652,15 @@ public class InternalTopicManagerTest {
         final ConfigResource resource2 = new ConfigResource(ConfigResource.Type.TOPIC, topic2);
         final ConfigResource resource3 = new ConfigResource(ConfigResource.Type.TOPIC, topic3);
 
-        assertEquals(
+        Assertions.assertEquals(
             new ConfigEntry(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_DELETE),
             mockAdminClient.describeConfigs(Collections.singleton(resource)).values().get(resource).get().get(TopicConfig.CLEANUP_POLICY_CONFIG)
         );
-        assertEquals(
+        Assertions.assertEquals(
             new ConfigEntry(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_COMPACT),
             mockAdminClient.describeConfigs(Collections.singleton(resource2)).values().get(resource2).get().get(TopicConfig.CLEANUP_POLICY_CONFIG)
         );
-        assertEquals(
+        Assertions.assertEquals(
             new ConfigEntry(TopicConfig.CLEANUP_POLICY_CONFIG, TopicConfig.CLEANUP_POLICY_COMPACT + "," + TopicConfig.CLEANUP_POLICY_DELETE),
             mockAdminClient.describeConfigs(Collections.singleton(resource3)).values().get(resource3).get().get(TopicConfig.CLEANUP_POLICY_CONFIG)
         );
@@ -733,7 +732,7 @@ public class InternalTopicManagerTest {
             final InternalTopicConfig internalTopicConfig = new RepartitionTopicConfig(topic1, Collections.emptyMap());
             internalTopicConfig.setNumberOfPartitions(1);
             internalTopicManager.makeReady(Collections.singletonMap(topic1, internalTopicConfig));
-            fail("Should have thrown StreamsException");
+            Assertions.fail("Should have thrown StreamsException");
         } catch (final StreamsException expected) { /* pass */ }
     }
 
@@ -770,9 +769,9 @@ public class InternalTopicManagerTest {
         internalTopicConfig.setNumberOfPartitions(1);
         try {
             internalTopicManager.makeReady(Collections.singletonMap(topic1, internalTopicConfig));
-            fail("Should have thrown StreamsException.");
+            Assertions.fail("Should have thrown StreamsException.");
         } catch (final StreamsException expected) {
-            assertEquals(TimeoutException.class, expected.getCause().getClass());
+            Assertions.assertEquals(TimeoutException.class, expected.getCause().getClass());
         }
     }
 
@@ -915,7 +914,7 @@ public class InternalTopicManagerTest {
             TimeoutException.class,
             () -> topicManager.makeReady(Collections.singletonMap(topic1, internalTopicConfig))
         );
-        assertNull(exception.getCause());
+        Assertions.assertNull(exception.getCause());
         assertThat(
             exception.getMessage(),
             equalTo("Could not create topics within 50 milliseconds." +
@@ -946,7 +945,7 @@ public class InternalTopicManagerTest {
             TimeoutException.class,
             () -> internalTopicManager.makeReady(Collections.singletonMap(topic1, internalTopicConfig))
         );
-        assertNull(exception.getCause());
+        Assertions.assertNull(exception.getCause());
         assertThat(
             exception.getMessage(),
             equalTo("Could not create topics within 50 milliseconds." +

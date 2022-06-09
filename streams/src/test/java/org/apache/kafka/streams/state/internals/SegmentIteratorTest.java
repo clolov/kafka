@@ -27,9 +27,8 @@ import org.apache.kafka.streams.state.internals.metrics.RocksDBMetricsRecorder;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,7 +53,7 @@ public class SegmentIteratorTest {
     private SegmentIterator<KeyValueSegment> iterator = null;
 
     @SuppressWarnings("rawtypes")
-    @Before
+    @BeforeEach
     public void before() {
         final InternalMockProcessorContext context = new InternalMockProcessorContext<>(
             TestUtils.tempDirectory(),
@@ -73,7 +72,7 @@ public class SegmentIteratorTest {
         segmentTwo.put(Bytes.wrap("d".getBytes()), "4".getBytes());
     }
 
-    @After
+    @AfterEach
     public void closeSegments() {
         if (iterator != null) {
             iterator.close();
@@ -92,23 +91,23 @@ public class SegmentIteratorTest {
             Bytes.wrap("z".getBytes()),
             true);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("d", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("d", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -120,23 +119,23 @@ public class SegmentIteratorTest {
             null,
             true);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("d", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("d", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -148,23 +147,23 @@ public class SegmentIteratorTest {
             Bytes.wrap("z".getBytes()),
             false);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("d", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("d", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -176,23 +175,23 @@ public class SegmentIteratorTest {
             null,
             false);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("d", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("d", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -206,7 +205,7 @@ public class SegmentIteratorTest {
 
         iterator.currentIterator = segmentOne.all();
         segmentOne.close();
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -218,15 +217,15 @@ public class SegmentIteratorTest {
             Bytes.wrap("b".getBytes()),
             false);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -238,16 +237,16 @@ public class SegmentIteratorTest {
             Bytes.wrap("b".getBytes()),
             false);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -259,15 +258,15 @@ public class SegmentIteratorTest {
             null,
             false);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("d", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("d", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -279,15 +278,15 @@ public class SegmentIteratorTest {
             Bytes.wrap("b".getBytes()),
             true);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -299,19 +298,19 @@ public class SegmentIteratorTest {
             Bytes.wrap("c".getBytes()),
             true);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("a", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("a", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("a", "1"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test
@@ -323,19 +322,19 @@ public class SegmentIteratorTest {
             null,
             true);
 
-        assertTrue(iterator.hasNext());
-        assertEquals("b", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("b", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("b", "2"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("c", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("c", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("c", "3"), toStringKeyValue(iterator.next()));
 
-        assertTrue(iterator.hasNext());
-        assertEquals("d", new String(iterator.peekNextKey().get()));
-        assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
+        Assertions.assertTrue(iterator.hasNext());
+        Assertions.assertEquals("d", new String(iterator.peekNextKey().get()));
+        Assertions.assertEquals(KeyValue.pair("d", "4"), toStringKeyValue(iterator.next()));
 
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
     }
 
     @Test

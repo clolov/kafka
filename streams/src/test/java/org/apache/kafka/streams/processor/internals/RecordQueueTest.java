@@ -45,9 +45,8 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.MockSourceNode;
 import org.apache.kafka.test.MockTimestampExtractor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -102,12 +101,12 @@ public class RecordQueueTest {
     private final byte[] recordKey = intSerializer.serialize(null, 1);
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void before() {
         mockSourceNodeWithMetrics.init(context);
     }
 
-    @After
+    @AfterEach
     public void after() {
         mockSourceNodeWithMetrics.close();
     }
@@ -165,10 +164,10 @@ public class RecordQueueTest {
 
     @Test
     public void testTimeTracking() {
-        assertTrue(queue.isEmpty());
-        assertEquals(0, queue.size());
-        assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
-        assertNull(queue.headRecordOffset());
+        Assertions.assertTrue(queue.isEmpty());
+        Assertions.assertEquals(0, queue.size());
+        Assertions.assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
+        Assertions.assertNull(queue.headRecordOffset());
 
         // add three 3 out-of-order records with timestamp 2, 1, 3
         final List<ConsumerRecord<byte[], byte[]>> list1 = Arrays.asList(
@@ -178,21 +177,21 @@ public class RecordQueueTest {
 
         queue.addRawRecords(list1);
 
-        assertEquals(3, queue.size());
-        assertEquals(2L, queue.headRecordTimestamp());
-        assertEquals(2L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(3, queue.size());
+        Assertions.assertEquals(2L, queue.headRecordTimestamp());
+        Assertions.assertEquals(2L, queue.headRecordOffset().longValue());
 
         // poll the first record, now with 1, 3
-        assertEquals(2L, queue.poll(0).timestamp);
-        assertEquals(2, queue.size());
-        assertEquals(1L, queue.headRecordTimestamp());
-        assertEquals(1L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(2L, queue.poll(0).timestamp);
+        Assertions.assertEquals(2, queue.size());
+        Assertions.assertEquals(1L, queue.headRecordTimestamp());
+        Assertions.assertEquals(1L, queue.headRecordOffset().longValue());
 
         // poll the second record, now with 3
-        assertEquals(1L, queue.poll(0).timestamp);
-        assertEquals(1, queue.size());
-        assertEquals(3L, queue.headRecordTimestamp());
-        assertEquals(3L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(1L, queue.poll(0).timestamp);
+        Assertions.assertEquals(1, queue.size());
+        Assertions.assertEquals(3L, queue.headRecordTimestamp());
+        Assertions.assertEquals(3L, queue.headRecordOffset().longValue());
 
         // add three 3 out-of-order records with timestamp 4, 1, 2
         // now with 3, 4, 1, 2
@@ -203,30 +202,30 @@ public class RecordQueueTest {
 
         queue.addRawRecords(list2);
 
-        assertEquals(4, queue.size());
-        assertEquals(3L, queue.headRecordTimestamp());
-        assertEquals(3L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(4, queue.size());
+        Assertions.assertEquals(3L, queue.headRecordTimestamp());
+        Assertions.assertEquals(3L, queue.headRecordOffset().longValue());
 
         // poll the third record, now with 4, 1, 2
-        assertEquals(3L, queue.poll(0).timestamp);
-        assertEquals(3, queue.size());
-        assertEquals(4L, queue.headRecordTimestamp());
-        assertEquals(4L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(3L, queue.poll(0).timestamp);
+        Assertions.assertEquals(3, queue.size());
+        Assertions.assertEquals(4L, queue.headRecordTimestamp());
+        Assertions.assertEquals(4L, queue.headRecordOffset().longValue());
 
         // poll the rest records
-        assertEquals(4L, queue.poll(0).timestamp);
-        assertEquals(1L, queue.headRecordTimestamp());
-        assertEquals(1L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(4L, queue.poll(0).timestamp);
+        Assertions.assertEquals(1L, queue.headRecordTimestamp());
+        Assertions.assertEquals(1L, queue.headRecordOffset().longValue());
 
-        assertEquals(1L, queue.poll(0).timestamp);
-        assertEquals(2L, queue.headRecordTimestamp());
-        assertEquals(2L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(1L, queue.poll(0).timestamp);
+        Assertions.assertEquals(2L, queue.headRecordTimestamp());
+        Assertions.assertEquals(2L, queue.headRecordOffset().longValue());
 
-        assertEquals(2L, queue.poll(0).timestamp);
-        assertTrue(queue.isEmpty());
-        assertEquals(0, queue.size());
-        assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
-        assertNull(queue.headRecordOffset());
+        Assertions.assertEquals(2L, queue.poll(0).timestamp);
+        Assertions.assertTrue(queue.isEmpty());
+        Assertions.assertEquals(0, queue.size());
+        Assertions.assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
+        Assertions.assertNull(queue.headRecordOffset());
 
         // add three more records with 4, 5, 6
         final List<ConsumerRecord<byte[], byte[]>> list3 = Arrays.asList(
@@ -236,35 +235,35 @@ public class RecordQueueTest {
 
         queue.addRawRecords(list3);
 
-        assertEquals(3, queue.size());
-        assertEquals(4L, queue.headRecordTimestamp());
-        assertEquals(4L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(3, queue.size());
+        Assertions.assertEquals(4L, queue.headRecordTimestamp());
+        Assertions.assertEquals(4L, queue.headRecordOffset().longValue());
 
         // poll one record again, the timestamp should advance now
-        assertEquals(4L, queue.poll(0).timestamp);
-        assertEquals(2, queue.size());
-        assertEquals(5L, queue.headRecordTimestamp());
-        assertEquals(5L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(4L, queue.poll(0).timestamp);
+        Assertions.assertEquals(2, queue.size());
+        Assertions.assertEquals(5L, queue.headRecordTimestamp());
+        Assertions.assertEquals(5L, queue.headRecordOffset().longValue());
 
         // clear the queue
         queue.clear();
-        assertTrue(queue.isEmpty());
-        assertEquals(0, queue.size());
-        assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
-        assertEquals(RecordQueue.UNKNOWN, queue.partitionTime());
-        assertNull(queue.headRecordOffset());
+        Assertions.assertTrue(queue.isEmpty());
+        Assertions.assertEquals(0, queue.size());
+        Assertions.assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
+        Assertions.assertEquals(RecordQueue.UNKNOWN, queue.partitionTime());
+        Assertions.assertNull(queue.headRecordOffset());
 
         // re-insert the three records with 4, 5, 6
         queue.addRawRecords(list3);
 
-        assertEquals(3, queue.size());
-        assertEquals(4L, queue.headRecordTimestamp());
-        assertEquals(4L, queue.headRecordOffset().longValue());
+        Assertions.assertEquals(3, queue.size());
+        Assertions.assertEquals(4L, queue.headRecordTimestamp());
+        Assertions.assertEquals(4L, queue.headRecordOffset().longValue());
     }
 
     @Test
     public void shouldTrackPartitionTimeAsMaxProcessedTimestamp() {
-        assertTrue(queue.isEmpty());
+        Assertions.assertTrue(queue.isEmpty());
         assertThat(queue.size(), is(0));
         assertThat(queue.headRecordTimestamp(), is(RecordQueue.UNKNOWN));
         assertThat(queue.partitionTime(), is(RecordQueue.UNKNOWN));
@@ -295,7 +294,7 @@ public class RecordQueueTest {
 
     @Test
     public void shouldSetTimestampAndRespectMaxTimestampPolicy() {
-        assertTrue(queue.isEmpty());
+        Assertions.assertTrue(queue.isEmpty());
         assertThat(queue.size(), is(0));
         assertThat(queue.headRecordTimestamp(), is(RecordQueue.UNKNOWN));
         assertThat(queue.partitionTime(), is(RecordQueue.UNKNOWN));
@@ -363,8 +362,8 @@ public class RecordQueueTest {
         final List<ConsumerRecord<byte[], byte[]>> records = Collections.singletonList(record);
 
         queueThatSkipsDeserializeErrors.addRawRecords(records);
-        assertEquals(1, queueThatSkipsDeserializeErrors.size());
-        assertEquals(new CorruptedRecord(record), queueThatSkipsDeserializeErrors.poll(0));
+        Assertions.assertEquals(1, queueThatSkipsDeserializeErrors.size());
+        Assertions.assertEquals(new CorruptedRecord(record), queueThatSkipsDeserializeErrors.poll(0));
     }
 
     @Test
@@ -377,8 +376,8 @@ public class RecordQueueTest {
             record);
 
         queueThatSkipsDeserializeErrors.addRawRecords(records);
-        assertEquals(1, queueThatSkipsDeserializeErrors.size());
-        assertEquals(new CorruptedRecord(record), queueThatSkipsDeserializeErrors.poll(0));
+        Assertions.assertEquals(1, queueThatSkipsDeserializeErrors.size());
+        Assertions.assertEquals(new CorruptedRecord(record), queueThatSkipsDeserializeErrors.poll(0));
     }
 
     @Test
@@ -422,7 +421,7 @@ public class RecordQueueTest {
             new LogContext());
         queue.addRawRecords(records);
 
-        assertEquals(0, queue.size());
+        Assertions.assertEquals(0, queue.size());
     }
 
     @Test
@@ -437,9 +436,9 @@ public class RecordQueueTest {
             context,
             new LogContext());
 
-        assertTrue(queue.isEmpty());
-        assertEquals(0, queue.size());
-        assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
+        Assertions.assertTrue(queue.isEmpty());
+        Assertions.assertEquals(0, queue.size());
+        Assertions.assertEquals(RecordQueue.UNKNOWN, queue.headRecordTimestamp());
 
         // add three 3 out-of-order records with timestamp 2, 1, 3, 4
         final List<ConsumerRecord<byte[], byte[]>> list1 = Arrays.asList(
@@ -452,21 +451,21 @@ public class RecordQueueTest {
             new ConsumerRecord<>("topic", 1, 4, 0L, TimestampType.CREATE_TIME, 0, 0, recordKey, recordValue,
                 new RecordHeaders(), Optional.empty()));
 
-        assertEquals(RecordQueue.UNKNOWN, timestampExtractor.partitionTime);
+        Assertions.assertEquals(RecordQueue.UNKNOWN, timestampExtractor.partitionTime);
 
         queue.addRawRecords(list1);
 
         // no (known) timestamp has yet been passed to the timestamp extractor
-        assertEquals(RecordQueue.UNKNOWN, timestampExtractor.partitionTime);
+        Assertions.assertEquals(RecordQueue.UNKNOWN, timestampExtractor.partitionTime);
 
         queue.poll(0);
-        assertEquals(2L, timestampExtractor.partitionTime);
+        Assertions.assertEquals(2L, timestampExtractor.partitionTime);
 
         queue.poll(0);
-        assertEquals(2L, timestampExtractor.partitionTime);
+        Assertions.assertEquals(2L, timestampExtractor.partitionTime);
 
         queue.poll(0);
-        assertEquals(3L, timestampExtractor.partitionTime);
+        Assertions.assertEquals(3L, timestampExtractor.partitionTime);
 
     }
 

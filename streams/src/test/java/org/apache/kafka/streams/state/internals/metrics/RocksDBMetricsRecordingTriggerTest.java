@@ -19,8 +19,8 @@ package org.apache.kafka.streams.state.internals.metrics;
 import org.apache.kafka.common.utils.MockTime;
 import org.apache.kafka.common.utils.Time;
 import org.apache.kafka.streams.processor.TaskId;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.niceMock;
@@ -41,7 +41,7 @@ public class RocksDBMetricsRecordingTriggerTest {
     private final Time time = new MockTime();
     private final RocksDBMetricsRecordingTrigger recordingTrigger = new RocksDBMetricsRecordingTrigger(time);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         expect(recorder1.storeName()).andStubReturn(STORE_NAME1);
         expect(recorder1.taskId()).andStubReturn(TASK_ID1);

@@ -17,7 +17,8 @@
 
 package org.apache.kafka.streams.query;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -176,7 +177,7 @@ public class PositionTest {
         position1.withComponent("topic2", 0, 0);
         position2.withComponent("topic2", 0, 0);
 
-        assertEquals(position1, position2);
+        Assertions.assertEquals(position1, position2);
     }
 
     @Test
@@ -194,19 +195,19 @@ public class PositionTest {
         position1.withComponent("topic2", 0, 0);
         position2.withComponent("topic2", 0, 0);
 
-        assertNotEquals(position1, position2);
+        Assertions.assertNotEquals(position1, position2);
     }
 
     @Test
     public void shouldNotMatchNull() {
         final Position position = Position.emptyPosition();
-        assertNotEquals(position, null);
+        Assertions.assertNotEquals(position, null);
     }
 
     @Test
     public void shouldMatchSelf() {
         final Position position = Position.emptyPosition();
-        assertEquals(position, position);
+        Assertions.assertEquals(position, position);
     }
 
     @Test

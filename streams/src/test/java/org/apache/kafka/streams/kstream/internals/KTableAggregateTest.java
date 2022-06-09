@@ -37,7 +37,8 @@ import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import java.time.Duration;
@@ -91,7 +92,7 @@ public class KTableAggregateTest {
             inputTopic.pipeInput("B", "7", 15L);
             inputTopic.pipeInput("C", "8", 10L);
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(
                     new KeyValueTimestamp<>("A", "0+1", 10L),
                     new KeyValueTimestamp<>("B", "0+2", 15L),
@@ -152,7 +153,7 @@ public class KTableAggregateTest {
             inputTopic.pipeInput("NULL", "5", 24L);
             inputTopic.pipeInput("B", "7", 22L);
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(
                     new KeyValueTimestamp<>("1", "0+1", 10),
                     new KeyValueTimestamp<>("1", "0+1-1", 15),
@@ -181,7 +182,7 @@ public class KTableAggregateTest {
             inputTopic.pipeInput("C", "yellow", 15L);
             inputTopic.pipeInput("D", "green", 11L);
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(
                     new KeyValueTimestamp<>("green", 1L, 10),
                     new KeyValueTimestamp<>("green", 2L, 10),
@@ -259,7 +260,7 @@ public class KTableAggregateTest {
             inputTopic.pipeInput("11", (String) null, 12L);
             inputTopic.pipeInput("12", "C", 6L);
 
-            assertEquals(
+            Assertions.assertEquals(
                 asList(
                     new KeyValueTimestamp<>("1", "1", 10),
                     new KeyValueTimestamp<>("1", "12", 10),

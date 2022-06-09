@@ -20,7 +20,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.streams.errors.TaskAssignmentException;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.state.HostInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -100,7 +101,7 @@ public class AssignmentInfoTest {
     @Test
     public void shouldUseLatestSupportedVersionByDefault() {
         final AssignmentInfo info = new AssignmentInfo(LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
-        assertEquals(LATEST_SUPPORTED_VERSION, info.version());
+        Assertions.assertEquals(LATEST_SUPPORTED_VERSION, info.version());
     }
 
     @Test
@@ -119,14 +120,14 @@ public class AssignmentInfoTest {
     public void shouldEncodeAndDecodeVersion1() {
         final AssignmentInfo info = new AssignmentInfo(1, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
         final AssignmentInfo expectedInfo = new AssignmentInfo(1, UNKNOWN, activeTasks, standbyTasks, Collections.emptyMap(), Collections.emptyMap(), 0);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
     public void shouldEncodeAndDecodeVersion2() {
         final AssignmentInfo info = new AssignmentInfo(2, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
         final AssignmentInfo expectedInfo = new AssignmentInfo(2, UNKNOWN, activeTasks, standbyTasks, activeAssignment, Collections.emptyMap(), 0);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -134,7 +135,7 @@ public class AssignmentInfoTest {
         final AssignmentInfo info = new AssignmentInfo(3, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
         final AssignmentInfo expectedInfo = new AssignmentInfo(3, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks,
             activeAssignment, Collections.emptyMap(), 0);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -142,7 +143,7 @@ public class AssignmentInfoTest {
         final AssignmentInfo info = new AssignmentInfo(4, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo = new AssignmentInfo(4, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks,
             activeAssignment, Collections.emptyMap(), 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -150,7 +151,7 @@ public class AssignmentInfoTest {
         final AssignmentInfo info = new AssignmentInfo(5, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo = new AssignmentInfo(5, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks,
             activeAssignment, Collections.emptyMap(), 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -158,7 +159,7 @@ public class AssignmentInfoTest {
         final AssignmentInfo info = new AssignmentInfo(6, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo = new AssignmentInfo(6, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks,
             activeAssignment, standbyAssignment, 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -167,7 +168,7 @@ public class AssignmentInfoTest {
             new AssignmentInfo(7, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo =
             new AssignmentInfo(7, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -176,7 +177,7 @@ public class AssignmentInfoTest {
             new AssignmentInfo(8, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo =
             new AssignmentInfo(8, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -185,7 +186,7 @@ public class AssignmentInfoTest {
             new AssignmentInfo(9, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo =
             new AssignmentInfo(9, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -194,14 +195,14 @@ public class AssignmentInfoTest {
             new AssignmentInfo(10, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo =
             new AssignmentInfo(10, LATEST_SUPPORTED_VERSION, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
     public void shouldEncodeAndDecodeVersion10WithNamedTopologies() {
         final AssignmentInfo info =
             new AssignmentInfo(10, LATEST_SUPPORTED_VERSION, NAMED_ACTIVE_TASKS, NAMED_STANDBY_TASKS, activeAssignment, standbyAssignment, 2);
-        assertEquals(info, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(info, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
@@ -219,25 +220,25 @@ public class AssignmentInfoTest {
             activeAssignment, standbyAssignment, 2);
         final AssignmentInfo expectedInfo = new AssignmentInfo(usedVersion, commonlySupportedVersion, activeTasks, standbyTasks,
             activeAssignment, Collections.emptyMap(), 2);
-        assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, AssignmentInfo.decode(info.encode()));
     }
 
     @Test
     public void nextRebalanceTimeShouldBeMaxValueByDefault() {
         final AssignmentInfo info = new AssignmentInfo(7, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
-        assertEquals(info.nextRebalanceMs(), Long.MAX_VALUE);
+        Assertions.assertEquals(info.nextRebalanceMs(), Long.MAX_VALUE);
     }
 
     @Test
     public void shouldDecodeDefaultNextRebalanceTime() {
         final AssignmentInfo info = new AssignmentInfo(7, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
-        assertEquals(info.nextRebalanceMs(), Long.MAX_VALUE);
+        Assertions.assertEquals(info.nextRebalanceMs(), Long.MAX_VALUE);
     }
 
     @Test
     public void shouldEncodeAndDecodeNextRebalanceTime() {
         final AssignmentInfo info = new AssignmentInfo(7, activeTasks, standbyTasks, activeAssignment, standbyAssignment, 0);
         info.setNextRebalanceTime(1000L);
-        assertEquals(1000L, AssignmentInfo.decode(info.encode()).nextRebalanceMs());
+        Assertions.assertEquals(1000L, AssignmentInfo.decode(info.encode()).nextRebalanceMs());
     }
 }

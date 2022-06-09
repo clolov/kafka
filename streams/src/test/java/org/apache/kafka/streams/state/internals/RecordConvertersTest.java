@@ -19,7 +19,8 @@ package org.apache.kafka.streams.state.internals;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class RecordConvertersTest {
     @Test
     public void shouldPreserveNullValueOnConversion() {
         final ConsumerRecord<byte[], byte[]> nullValueRecord = new ConsumerRecord<>("", 0, 0L, new byte[0], null);
-        assertNull(timestampedValueConverter.convert(nullValueRecord).value());
+        Assertions.assertNull(timestampedValueConverter.convert(nullValueRecord).value());
     }
 
     @Test
@@ -47,6 +48,6 @@ public class RecordConvertersTest {
                 new RecordHeaders(), Optional.empty());
         final byte[] expectedValue = ByteBuffer.allocate(9).putLong(timestamp).put(value).array();
         final byte[] actualValue = timestampedValueConverter.convert(inputRecord).value();
-        assertArrayEquals(expectedValue, actualValue);
+        Assertions.assertArrayEquals(expectedValue, actualValue);
     }
 }

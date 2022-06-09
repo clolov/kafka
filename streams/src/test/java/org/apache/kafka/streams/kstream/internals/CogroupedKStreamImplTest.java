@@ -54,8 +54,9 @@ import org.apache.kafka.test.MockAggregator;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CogroupedKStreamImplTest {
     private final Consumed<String, String> stringConsumed = Consumed.with(Serdes.String(), Serdes.String());
@@ -80,7 +81,7 @@ public class CogroupedKStreamImplTest {
     private static final Initializer<Integer> SUM_INITIALIZER = () -> 0;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         final StreamsBuilder builder = new StreamsBuilder();
         final KStream<String, String> stream = builder.stream(TOPIC, Consumed.with(Serdes.String(), Serdes.String()));
@@ -1233,14 +1234,14 @@ public class CogroupedKStreamImplTest {
             testInputTopic.pipeInput("k1", "A", 5L);
             testInputTopic2.pipeInput("k2", "B", 6L);
 
-            assertTrue(testOutputTopic.isEmpty());
+            Assertions.assertTrue(testOutputTopic.isEmpty());
 
             testInputTopic3.pipeInput("k1", "C", 0L);
             testInputTopic3.pipeInput("k2", "D", 10L);
 
             assertOutputKeyValueTimestamp(testOutputTopic, "k1", "A+C", 5L);
             assertOutputKeyValueTimestamp(testOutputTopic, "k2", "B+D", 10L);
-            assertTrue(testOutputTopic.isEmpty());
+            Assertions.assertTrue(testOutputTopic.isEmpty());
         }
     }
 

@@ -17,7 +17,8 @@
 
 package org.apache.kafka.streams.query;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class PositionBoundTest {
     @Test
     public void unboundedShouldBeUnbounded() {
         final PositionBound bound = PositionBound.unbounded();
-        assertTrue(bound.isUnbounded());
+        Assertions.assertTrue(bound.isUnbounded());
     }
 
     @Test
@@ -59,26 +60,26 @@ public class PositionBoundTest {
     public void shouldEqualPosition() {
         final PositionBound bound1 = PositionBound.at(Position.emptyPosition());
         final PositionBound bound2 = PositionBound.at(Position.emptyPosition());
-        assertEquals(bound1, bound2);
+        Assertions.assertEquals(bound1, bound2);
     }
 
     @Test
     public void shouldEqualUnbounded() {
         final PositionBound bound1 = PositionBound.unbounded();
         final PositionBound bound2 = PositionBound.unbounded();
-        assertEquals(bound1, bound2);
+        Assertions.assertEquals(bound1, bound2);
     }
 
     @Test
     public void shouldEqualSelf() {
         final PositionBound bound1 = PositionBound.at(Position.emptyPosition());
-        assertEquals(bound1, bound1);
+        Assertions.assertEquals(bound1, bound1);
     }
 
     @Test
     public void shouldNotEqualNull() {
         final PositionBound bound1 = PositionBound.at(Position.emptyPosition());
-        assertNotEquals(bound1, null);
+        Assertions.assertNotEquals(bound1, null);
     }
 
     @Test

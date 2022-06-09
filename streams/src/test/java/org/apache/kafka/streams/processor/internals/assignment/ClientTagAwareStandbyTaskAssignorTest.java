@@ -19,8 +19,9 @@ package org.apache.kafka.streams.processor.internals.assignment;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.assignment.AssignorConfiguration.AssignmentConfigs;
 import org.apache.kafka.streams.processor.internals.assignment.ClientTagAwareStandbyTaskAssignor.TagEntry;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -76,7 +77,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
 
     private StandbyTaskAssignor standbyTaskAssignor;
 
-    @Before
+    @BeforeEach
     public void setup() {
         standbyTaskAssignor = new ClientTagAwareStandbyTaskAssignor();
     }
@@ -110,7 +111,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         standbyTaskAssignor.assign(clientStates, allActiveTasks, statefulTasks, assignmentConfigs);
 
         final Set<TaskId> statelessTasks = allActiveTasks.stream().filter(taskId -> !statefulTasks.contains(taskId)).collect(Collectors.toSet());
-        assertTrue(
+        Assertions.assertTrue(
             clientStates.values().stream().allMatch(clientState -> statelessTasks.stream().noneMatch(clientState::hasStandbyTask))
         );
     }
@@ -154,8 +155,8 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             );
         }
 
-        assertTrue(tasksToRemainingStandbys.isEmpty());
-        assertTrue(pendingStandbyTasksToClientId.isEmpty());
+        Assertions.assertTrue(tasksToRemainingStandbys.isEmpty());
+        Assertions.assertTrue(pendingStandbyTasksToClientId.isEmpty());
     }
 
     @Test
@@ -198,17 +199,17 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         }
 
         allActiveTasks.forEach(
-            activeTaskId -> assertEquals(String.format("Active task with id [%s] didn't match expected number " +
-                                                       "of remaining standbys value.", activeTaskId),
-                                         1,
-                                         tasksToRemainingStandbys.get(activeTaskId).longValue())
+            activeTaskId -> Assertions.assertEquals(
+                    1,
+                                         tasksToRemainingStandbys.get(activeTaskId).longValue(), String.format("Active task with id [%s] didn't match expected number " +
+                                                                                    "of remaining standbys value.", activeTaskId))
         );
 
         allActiveTasks.forEach(
-            activeTaskId -> assertEquals(String.format("Active task with id [%s] didn't match expected " +
-                                                       "client ID value.", activeTaskId),
-                                         taskToClientId.get(activeTaskId),
-                                         pendingStandbyTasksToClientId.get(activeTaskId))
+            activeTaskId -> Assertions.assertEquals(
+                    taskToClientId.get(activeTaskId),
+                                         pendingStandbyTasksToClientId.get(activeTaskId), String.format("Active task with id [%s] didn't match expected " +
+                                                                                    "client ID value.", activeTaskId))
         );
     }
 
@@ -217,7 +218,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         final ClientState source = createClientStateWithCapacity(1, mkMap(mkEntry(ZONE_TAG, ZONE_1), mkEntry(CLUSTER_TAG, CLUSTER_1)));
         final ClientState destination = createClientStateWithCapacity(2, mkMap(mkEntry(ZONE_TAG, ZONE_1), mkEntry(CLUSTER_TAG, CLUSTER_1)));
 
-        assertTrue(standbyTaskAssignor.isAllowedTaskMovement(source, destination));
+        Assertions.assertTrue(standbyTaskAssignor.isAllowedTaskMovement(source, destination));
     }
 
     @Test
@@ -225,7 +226,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         final ClientState source = createClientStateWithCapacity(1, mkMap(mkEntry(ZONE_TAG, ZONE_1), mkEntry(CLUSTER_TAG, CLUSTER_1)));
         final ClientState destination = createClientStateWithCapacity(1, mkMap(mkEntry(ZONE_TAG, ZONE_2), mkEntry(CLUSTER_TAG, CLUSTER_1)));
 
-        assertFalse(standbyTaskAssignor.isAllowedTaskMovement(source, destination));
+        Assertions.assertFalse(standbyTaskAssignor.isAllowedTaskMovement(source, destination));
     }
 
     @Test
@@ -249,13 +250,13 @@ public class ClientTagAwareStandbyTaskAssignorTest {
 
         standbyTaskAssignor.assign(clientStates, allActiveTasks, allActiveTasks, assignmentConfigs);
 
-        assertTrue(clientStates.values().stream().allMatch(ClientState::reachedCapacity));
+        Assertions.assertTrue(clientStates.values().stream().allMatch(ClientState::reachedCapacity));
 
         Stream.of(UUID_1, UUID_4, UUID_7).forEach(client -> assertStandbyTaskCountForClientEqualsTo(clientStates, client, 0));
         Stream.of(UUID_2, UUID_3, UUID_5, UUID_6, UUID_8, UUID_9).forEach(client -> assertStandbyTaskCountForClientEqualsTo(clientStates, client, 2));
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 12);
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_0,
                 clientStates,
@@ -264,7 +265,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_0,
                 clientStates,
@@ -274,7 +275,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             )
         );
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_1,
                 clientStates,
@@ -283,7 +284,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_1,
                 clientStates,
@@ -293,7 +294,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             )
         );
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_2,
                 clientStates,
@@ -302,7 +303,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_2,
                 clientStates,
@@ -334,13 +335,13 @@ public class ClientTagAwareStandbyTaskAssignorTest {
 
         standbyTaskAssignor.assign(clientStates, allActiveTasks, allActiveTasks, assignmentConfigs);
 
-        assertTrue(clientStates.values().stream().allMatch(ClientState::reachedCapacity));
+        Assertions.assertTrue(clientStates.values().stream().allMatch(ClientState::reachedCapacity));
 
         Stream.of(UUID_1, UUID_2, UUID_3).forEach(client -> assertStandbyTaskCountForClientEqualsTo(clientStates, client, 0));
         Stream.of(UUID_4, UUID_5, UUID_6, UUID_7, UUID_8, UUID_9).forEach(client -> assertStandbyTaskCountForClientEqualsTo(clientStates, client, 2));
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 12);
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_0,
                 clientStates,
@@ -349,7 +350,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_0,
                 clientStates,
@@ -359,7 +360,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             )
         );
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_1,
                 clientStates,
@@ -368,7 +369,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_1,
                 clientStates,
@@ -378,7 +379,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             )
         );
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_2,
                 clientStates,
@@ -387,7 +388,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_2,
                 clientStates,
@@ -432,7 +433,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         Stream.of(UUID_1, UUID_3, UUID_4, UUID_6).forEach(client -> assertStandbyTaskCountForClientEqualsTo(clientStates, client, 0, 1));
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 4);
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_0,
                 clientStates,
@@ -447,7 +448,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_0,
                 clientStates,
@@ -482,7 +483,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         clientStates.keySet().forEach(client -> assertStandbyTaskCountForClientEqualsTo(clientStates, client, 1));
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 6);
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_0,
                 clientStates,
@@ -491,7 +492,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_0,
                 clientStates,
@@ -501,7 +502,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             )
         );
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_1,
                 clientStates,
@@ -510,7 +511,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_1,
                 clientStates,
@@ -520,7 +521,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
             )
         );
 
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_2,
                 clientStates,
@@ -529,7 +530,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                 )
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_1_2,
                 clientStates,
@@ -555,7 +556,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         standbyTaskAssignor.assign(clientStates, allActiveTasks, allActiveTasks, assignmentConfigs);
 
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 1);
-        assertEquals(1, clientStates.get(UUID_3).standbyTaskCount());
+        Assertions.assertEquals(1, clientStates.get(UUID_3).standbyTaskCount());
     }
 
     @Test
@@ -571,7 +572,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         standbyTaskAssignor.assign(clientStates, allActiveTasks, allActiveTasks, assignmentConfigs);
 
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 1);
-        assertTrue(
+        Assertions.assertTrue(
             standbyClientsHonorRackAwareness(
                 TASK_0_0,
                 clientStates,
@@ -597,10 +598,10 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         standbyTaskAssignor.assign(clientStates, allActiveTasks, allActiveTasks, assignmentConfigs);
 
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 4);
-        assertEquals(1, clientStates.get(UUID_1).standbyTaskCount());
-        assertEquals(1, clientStates.get(UUID_2).standbyTaskCount());
-        assertEquals(1, clientStates.get(UUID_3).standbyTaskCount());
-        assertEquals(1, clientStates.get(UUID_4).standbyTaskCount());
+        Assertions.assertEquals(1, clientStates.get(UUID_1).standbyTaskCount());
+        Assertions.assertEquals(1, clientStates.get(UUID_2).standbyTaskCount());
+        Assertions.assertEquals(1, clientStates.get(UUID_3).standbyTaskCount());
+        Assertions.assertEquals(1, clientStates.get(UUID_4).standbyTaskCount());
     }
 
     @Test
@@ -615,12 +616,12 @@ public class ClientTagAwareStandbyTaskAssignorTest {
         standbyTaskAssignor.assign(clientStates, allActiveTasks, allActiveTasks, assignmentConfigs);
 
         assertTotalNumberOfStandbyTasksEqualsTo(clientStates, 0);
-        assertEquals(0, clientStates.get(UUID_1).standbyTaskCount());
+        Assertions.assertEquals(0, clientStates.get(UUID_1).standbyTaskCount());
     }
 
     private static void assertTotalNumberOfStandbyTasksEqualsTo(final Map<UUID, ClientState> clientStates, final int expectedTotalNumberOfStandbyTasks) {
         final int actualTotalNumberOfStandbyTasks = clientStates.values().stream().map(ClientState::standbyTaskCount).reduce(0, Integer::sum);
-        assertEquals(expectedTotalNumberOfStandbyTasks, actualTotalNumberOfStandbyTasks);
+        Assertions.assertEquals(expectedTotalNumberOfStandbyTasks, actualTotalNumberOfStandbyTasks);
     }
 
     private static void assertStandbyTaskCountForClientEqualsTo(final Map<UUID, ClientState> clientStates,
@@ -631,7 +632,7 @@ public class ClientTagAwareStandbyTaskAssignorTest {
                                          "Expected any of %s, actual [%s]",
                                          client, Arrays.toString(expectedStandbyTaskCounts), standbyTaskCount);
 
-        assertTrue(msg, Arrays.stream(expectedStandbyTaskCounts).anyMatch(expectedStandbyTaskCount -> expectedStandbyTaskCount == standbyTaskCount));
+        Assertions.assertTrue(Arrays.stream(expectedStandbyTaskCounts).anyMatch(expectedStandbyTaskCount -> expectedStandbyTaskCount == standbyTaskCount), msg);
     }
 
     private static boolean standbyClientsHonorRackAwareness(final TaskId activeTaskId,

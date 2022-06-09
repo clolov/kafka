@@ -27,8 +27,9 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.ReadOnlyWindowStore;
 import org.apache.kafka.test.StateStoreProviderStub;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,7 @@ public class WrappingStoreProviderTest {
 
     private final int numStateStorePartitions = 2;
 
-    @Before
+    @BeforeEach
     public void before() {
         final StateStoreProviderStub stubProviderOne = new StateStoreProviderStub(false);
         final StateStoreProviderStub stubProviderTwo = new StateStoreProviderStub(false);
@@ -65,7 +66,7 @@ public class WrappingStoreProviderTest {
     public void shouldFindKeyValueStores() {
         final List<ReadOnlyKeyValueStore<String, String>> results =
                 wrappingStoreProvider.stores("kv", QueryableStoreTypes.<String, String>keyValueStore());
-        assertEquals(2, results.size());
+        Assertions.assertEquals(2, results.size());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class WrappingStoreProviderTest {
         final List<ReadOnlyWindowStore<Object, Object>>
                 windowStores =
                 wrappingStoreProvider.stores("window", windowStore());
-        assertEquals(2, windowStores.size());
+        Assertions.assertEquals(2, windowStores.size());
     }
 
     @Test
@@ -95,7 +96,7 @@ public class WrappingStoreProviderTest {
         wrappingStoreProvider.setStoreQueryParameters(StoreQueryParameters.fromNameAndType("kv", QueryableStoreTypes.<String, String>keyValueStore()));
         final List<ReadOnlyKeyValueStore<String, String>> results =
                 wrappingStoreProvider.stores("kv", QueryableStoreTypes.<String, String>keyValueStore());
-        assertEquals(numStateStorePartitions, results.size());
+        Assertions.assertEquals(numStateStorePartitions, results.size());
     }
 
     @Test
@@ -103,6 +104,6 @@ public class WrappingStoreProviderTest {
         wrappingStoreProvider.setStoreQueryParameters(StoreQueryParameters.fromNameAndType("kv", QueryableStoreTypes.<String, String>keyValueStore()).withPartition(numStateStorePartitions - 1));
         final List<ReadOnlyKeyValueStore<String, String>> results =
                 wrappingStoreProvider.stores("kv", QueryableStoreTypes.<String, String>keyValueStore());
-        assertEquals(1, results.size());
+        Assertions.assertEquals(1, results.size());
     }
 }

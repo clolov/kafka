@@ -21,7 +21,8 @@ import java.util.Map;
 import org.apache.kafka.streams.errors.TaskAssignmentException;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.Task;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -130,12 +131,12 @@ public class SubscriptionInfoTest {
             EMPTY_CLIENT_TAGS
         );
         final SubscriptionInfo decoded = SubscriptionInfo.decode(info.encode());
-        assertEquals(1, decoded.version());
-        assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
-        assertEquals(UUID_1, decoded.processId());
-        assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-        assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-        assertNull(decoded.userEndPoint());
+        Assertions.assertEquals(1, decoded.version());
+        Assertions.assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
+        Assertions.assertEquals(UUID_1, decoded.processId());
+        Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+        Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+        Assertions.assertNull(decoded.userEndPoint());
     }
 
     @Test
@@ -153,12 +154,12 @@ public class SubscriptionInfoTest {
         final ByteBuffer buffer = info.encode();
 
         final LegacySubscriptionInfoSerde decoded = LegacySubscriptionInfoSerde.decode(buffer);
-        assertEquals(1, decoded.version());
-        assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
-        assertEquals(UUID_1, decoded.processId());
-        assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-        assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-        assertNull(decoded.userEndPoint());
+        Assertions.assertEquals(1, decoded.version());
+        Assertions.assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
+        Assertions.assertEquals(UUID_1, decoded.processId());
+        Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+        Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+        Assertions.assertNull(decoded.userEndPoint());
     }
 
     @Test
@@ -174,12 +175,12 @@ public class SubscriptionInfoTest {
         final ByteBuffer buffer = info.encode();
         buffer.rewind();
         final SubscriptionInfo decoded = SubscriptionInfo.decode(buffer);
-        assertEquals(1, decoded.version());
-        assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
-        assertEquals(UUID_1, decoded.processId());
-        assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-        assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-        assertNull(decoded.userEndPoint());
+        Assertions.assertEquals(1, decoded.version());
+        Assertions.assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
+        Assertions.assertEquals(UUID_1, decoded.processId());
+        Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+        Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+        Assertions.assertNull(decoded.userEndPoint());
     }
 
     @Test
@@ -195,12 +196,12 @@ public class SubscriptionInfoTest {
             EMPTY_CLIENT_TAGS
         );
         final SubscriptionInfo decoded = SubscriptionInfo.decode(info.encode());
-        assertEquals(2, decoded.version());
-        assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
-        assertEquals(UUID_1, decoded.processId());
-        assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-        assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-        assertEquals("localhost:80", decoded.userEndPoint());
+        Assertions.assertEquals(2, decoded.version());
+        Assertions.assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
+        Assertions.assertEquals(UUID_1, decoded.processId());
+        Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+        Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+        Assertions.assertEquals("localhost:80", decoded.userEndPoint());
     }
 
     @Test
@@ -218,12 +219,12 @@ public class SubscriptionInfoTest {
         final ByteBuffer buffer = info.encode();
 
         final LegacySubscriptionInfoSerde decoded = LegacySubscriptionInfoSerde.decode(buffer);
-        assertEquals(2, decoded.version());
-        assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
-        assertEquals(UUID_1, decoded.processId());
-        assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-        assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-        assertEquals("localhost:80", decoded.userEndPoint());
+        Assertions.assertEquals(2, decoded.version());
+        Assertions.assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
+        Assertions.assertEquals(UUID_1, decoded.processId());
+        Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+        Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+        Assertions.assertEquals("localhost:80", decoded.userEndPoint());
     }
 
     @Test
@@ -239,12 +240,12 @@ public class SubscriptionInfoTest {
         final ByteBuffer buffer = info.encode();
         buffer.rewind();
         final SubscriptionInfo decoded = SubscriptionInfo.decode(buffer);
-        assertEquals(2, decoded.version());
-        assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
-        assertEquals(UUID_1, decoded.processId());
-        assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-        assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-        assertEquals("localhost:80", decoded.userEndPoint());
+        Assertions.assertEquals(2, decoded.version());
+        Assertions.assertEquals(SubscriptionInfo.UNKNOWN, decoded.latestSupportedVersion());
+        Assertions.assertEquals(UUID_1, decoded.processId());
+        Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+        Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+        Assertions.assertEquals("localhost:80", decoded.userEndPoint());
     }
 
     @Test
@@ -261,12 +262,12 @@ public class SubscriptionInfoTest {
                 EMPTY_CLIENT_TAGS
             );
             final SubscriptionInfo decoded = SubscriptionInfo.decode(info.encode());
-            assertEquals(version, decoded.version());
-            assertEquals(LATEST_SUPPORTED_VERSION, decoded.latestSupportedVersion());
-            assertEquals(UUID_1, decoded.processId());
-            assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-            assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-            assertEquals("localhost:80", decoded.userEndPoint());
+            Assertions.assertEquals(version, decoded.version());
+            Assertions.assertEquals(LATEST_SUPPORTED_VERSION, decoded.latestSupportedVersion());
+            Assertions.assertEquals(UUID_1, decoded.processId());
+            Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+            Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+            Assertions.assertEquals("localhost:80", decoded.userEndPoint());
         }
     }
 
@@ -286,12 +287,12 @@ public class SubscriptionInfoTest {
             final ByteBuffer buffer = info.encode();
 
             final LegacySubscriptionInfoSerde decoded = LegacySubscriptionInfoSerde.decode(buffer);
-            assertEquals(version, decoded.version());
-            assertEquals(LATEST_SUPPORTED_VERSION, decoded.latestSupportedVersion());
-            assertEquals(UUID_1, decoded.processId());
-            assertEquals(ACTIVE_TASKS, decoded.prevTasks());
-            assertEquals(STANDBY_TASKS, decoded.standbyTasks());
-            assertEquals("localhost:80", decoded.userEndPoint());
+            Assertions.assertEquals(version, decoded.version());
+            Assertions.assertEquals(LATEST_SUPPORTED_VERSION, decoded.latestSupportedVersion());
+            Assertions.assertEquals(UUID_1, decoded.processId());
+            Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks());
+            Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks());
+            Assertions.assertEquals("localhost:80", decoded.userEndPoint());
         }
     }
 
@@ -310,12 +311,12 @@ public class SubscriptionInfoTest {
             buffer.rewind();
             final SubscriptionInfo decoded = SubscriptionInfo.decode(buffer);
             final String message = "for version: " + version;
-            assertEquals(message, version, decoded.version());
-            assertEquals(message, LATEST_SUPPORTED_VERSION, decoded.latestSupportedVersion());
-            assertEquals(message, UUID_1, decoded.processId());
-            assertEquals(message, ACTIVE_TASKS, decoded.prevTasks());
-            assertEquals(message, STANDBY_TASKS, decoded.standbyTasks());
-            assertEquals(message, "localhost:80", decoded.userEndPoint());
+            Assertions.assertEquals(version, decoded.version(), message);
+            Assertions.assertEquals(LATEST_SUPPORTED_VERSION, decoded.latestSupportedVersion(), message);
+            Assertions.assertEquals(UUID_1, decoded.processId(), message);
+            Assertions.assertEquals(ACTIVE_TASKS, decoded.prevTasks(), message);
+            Assertions.assertEquals(STANDBY_TASKS, decoded.standbyTasks(), message);
+            Assertions.assertEquals("localhost:80", decoded.userEndPoint(), message);
         }
     }
 
@@ -323,14 +324,14 @@ public class SubscriptionInfoTest {
     public void shouldEncodeAndDecodeVersion5() {
         final SubscriptionInfo info =
             new SubscriptionInfo(5, LATEST_SUPPORTED_VERSION, UUID_1, "localhost:80", TASK_OFFSET_SUMS, IGNORED_UNIQUE_FIELD, IGNORED_ERROR_CODE, EMPTY_CLIENT_TAGS);
-        assertEquals(info, SubscriptionInfo.decode(info.encode()));
+        Assertions.assertEquals(info, SubscriptionInfo.decode(info.encode()));
     }
 
     @Test
     public void shouldAllowToDecodeFutureSupportedVersion() {
         final SubscriptionInfo info = SubscriptionInfo.decode(encodeFutureVersion());
-        assertEquals(LATEST_SUPPORTED_VERSION + 1, info.version());
-        assertEquals(LATEST_SUPPORTED_VERSION + 1, info.latestSupportedVersion());
+        Assertions.assertEquals(LATEST_SUPPORTED_VERSION + 1, info.version());
+        Assertions.assertEquals(LATEST_SUPPORTED_VERSION + 1, info.latestSupportedVersion());
     }
 
     @Test
@@ -342,7 +343,7 @@ public class SubscriptionInfoTest {
             new SubscriptionInfo(usedVersion, latestSupportedVersion, UUID_1, "localhost:80", TASK_OFFSET_SUMS, IGNORED_UNIQUE_FIELD, IGNORED_ERROR_CODE, EMPTY_CLIENT_TAGS);
         final SubscriptionInfo expectedInfo =
             new SubscriptionInfo(usedVersion, latestSupportedVersion, UUID_1, "localhost:80", TASK_OFFSET_SUMS, IGNORED_UNIQUE_FIELD, IGNORED_ERROR_CODE, EMPTY_CLIENT_TAGS);
-        assertEquals(expectedInfo, SubscriptionInfo.decode(info.encode()));
+        Assertions.assertEquals(expectedInfo, SubscriptionInfo.decode(info.encode()));
     }
 
     @Test
@@ -410,7 +411,7 @@ public class SubscriptionInfoTest {
         try {
             info.errorCode();
         } catch (final Exception e) {
-            fail("should not error");
+            Assertions.fail("should not error");
         }
     }
 

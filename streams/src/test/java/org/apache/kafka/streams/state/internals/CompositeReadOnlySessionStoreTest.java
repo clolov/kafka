@@ -28,8 +28,9 @@ import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.test.ReadOnlySessionStoreStub;
 import org.apache.kafka.test.StateStoreProviderStub;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +53,7 @@ public class CompositeReadOnlySessionStoreTest {
     private final ReadOnlySessionStoreStub<String, Long> otherUnderlyingStore = new ReadOnlySessionStoreStub<>();
     private CompositeReadOnlySessionStore<String, Long> sessionStore;
 
-    @Before
+    @BeforeEach
     public void before() {
         stubProviderOne.addStore(storeName, underlyingSessionStore);
         stubProviderOne.addStore("other-session-store", otherUnderlyingStore);
@@ -69,7 +70,7 @@ public class CompositeReadOnlySessionStoreTest {
         underlyingSessionStore.put(new Windowed<>("a", new SessionWindow(10, 10)), 2L);
 
         final List<KeyValue<Windowed<String>, Long>> results = toList(sessionStore.fetch("a"));
-        assertEquals(Arrays.asList(KeyValue.pair(new Windowed<>("a", new SessionWindow(0, 0)), 1L),
+        Assertions.assertEquals(Arrays.asList(KeyValue.pair(new Windowed<>("a", new SessionWindow(0, 0)), 1L),
                                    KeyValue.pair(new Windowed<>("a", new SessionWindow(10, 10)), 2L)),
                      results);
     }
@@ -77,7 +78,7 @@ public class CompositeReadOnlySessionStoreTest {
     @Test
     public void shouldReturnEmptyIteratorIfNoData() {
         try (final KeyValueIterator<Windowed<String>, Long> result = sessionStore.fetch("b")) {
-            assertFalse(result.hasNext());
+            Assertions.assertFalse(result.hasNext());
         }
     }
 
@@ -95,8 +96,8 @@ public class CompositeReadOnlySessionStoreTest {
         final List<KeyValue<Windowed<String>, Long>> keyOneResults = toList(sessionStore.fetch("key-one"));
         final List<KeyValue<Windowed<String>, Long>> keyTwoResults = toList(sessionStore.fetch("key-two"));
 
-        assertEquals(singletonList(KeyValue.pair(keyOne, 0L)), keyOneResults);
-        assertEquals(singletonList(KeyValue.pair(keyTwo, 10L)), keyTwoResults);
+        Assertions.assertEquals(singletonList(KeyValue.pair(keyOne, 0L)), keyOneResults);
+        Assertions.assertEquals(singletonList(KeyValue.pair(keyTwo, 10L)), keyTwoResults);
     }
 
     @Test
@@ -106,8 +107,8 @@ public class CompositeReadOnlySessionStoreTest {
         underlyingSessionStore.put(expectedKey, 1L);
 
         try (final KeyValueIterator<Windowed<String>, Long> result = sessionStore.fetch("foo")) {
-            assertEquals(KeyValue.pair(expectedKey, 1L), result.next());
-            assertFalse(result.hasNext());
+            Assertions.assertEquals(KeyValue.pair(expectedKey, 1L), result.next());
+            Assertions.assertFalse(result.hasNext());
         }
     }
 
@@ -129,7 +130,7 @@ public class CompositeReadOnlySessionStoreTest {
         underlyingSessionStore.setOpen(false);
         try {
             sessionStore.fetch("key");
-            fail("Should have thrown InvalidStateStoreException with session store");
+            Assertions.fail("Should have thrown InvalidStateStoreException with session store");
         } catch (final InvalidStateStoreException e) { }
     }
 

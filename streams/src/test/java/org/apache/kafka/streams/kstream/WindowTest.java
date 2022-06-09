@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.kstream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -62,28 +63,28 @@ public class WindowTest {
     public void shouldBeEqualIfStartAndEndSame() {
         final TestWindow window2 = new TestWindow(window.startMs, window.endMs);
 
-        assertEquals(window, window);
-        assertEquals(window, window2);
-        assertEquals(window2, window);
+        Assertions.assertEquals(window, window);
+        Assertions.assertEquals(window, window2);
+        Assertions.assertEquals(window2, window);
     }
 
     @Test
     public void shouldNotBeEqualIfNull() {
-        assertNotEquals(window, null);
+        Assertions.assertNotEquals(window, null);
     }
 
     @Test
     public void shouldNotBeEqualIfStartOrEndIsDifferent() {
-        assertNotEquals(window, new TestWindow(0, window.endMs));
-        assertNotEquals(window, new TestWindow(7, window.endMs));
-        assertNotEquals(window, new TestWindow(window.startMs, 7));
-        assertNotEquals(window, new TestWindow(window.startMs, 15));
-        assertNotEquals(window, new TestWindow(7, 8));
-        assertNotEquals(window, new TestWindow(0, 15));
+        Assertions.assertNotEquals(window, new TestWindow(0, window.endMs));
+        Assertions.assertNotEquals(window, new TestWindow(7, window.endMs));
+        Assertions.assertNotEquals(window, new TestWindow(window.startMs, 7));
+        Assertions.assertNotEquals(window, new TestWindow(window.startMs, 15));
+        Assertions.assertNotEquals(window, new TestWindow(7, 8));
+        Assertions.assertNotEquals(window, new TestWindow(0, 15));
     }
 
     @Test
     public void shouldNotBeEqualIfDifferentWindowType() {
-        assertNotEquals(window, new TestWindow2(window.startMs, window.endMs));
+        Assertions.assertNotEquals(window, new TestWindow2(window.startMs, window.endMs));
     }
 }

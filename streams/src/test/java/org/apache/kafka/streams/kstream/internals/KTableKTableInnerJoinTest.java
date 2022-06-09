@@ -37,7 +37,8 @@ import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -163,9 +164,9 @@ public class KTableKTableInnerJoinTest {
                     driver.createInputTopic(topic2, Serdes.Integer().serializer(), Serdes.String().serializer(), Instant.ofEpochMilli(0L), Duration.ZERO);
             final MockApiProcessor<Integer, String, Void, Void> proc = supplier.theCapturedProcessor();
 
-            assertTrue(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
-            assertTrue(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
-            assertTrue(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
 
             // push two items to the primary stream. the other table is empty
             for (int i = 0; i < 2; i++) {
@@ -285,9 +286,9 @@ public class KTableKTableInnerJoinTest {
                     driver.createInputTopic(topic2, Serdes.Integer().serializer(), Serdes.String().serializer(), Instant.ofEpochMilli(0L), Duration.ZERO);
             final MockApiProcessor<Integer, String, Void, Void> proc = supplier.theCapturedProcessor();
 
-            assertFalse(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
-            assertFalse(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
-            assertFalse(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
+            Assertions.assertFalse(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
+            Assertions.assertFalse(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
+            Assertions.assertFalse(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
 
             // push two items to the primary stream. the other table is empty
             for (int i = 0; i < 2; i++) {
@@ -372,8 +373,8 @@ public class KTableKTableInnerJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             final TestInputTopic<Integer, String> inputTopic1 =
@@ -391,7 +392,7 @@ public class KTableKTableInnerJoinTest {
             inputTopic1.pipeInput(null, "SomeVal", 42L);
             // left: X0:0 (ts: 5), X1:1 (ts: 6)
             // right:
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push two items to the other stream. this should produce two items.
             for (int i = 0; i < 2; i++) {
@@ -403,7 +404,7 @@ public class KTableKTableInnerJoinTest {
             // right: Y0:0 (ts: 0), Y1:1 (ts: 10)
             assertOutputKeyValueTimestamp(outputTopic, 0, "X0+Y0", 5L);
             assertOutputKeyValueTimestamp(outputTopic, 1, "X1+Y1", 10L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all four items to the primary stream. this should produce two items.
             for (final int expectedKey : expectedKeys) {
@@ -413,7 +414,7 @@ public class KTableKTableInnerJoinTest {
             // right: Y0:0 (ts: 0), Y1:1 (ts: 10)
             assertOutputKeyValueTimestamp(outputTopic, 0, "XX0+Y0", 7L);
             assertOutputKeyValueTimestamp(outputTopic, 1, "XX1+Y1", 10L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all items to the other stream. this should produce four items.
             for (final int expectedKey : expectedKeys) {
@@ -425,7 +426,7 @@ public class KTableKTableInnerJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, "XX1+YY1", 7L);
             assertOutputKeyValueTimestamp(outputTopic, 2, "XX2+YY2", 10L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XX3+YY3", 15L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all four items to the primary stream. this should produce four items.
             for (final int expectedKey : expectedKeys) {
@@ -437,7 +438,7 @@ public class KTableKTableInnerJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, "XXX1+YY1", 6L);
             assertOutputKeyValueTimestamp(outputTopic, 2, "XXX2+YY2", 10L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XXX3+YY3", 15L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push two items with null to the other stream as deletes. this should produce two item.
             inputTopic2.pipeInput(expectedKeys[0], null, 5L);
@@ -446,7 +447,7 @@ public class KTableKTableInnerJoinTest {
             // right: YY2:2 (ts: 10), YY3:3 (ts: 15)
             assertOutputKeyValueTimestamp(outputTopic, 0, null, 6L);
             assertOutputKeyValueTimestamp(outputTopic, 1, null, 7L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all four items to the primary stream. this should produce two items.
             for (final int expectedKey : expectedKeys) {
@@ -456,7 +457,7 @@ public class KTableKTableInnerJoinTest {
             // right: YY2:2 (ts: 10), YY3:3 (ts: 15)
             assertOutputKeyValueTimestamp(outputTopic, 2, "XXXX2+YY2", 13L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XXXX3+YY3", 15L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push fourt items to the primary stream with null. this should produce two items.
             inputTopic1.pipeInput(expectedKeys[0], null, 0L);
@@ -467,7 +468,7 @@ public class KTableKTableInnerJoinTest {
             // right: YY2:2 (ts: 10), YY3:3 (ts: 15)
             assertOutputKeyValueTimestamp(outputTopic, 2, null, 10L);
             assertOutputKeyValueTimestamp(outputTopic, 3, null, 20L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
         }
     }
 

@@ -18,7 +18,7 @@ package org.apache.kafka.streams.processor.internals.assignment;
 
 
 import org.apache.kafka.streams.processor.TaskId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 import java.util.function.BiFunction;

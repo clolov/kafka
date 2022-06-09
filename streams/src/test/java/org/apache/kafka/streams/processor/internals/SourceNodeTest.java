@@ -28,7 +28,8 @@ import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockSourceNode;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -88,14 +89,14 @@ public class SourceNodeTest {
             mkEntry("processor-node-id", node.name())
         );
 
-        assertTrue(StreamsTestUtils.containsMetric(metrics, "process-rate", groupName, metricTags));
-        assertTrue(StreamsTestUtils.containsMetric(metrics, "process-total", groupName, metricTags));
+        Assertions.assertTrue(StreamsTestUtils.containsMetric(metrics, "process-rate", groupName, metricTags));
+        Assertions.assertTrue(StreamsTestUtils.containsMetric(metrics, "process-total", groupName, metricTags));
 
         // test parent sensors
         final String parentGroupName = "stream-task-metrics";
         metricTags.remove("processor-node-id");
-        assertTrue(StreamsTestUtils.containsMetric(metrics, "process-rate", parentGroupName, metricTags));
-        assertTrue(StreamsTestUtils.containsMetric(metrics, "process-total", parentGroupName, metricTags));
+        Assertions.assertTrue(StreamsTestUtils.containsMetric(metrics, "process-rate", parentGroupName, metricTags));
+        Assertions.assertTrue(StreamsTestUtils.containsMetric(metrics, "process-total", parentGroupName, metricTags));
 
         final String sensorNamePrefix = "internal." + threadId + ".task." + context.taskId().toString();
         final Sensor processSensor =

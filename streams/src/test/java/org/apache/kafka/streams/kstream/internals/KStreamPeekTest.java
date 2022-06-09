@@ -27,7 +27,8 @@ import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +58,8 @@ public class KStreamPeekTest {
                 expected.add(new KeyValue<>(key, value));
             }
 
-            assertEquals(expected, peekObserved);
-            assertEquals(expected, streamObserved);
+            Assertions.assertEquals(expected, peekObserved);
+            Assertions.assertEquals(expected, streamObserved);
         }
     }
 
@@ -68,7 +69,7 @@ public class KStreamPeekTest {
         final KStream<Integer, String> stream = builder.stream(topicName, Consumed.with(Serdes.Integer(), Serdes.String()));
         try {
             stream.peek(null);
-            fail("expected null action to throw NPE");
+            Assertions.fail("expected null action to throw NPE");
         } catch (final NullPointerException expected) {
             // do nothing
         }

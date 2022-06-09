@@ -45,8 +45,9 @@ import org.apache.kafka.streams.state.WindowStoreIterator;
 import org.apache.kafka.streams.state.internals.PositionSerde;
 import org.apache.kafka.streams.state.internals.ThreadCache;
 import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -112,7 +113,7 @@ public class ProcessorContextImplTest {
     private final List<KeyValueIterator<Windowed<String>, ValueAndTimestamp<Long>>> timestampedIters = new ArrayList<>(7);
     private WindowStoreIterator windowStoreIter;
 
-    @Before
+    @BeforeEach
     public void setup() {
         flushExecuted = false;
         putExecuted = false;
@@ -204,10 +205,10 @@ public class ProcessorContextImplTest {
             checkThrowsUnsupportedOperation(() -> store.putAll(Collections.emptyList()), "putAll()");
             checkThrowsUnsupportedOperation(() -> store.delete("1"), "delete()");
 
-            assertEquals((Long) VALUE, store.get(KEY));
-            assertEquals(rangeIter, store.range("one", "two"));
-            assertEquals(allIter, store.all());
-            assertEquals(VALUE, store.approximateNumEntries());
+            Assertions.assertEquals((Long) VALUE, store.get(KEY));
+            Assertions.assertEquals(rangeIter, store.range("one", "two"));
+            Assertions.assertEquals(allIter, store.all());
+            Assertions.assertEquals(VALUE, store.approximateNumEntries());
         });
     }
 
@@ -222,10 +223,10 @@ public class ProcessorContextImplTest {
             checkThrowsUnsupportedOperation(() -> store.putAll(Collections.emptyList()), "putAll()");
             checkThrowsUnsupportedOperation(() -> store.delete("1"), "delete()");
 
-            assertEquals(VALUE_AND_TIMESTAMP, store.get(KEY));
-            assertEquals(timestampedRangeIter, store.range("one", "two"));
-            assertEquals(timestampedAllIter, store.all());
-            assertEquals(VALUE, store.approximateNumEntries());
+            Assertions.assertEquals(VALUE_AND_TIMESTAMP, store.get(KEY));
+            Assertions.assertEquals(timestampedRangeIter, store.range("one", "two"));
+            Assertions.assertEquals(timestampedAllIter, store.all());
+            Assertions.assertEquals(VALUE, store.approximateNumEntries());
         });
     }
 
@@ -237,11 +238,11 @@ public class ProcessorContextImplTest {
             checkThrowsUnsupportedOperation(store::flush, "flush()");
             checkThrowsUnsupportedOperation(() -> store.put("1", 1L, 1L), "put()");
 
-            assertEquals(iters.get(0), store.fetchAll(0L, 0L));
-            assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
-            assertEquals(iters.get(1), store.fetch(KEY, KEY, 0L, 1L));
-            assertEquals((Long) VALUE, store.fetch(KEY, 1L));
-            assertEquals(iters.get(2), store.all());
+            Assertions.assertEquals(iters.get(0), store.fetchAll(0L, 0L));
+            Assertions.assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
+            Assertions.assertEquals(iters.get(1), store.fetch(KEY, KEY, 0L, 1L));
+            Assertions.assertEquals((Long) VALUE, store.fetch(KEY, 1L));
+            Assertions.assertEquals(iters.get(2), store.all());
         });
     }
 
@@ -254,11 +255,11 @@ public class ProcessorContextImplTest {
             checkThrowsUnsupportedOperation(store::flush, "flush()");
             checkThrowsUnsupportedOperation(() -> store.put("1", ValueAndTimestamp.make(1L, 1L), 1L), "put() [with timestamp]");
 
-            assertEquals(timestampedIters.get(0), store.fetchAll(0L, 0L));
-            assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
-            assertEquals(timestampedIters.get(1), store.fetch(KEY, KEY, 0L, 1L));
-            assertEquals(VALUE_AND_TIMESTAMP, store.fetch(KEY, 1L));
-            assertEquals(timestampedIters.get(2), store.all());
+            Assertions.assertEquals(timestampedIters.get(0), store.fetchAll(0L, 0L));
+            Assertions.assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
+            Assertions.assertEquals(timestampedIters.get(1), store.fetch(KEY, KEY, 0L, 1L));
+            Assertions.assertEquals(VALUE_AND_TIMESTAMP, store.fetch(KEY, 1L));
+            Assertions.assertEquals(timestampedIters.get(2), store.all());
         });
     }
 
@@ -271,10 +272,10 @@ public class ProcessorContextImplTest {
             checkThrowsUnsupportedOperation(() -> store.remove(null), "remove()");
             checkThrowsUnsupportedOperation(() -> store.put(null, null), "put()");
 
-            assertEquals(iters.get(3), store.findSessions(KEY, 1L, 2L));
-            assertEquals(iters.get(4), store.findSessions(KEY, KEY, 1L, 2L));
-            assertEquals(iters.get(5), store.fetch(KEY));
-            assertEquals(iters.get(6), store.fetch(KEY, KEY));
+            Assertions.assertEquals(iters.get(3), store.findSessions(KEY, 1L, 2L));
+            Assertions.assertEquals(iters.get(4), store.findSessions(KEY, KEY, 1L, 2L));
+            Assertions.assertEquals(iters.get(5), store.fetch(KEY));
+            Assertions.assertEquals(iters.get(6), store.fetch(KEY, KEY));
         });
     }
 
@@ -284,24 +285,24 @@ public class ProcessorContextImplTest {
             verifyStoreCannotBeInitializedOrClosed(store);
 
             store.flush();
-            assertTrue(flushExecuted);
+            Assertions.assertTrue(flushExecuted);
 
             store.put("1", 1L);
-            assertTrue(putExecuted);
+            Assertions.assertTrue(putExecuted);
 
             store.putIfAbsent("1", 1L);
-            assertTrue(putIfAbsentExecuted);
+            Assertions.assertTrue(putIfAbsentExecuted);
 
             store.putAll(Collections.emptyList());
-            assertTrue(putAllExecuted);
+            Assertions.assertTrue(putAllExecuted);
 
             store.delete("1");
-            assertTrue(deleteExecuted);
+            Assertions.assertTrue(deleteExecuted);
 
-            assertEquals((Long) VALUE, store.get(KEY));
-            assertEquals(rangeIter, store.range("one", "two"));
-            assertEquals(allIter, store.all());
-            assertEquals(VALUE, store.approximateNumEntries());
+            Assertions.assertEquals((Long) VALUE, store.get(KEY));
+            Assertions.assertEquals(rangeIter, store.range("one", "two"));
+            Assertions.assertEquals(allIter, store.all());
+            Assertions.assertEquals(VALUE, store.approximateNumEntries());
         });
     }
 
@@ -311,24 +312,24 @@ public class ProcessorContextImplTest {
             verifyStoreCannotBeInitializedOrClosed(store);
 
             store.flush();
-            assertTrue(flushExecuted);
+            Assertions.assertTrue(flushExecuted);
 
             store.put("1", ValueAndTimestamp.make(1L, 2L));
-            assertTrue(putExecuted);
+            Assertions.assertTrue(putExecuted);
 
             store.putIfAbsent("1", ValueAndTimestamp.make(1L, 2L));
-            assertTrue(putIfAbsentExecuted);
+            Assertions.assertTrue(putIfAbsentExecuted);
 
             store.putAll(Collections.emptyList());
-            assertTrue(putAllExecuted);
+            Assertions.assertTrue(putAllExecuted);
 
             store.delete("1");
-            assertTrue(deleteExecuted);
+            Assertions.assertTrue(deleteExecuted);
 
-            assertEquals(VALUE_AND_TIMESTAMP, store.get(KEY));
-            assertEquals(timestampedRangeIter, store.range("one", "two"));
-            assertEquals(timestampedAllIter, store.all());
-            assertEquals(VALUE, store.approximateNumEntries());
+            Assertions.assertEquals(VALUE_AND_TIMESTAMP, store.get(KEY));
+            Assertions.assertEquals(timestampedRangeIter, store.range("one", "two"));
+            Assertions.assertEquals(timestampedAllIter, store.all());
+            Assertions.assertEquals(VALUE, store.approximateNumEntries());
         });
     }
 
@@ -338,16 +339,16 @@ public class ProcessorContextImplTest {
             verifyStoreCannotBeInitializedOrClosed(store);
 
             store.flush();
-            assertTrue(flushExecuted);
+            Assertions.assertTrue(flushExecuted);
 
             store.put("1", 1L, 1L);
-            assertTrue(putExecuted);
+            Assertions.assertTrue(putExecuted);
 
-            assertEquals(iters.get(0), store.fetchAll(0L, 0L));
-            assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
-            assertEquals(iters.get(1), store.fetch(KEY, KEY, 0L, 1L));
-            assertEquals((Long) VALUE, store.fetch(KEY, 1L));
-            assertEquals(iters.get(2), store.all());
+            Assertions.assertEquals(iters.get(0), store.fetchAll(0L, 0L));
+            Assertions.assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
+            Assertions.assertEquals(iters.get(1), store.fetch(KEY, KEY, 0L, 1L));
+            Assertions.assertEquals((Long) VALUE, store.fetch(KEY, 1L));
+            Assertions.assertEquals(iters.get(2), store.all());
         });
     }
 
@@ -357,19 +358,19 @@ public class ProcessorContextImplTest {
             verifyStoreCannotBeInitializedOrClosed(store);
 
             store.flush();
-            assertTrue(flushExecuted);
+            Assertions.assertTrue(flushExecuted);
 
             store.put("1", ValueAndTimestamp.make(1L, 1L), 1L);
-            assertTrue(putExecuted);
+            Assertions.assertTrue(putExecuted);
 
             store.put("1", ValueAndTimestamp.make(1L, 1L), 1L);
-            assertTrue(putWithTimestampExecuted);
+            Assertions.assertTrue(putWithTimestampExecuted);
 
-            assertEquals(timestampedIters.get(0), store.fetchAll(0L, 0L));
-            assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
-            assertEquals(timestampedIters.get(1), store.fetch(KEY, KEY, 0L, 1L));
-            assertEquals(VALUE_AND_TIMESTAMP, store.fetch(KEY, 1L));
-            assertEquals(timestampedIters.get(2), store.all());
+            Assertions.assertEquals(timestampedIters.get(0), store.fetchAll(0L, 0L));
+            Assertions.assertEquals(windowStoreIter, store.fetch(KEY, 0L, 1L));
+            Assertions.assertEquals(timestampedIters.get(1), store.fetch(KEY, KEY, 0L, 1L));
+            Assertions.assertEquals(VALUE_AND_TIMESTAMP, store.fetch(KEY, 1L));
+            Assertions.assertEquals(timestampedIters.get(2), store.all());
         });
     }
 
@@ -379,18 +380,18 @@ public class ProcessorContextImplTest {
             verifyStoreCannotBeInitializedOrClosed(store);
 
             store.flush();
-            assertTrue(flushExecuted);
+            Assertions.assertTrue(flushExecuted);
 
             store.remove(null);
-            assertTrue(removeExecuted);
+            Assertions.assertTrue(removeExecuted);
 
             store.put(null, null);
-            assertTrue(putExecuted);
+            Assertions.assertTrue(putExecuted);
 
-            assertEquals(iters.get(3), store.findSessions(KEY, 1L, 2L));
-            assertEquals(iters.get(4), store.findSessions(KEY, KEY, 1L, 2L));
-            assertEquals(iters.get(5), store.fetch(KEY));
-            assertEquals(iters.get(6), store.fetch(KEY, KEY));
+            Assertions.assertEquals(iters.get(3), store.findSessions(KEY, 1L, 2L));
+            Assertions.assertEquals(iters.get(4), store.findSessions(KEY, KEY, 1L, 2L));
+            Assertions.assertEquals(iters.get(5), store.fetch(KEY));
+            Assertions.assertEquals(iters.get(6), store.fetch(KEY, KEY));
         });
     }
 
@@ -571,24 +572,24 @@ public class ProcessorContextImplTest {
 
     @Test
     public void shouldMatchStreamTime() {
-        assertEquals(STREAM_TIME, context.currentStreamTimeMs());
+        Assertions.assertEquals(STREAM_TIME, context.currentStreamTimeMs());
     }
 
     @Test
     public void shouldAddAndGetProcessorKeyValue() {
         context.addProcessorMetadataKeyValue("key1", 100L);
         final Long value = context.processorMetadataForKey("key1");
-        assertEquals(100L, value.longValue());
+        Assertions.assertEquals(100L, value.longValue());
 
         final Long noValue = context.processorMetadataForKey("nokey");
-        assertNull(noValue);
+        Assertions.assertNull(noValue);
     }
 
     @Test
     public void shouldSetAndGetProcessorMetaData() {
         final ProcessorMetadata emptyMetadata = new ProcessorMetadata();
         context.setProcessorMetadata(emptyMetadata);
-        assertEquals(emptyMetadata, context.getProcessorMetadata());
+        Assertions.assertEquals(emptyMetadata, context.getProcessorMetadata());
 
         final ProcessorMetadata metadata = new ProcessorMetadata(
             mkMap(
@@ -598,8 +599,8 @@ public class ProcessorContextImplTest {
         );
 
         context.setProcessorMetadata(metadata);
-        assertEquals(10L, context.processorMetadataForKey("key1").longValue());
-        assertEquals(100L, context.processorMetadataForKey("key2").longValue());
+        Assertions.assertEquals(10L, context.processorMetadataForKey("key1").longValue());
+        Assertions.assertEquals(100L, context.processorMetadataForKey("key2").longValue());
 
         assertThrows(NullPointerException.class, () -> context.setProcessorMetadata(null));
     }
@@ -828,9 +829,9 @@ public class ProcessorContextImplTest {
     }
 
     private void verifyStoreCannotBeInitializedOrClosed(final StateStore store) {
-        assertEquals(STORE_NAME, store.name());
-        assertTrue(store.persistent());
-        assertTrue(store.isOpen());
+        Assertions.assertEquals(STORE_NAME, store.name());
+        Assertions.assertTrue(store.persistent());
+        Assertions.assertTrue(store.isOpen());
 
         checkThrowsUnsupportedOperation(() -> store.init((StateStoreContext) null, null), "init()");
         checkThrowsUnsupportedOperation(store::close, "close()");
@@ -839,7 +840,7 @@ public class ProcessorContextImplTest {
     private void checkThrowsUnsupportedOperation(final Runnable check, final String name) {
         try {
             check.run();
-            fail(name + " should throw exception");
+            Assertions.fail(name + " should throw exception");
         } catch (final UnsupportedOperationException e) {
             //ignore.
         }

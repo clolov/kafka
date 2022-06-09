@@ -28,7 +28,8 @@ import java.util.Map;
 
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.kafka.streams.state.internals.OffsetCheckpoint.writeEntry;
 import static org.apache.kafka.streams.state.internals.OffsetCheckpoint.writeIntLine;
@@ -57,14 +58,14 @@ public class OffsetCheckpointTest {
             offsets.put(new TopicPartition(topic, 2), 2L);
 
             checkpoint.write(offsets);
-            assertEquals(offsets, checkpoint.read());
+            Assertions.assertEquals(offsets, checkpoint.read());
 
             checkpoint.delete();
-            assertFalse(f.exists());
+            Assertions.assertFalse(f.exists());
 
             offsets.put(new TopicPartition(topic, 3), 3L);
             checkpoint.write(offsets);
-            assertEquals(offsets, checkpoint.read());
+            Assertions.assertEquals(offsets, checkpoint.read());
         } finally {
             checkpoint.delete();
         }
@@ -78,9 +79,9 @@ public class OffsetCheckpointTest {
 
         checkpoint.write(Collections.emptyMap());
 
-        assertFalse(f.exists());
+        Assertions.assertFalse(f.exists());
 
-        assertEquals(Collections.<TopicPartition, Long>emptyMap(), checkpoint.read());
+        Assertions.assertEquals(Collections.<TopicPartition, Long>emptyMap(), checkpoint.read());
 
         // deleting a non-exist checkpoint file should be fine
         checkpoint.delete();
@@ -114,7 +115,7 @@ public class OffsetCheckpointTest {
             offsets.put(new TopicPartition(topic, 0), -1L);
 
             writeVersion0(offsets, file);
-            assertTrue(checkpoint.read().isEmpty());
+            Assertions.assertTrue(checkpoint.read().isEmpty());
         } finally {
             checkpoint.delete();
         }

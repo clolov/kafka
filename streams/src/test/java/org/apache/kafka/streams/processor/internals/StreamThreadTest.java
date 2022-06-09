@@ -86,9 +86,9 @@ import org.apache.kafka.test.TestUtils;
 
 import java.util.function.BiConsumer;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -175,7 +175,7 @@ public class StreamThreadTest {
         }
     };
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Thread.currentThread().setName(CLIENT_ID + "-StreamThread-" + threadIdx);
         internalTopologyBuilder.setApplicationId(APPLICATION_ID);
@@ -287,7 +287,7 @@ public class StreamThreadTest {
 
         final StateListenerStub stateListener = new StateListenerStub();
         thread.setStateListener(stateListener);
-        assertEquals(thread.state(), StreamThread.State.CREATED);
+        Assertions.assertEquals(thread.state(), StreamThread.State.CREATED);
 
         final ConsumerRebalanceListener rebalanceListener = thread.rebalanceListener();
 
@@ -299,7 +299,7 @@ public class StreamThreadTest {
         revokedPartitions = Collections.emptyList();
         rebalanceListener.onPartitionsRevoked(revokedPartitions);
 
-        assertEquals(thread.state(), StreamThread.State.PARTITIONS_REVOKED);
+        Assertions.assertEquals(thread.state(), StreamThread.State.PARTITIONS_REVOKED);
 
         // assign single partition
         assignedPartitions = Collections.singletonList(t1p1);
@@ -309,12 +309,12 @@ public class StreamThreadTest {
         mockConsumer.updateBeginningOffsets(Collections.singletonMap(t1p1, 0L));
         rebalanceListener.onPartitionsAssigned(assignedPartitions);
         thread.runOnce();
-        assertEquals(thread.state(), StreamThread.State.RUNNING);
-        Assert.assertEquals(4, stateListener.numChanges);
-        Assert.assertEquals(StreamThread.State.PARTITIONS_ASSIGNED, stateListener.oldState);
+        Assertions.assertEquals(thread.state(), StreamThread.State.RUNNING);
+        Assertions.assertEquals(4, stateListener.numChanges);
+        Assertions.assertEquals(StreamThread.State.PARTITIONS_ASSIGNED, stateListener.oldState);
 
         thread.shutdown();
-        assertSame(StreamThread.State.PENDING_SHUTDOWN, thread.state());
+        Assertions.assertSame(StreamThread.State.PENDING_SHUTDOWN, thread.state());
     }
 
     @Test
@@ -337,7 +337,7 @@ public class StreamThreadTest {
             "Thread never shut down.");
 
         thread.shutdown();
-        assertEquals(thread.state(), StreamThread.State.DEAD);
+        Assertions.assertEquals(thread.state(), StreamThread.State.DEAD);
     }
 
     @Test
@@ -350,76 +350,76 @@ public class StreamThreadTest {
         );
         final String descriptionIsNotVerified = "";
 
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "commit-latency-avg", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "commit-latency-max", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "commit-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "commit-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "commit-ratio", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-latency-avg", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-latency-max", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-ratio", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-records-avg", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "poll-records-max", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-latency-avg", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-latency-max", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-ratio", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-records-avg", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "process-records-max", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "punctuate-latency-avg", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "punctuate-latency-max", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "punctuate-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "punctuate-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "punctuate-ratio", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "task-created-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "task-created-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "task-closed-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNotNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNotNull(metrics.metrics().get(metrics.metricName(
             "task-closed-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
 
-        assertNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNull(metrics.metrics().get(metrics.metricName(
             "skipped-records-rate", defaultGroupName, descriptionIsNotVerified, defaultTags)));
-        assertNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNull(metrics.metrics().get(metrics.metricName(
             "skipped-records-total", defaultGroupName, descriptionIsNotVerified, defaultTags)));
 
         final String taskGroupName = "stream-task-metrics";
         final Map<String, String> taskTags =
             mkMap(mkEntry("task-id", "all"), mkEntry("thread-id", thread.getName()));
-        assertNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNull(metrics.metrics().get(metrics.metricName(
             "commit-latency-avg", taskGroupName, descriptionIsNotVerified, taskTags)));
-        assertNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNull(metrics.metrics().get(metrics.metricName(
             "commit-latency-max", taskGroupName, descriptionIsNotVerified, taskTags)));
-        assertNull(metrics.metrics().get(metrics.metricName(
+        Assertions.assertNull(metrics.metrics().get(metrics.metricName(
             "commit-rate", taskGroupName, descriptionIsNotVerified, taskTags)));
 
         final JmxReporter reporter = new JmxReporter();
@@ -427,13 +427,13 @@ public class StreamThreadTest {
         reporter.contextChange(metricsContext);
 
         metrics.addReporter(reporter);
-        assertEquals(CLIENT_ID + "-StreamThread-1", thread.getName());
-        assertTrue(reporter.containsMbean(String.format("kafka.streams:type=%s,%s=%s",
+        Assertions.assertEquals(CLIENT_ID + "-StreamThread-1", thread.getName());
+        Assertions.assertTrue(reporter.containsMbean(String.format("kafka.streams:type=%s,%s=%s",
                                                         defaultGroupName,
                                                         "thread-id",
                                                         thread.getName())
         ));
-        assertFalse(reporter.containsMbean(String.format(
+        Assertions.assertFalse(reporter.containsMbean(String.format(
             "kafka.streams:type=stream-task-metrics,%s=%s,task-id=all",
             "thread-id",
             thread.getName())));
@@ -773,21 +773,21 @@ public class StreamThreadTest {
 
         thread.setNow(mockTime.milliseconds());
         thread.maybeCommit();
-        assertTrue(committed.get());
+        Assertions.assertTrue(committed.get());
 
         mockTime.sleep(commitInterval);
 
         committed.set(false);
         thread.setNow(mockTime.milliseconds());
         thread.maybeCommit();
-        assertFalse(committed.get());
+        Assertions.assertFalse(committed.get());
 
         mockTime.sleep(1);
 
         committed.set(false);
         thread.setNow(mockTime.milliseconds());
         thread.maybeCommit();
-        assertTrue(committed.get());
+        Assertions.assertTrue(committed.get());
     }
 
     @Test
@@ -883,7 +883,7 @@ public class StreamThreadTest {
         thread.taskManager().handleAssignment(activeTasks, emptyMap());
         thread.rebalanceListener().onPartitionsAssigned(Collections.singleton(t1p1));
 
-        assertTrue(
+        Assertions.assertTrue(
             Double.isNaN(
                 (Double) streamsMetrics.metrics().get(new MetricName(
                     "commit-latency-max",
@@ -893,7 +893,7 @@ public class StreamThreadTest {
                 ).metricValue()
             )
         );
-        assertTrue(
+        Assertions.assertTrue(
             Double.isNaN(
                 (Double) streamsMetrics.metrics().get(new MetricName(
                     "commit-latency-avg",
@@ -959,13 +959,13 @@ public class StreamThreadTest {
         mockConsumer.updateBeginningOffsets(beginOffsets);
         thread.rebalanceListener().onPartitionsAssigned(new HashSet<>(assignedPartitions));
 
-        assertEquals(1, clientSupplier.producers.size());
+        Assertions.assertEquals(1, clientSupplier.producers.size());
         final Producer<byte[], byte[]> globalProducer = clientSupplier.producers.get(0);
         for (final Task task : thread.activeTasks()) {
-            assertSame(globalProducer, ((RecordCollectorImpl) ((StreamTask) task).recordCollector()).producer());
+            Assertions.assertSame(globalProducer, ((RecordCollectorImpl) ((StreamTask) task).recordCollector()).producer());
         }
-        assertSame(clientSupplier.consumer, thread.mainConsumer());
-        assertSame(clientSupplier.restoreConsumer, thread.restoreConsumer());
+        Assertions.assertSame(clientSupplier.consumer, thread.mainConsumer());
+        Assertions.assertSame(clientSupplier.restoreConsumer, thread.restoreConsumer());
     }
 
     @SuppressWarnings("deprecation")
@@ -1001,9 +1001,9 @@ public class StreamThreadTest {
 
         thread.runOnce();
 
-        assertEquals(thread.activeTasks().size(), clientSupplier.producers.size());
-        assertSame(clientSupplier.consumer, thread.mainConsumer());
-        assertSame(clientSupplier.restoreConsumer, thread.restoreConsumer());
+        Assertions.assertEquals(thread.activeTasks().size(), clientSupplier.producers.size());
+        Assertions.assertSame(clientSupplier.consumer, thread.mainConsumer());
+        Assertions.assertSame(clientSupplier.restoreConsumer, thread.restoreConsumer());
     }
 
     @Test
@@ -1038,8 +1038,8 @@ public class StreamThreadTest {
         thread.runOnce();
 
         assertThat(clientSupplier.producers.size(), is(1));
-        assertSame(clientSupplier.consumer, thread.mainConsumer());
-        assertSame(clientSupplier.restoreConsumer, thread.restoreConsumer());
+        Assertions.assertSame(clientSupplier.consumer, thread.mainConsumer());
+        Assertions.assertSame(clientSupplier.restoreConsumer, thread.restoreConsumer());
     }
 
     @Test
@@ -1072,11 +1072,11 @@ public class StreamThreadTest {
 
         // even if thread is no longer running, it should still be polling
         // as long as the rebalance is still ongoing
-        assertFalse(thread.isRunning());
+        Assertions.assertFalse(thread.isRunning());
 
         Thread.sleep(1000);
-        assertEquals(Utils.mkSet(task1, task2), thread.taskManager().activeTaskIds());
-        assertEquals(StreamThread.State.PENDING_SHUTDOWN, thread.state());
+        Assertions.assertEquals(Utils.mkSet(task1, task2), thread.taskManager().activeTaskIds());
+        Assertions.assertEquals(StreamThread.State.PENDING_SHUTDOWN, thread.state());
 
         thread.rebalanceListener().onPartitionsAssigned(assignedPartitions);
 
@@ -1084,7 +1084,7 @@ public class StreamThreadTest {
             () -> thread.state() == StreamThread.State.DEAD,
             10 * 1000,
             "Thread never shut down.");
-        assertEquals(Collections.emptySet(), thread.taskManager().activeTaskIds());
+        Assertions.assertEquals(Collections.emptySet(), thread.taskManager().activeTaskIds());
     }
 
     @Test
@@ -1120,7 +1120,7 @@ public class StreamThreadTest {
             "Thread never shut down.");
 
         for (final Task task : thread.activeTasks()) {
-            assertTrue(((MockProducer<byte[], byte[]>) ((RecordCollectorImpl) ((StreamTask) task).recordCollector()).producer()).closed());
+            Assertions.assertTrue(((MockProducer<byte[], byte[]>) ((RecordCollectorImpl) ((StreamTask) task).recordCollector()).producer()).closed());
         }
     }
 
@@ -1212,8 +1212,8 @@ public class StreamThreadTest {
 
         assertThat(thrown.getCause(), isA(IllegalStateException.class));
         // The Mock consumer shall throw as the assignment has been wiped out, but records are assigned.
-        assertEquals("No current assignment for partition topic1-1", thrown.getCause().getMessage());
-        assertFalse(consumer.shouldRebalance());
+        Assertions.assertEquals("No current assignment for partition topic1-1", thrown.getCause().getMessage());
+        Assertions.assertFalse(consumer.shouldRebalance());
     }
 
     @Test
@@ -1336,11 +1336,11 @@ public class StreamThreadTest {
         consumer.addRecord(new ConsumerRecord<>(topic1, 1, 1, new byte[0], new byte[0]));
         try {
             thread.runOnce();
-            fail("Should have thrown TaskMigratedException");
+            Assertions.fail("Should have thrown TaskMigratedException");
         } catch (final KafkaException expected) {
-            assertTrue(expected instanceof TaskMigratedException);
-            assertTrue("StreamsThread removed the fenced zombie task already, should wait for rebalance to close all zombies together.",
-                thread.activeTasks().stream().anyMatch(task -> task.id().equals(task1)));
+            Assertions.assertTrue(expected instanceof TaskMigratedException);
+            Assertions.assertTrue(
+                    thread.activeTasks().stream().anyMatch(task -> task.id().equals(task1)), "StreamsThread removed the fenced zombie task already, should wait for rebalance to close all zombies together.");
         }
 
         assertThat(producer.commitCount(), equalTo(1L));
@@ -1380,9 +1380,9 @@ public class StreamThreadTest {
 
         clientSupplier.producers.get(0).commitTransactionException = new ProducerFencedException("Producer is fenced");
         assertThrows(TaskMigratedException.class, () -> thread.rebalanceListener().onPartitionsRevoked(assignedPartitions));
-        assertFalse(clientSupplier.producers.get(0).transactionCommitted());
-        assertFalse(clientSupplier.producers.get(0).closed());
-        assertEquals(1, thread.activeTasks().size());
+        Assertions.assertFalse(clientSupplier.producers.get(0).transactionCommitted());
+        Assertions.assertFalse(clientSupplier.producers.get(0).closed());
+        Assertions.assertEquals(1, thread.activeTasks().size());
     }
 
     @Test
@@ -1511,19 +1511,19 @@ public class StreamThreadTest {
         consumer.addRecord(new ConsumerRecord<>(topic1, 1, 1, new byte[0], new byte[0]));
         try {
             thread.runOnce();
-            fail("Should have thrown TaskMigratedException");
+            Assertions.fail("Should have thrown TaskMigratedException");
         } catch (final KafkaException expected) {
-            assertTrue(expected instanceof TaskMigratedException);
-            assertTrue("StreamsThread removed the fenced zombie task already, should wait for rebalance to close all zombies together.",
-                thread.activeTasks().stream().anyMatch(task -> task.id().equals(task1)));
+            Assertions.assertTrue(expected instanceof TaskMigratedException);
+            Assertions.assertTrue(
+                    thread.activeTasks().stream().anyMatch(task -> task.id().equals(task1)), "StreamsThread removed the fenced zombie task already, should wait for rebalance to close all zombies together.");
         }
 
         assertThat(producer.commitCount(), equalTo(0L));
 
-        assertTrue(clientSupplier.producers.get(0).transactionInFlight());
-        assertFalse(clientSupplier.producers.get(0).transactionCommitted());
-        assertFalse(clientSupplier.producers.get(0).closed());
-        assertEquals(1, thread.activeTasks().size());
+        Assertions.assertTrue(clientSupplier.producers.get(0).transactionInFlight());
+        Assertions.assertFalse(clientSupplier.producers.get(0).transactionCommitted());
+        Assertions.assertFalse(clientSupplier.producers.get(0).closed());
+        Assertions.assertEquals(1, thread.activeTasks().size());
     }
 
     @Test
@@ -1559,9 +1559,9 @@ public class StreamThreadTest {
         thread.runOnce();
 
         thread.rebalanceListener().onPartitionsRevoked(assignedPartitions);
-        assertTrue(clientSupplier.producers.get(0).transactionCommitted());
-        assertFalse(clientSupplier.producers.get(0).closed());
-        assertEquals(1, thread.activeTasks().size());
+        Assertions.assertTrue(clientSupplier.producers.get(0).transactionCommitted());
+        Assertions.assertFalse(clientSupplier.producers.get(0).closed());
+        Assertions.assertEquals(1, thread.activeTasks().size());
     }
 
     @Test
@@ -1619,18 +1619,18 @@ public class StreamThreadTest {
         thread.runOnce();
 
         final ThreadMetadata metadata = thread.threadMetadata();
-        assertEquals(StreamThread.State.RUNNING.name(), metadata.threadState());
-        assertTrue(metadata.activeTasks().contains(new TaskMetadataImpl(task1, Utils.mkSet(t1p1), new HashMap<>(), new HashMap<>(), Optional.empty())));
-        assertTrue(metadata.standbyTasks().isEmpty());
+        Assertions.assertEquals(StreamThread.State.RUNNING.name(), metadata.threadState());
+        Assertions.assertTrue(metadata.activeTasks().contains(new TaskMetadataImpl(task1, Utils.mkSet(t1p1), new HashMap<>(), new HashMap<>(), Optional.empty())));
+        Assertions.assertTrue(metadata.standbyTasks().isEmpty());
 
-        assertTrue("#threadState() was: " + metadata.threadState() + "; expected either RUNNING, STARTING, PARTITIONS_REVOKED, PARTITIONS_ASSIGNED, or CREATED",
-                   Arrays.asList("RUNNING", "STARTING", "PARTITIONS_REVOKED", "PARTITIONS_ASSIGNED", "CREATED").contains(metadata.threadState()));
+        Assertions.assertTrue(
+                Arrays.asList("RUNNING", "STARTING", "PARTITIONS_REVOKED", "PARTITIONS_ASSIGNED", "CREATED").contains(metadata.threadState()), "#threadState() was: " + metadata.threadState() + "; expected either RUNNING, STARTING, PARTITIONS_REVOKED, PARTITIONS_ASSIGNED, or CREATED");
         final String threadName = metadata.threadName();
         assertThat(threadName, startsWith(CLIENT_ID + "-StreamThread-" + threadIdx));
-        assertEquals(threadName + "-consumer", metadata.consumerClientId());
-        assertEquals(threadName + "-restore-consumer", metadata.restoreConsumerClientId());
-        assertEquals(Collections.singleton(threadName + "-producer"), metadata.producerClientIds());
-        assertEquals(CLIENT_ID + "-admin", metadata.adminClientId());
+        Assertions.assertEquals(threadName + "-consumer", metadata.consumerClientId());
+        Assertions.assertEquals(threadName + "-restore-consumer", metadata.restoreConsumerClientId());
+        Assertions.assertEquals(Collections.singleton(threadName + "-producer"), metadata.producerClientIds());
+        Assertions.assertEquals(CLIENT_ID + "-admin", metadata.adminClientId());
     }
 
     @Test
@@ -1672,9 +1672,9 @@ public class StreamThreadTest {
         thread.runOnce();
 
         final ThreadMetadata threadMetadata = thread.threadMetadata();
-        assertEquals(StreamThread.State.RUNNING.name(), threadMetadata.threadState());
-        assertTrue(threadMetadata.standbyTasks().contains(new TaskMetadataImpl(task1, Utils.mkSet(t1p1), new HashMap<>(), new HashMap<>(), Optional.empty())));
-        assertTrue(threadMetadata.activeTasks().isEmpty());
+        Assertions.assertEquals(StreamThread.State.RUNNING.name(), threadMetadata.threadState());
+        Assertions.assertTrue(threadMetadata.standbyTasks().contains(new TaskMetadataImpl(task1, Utils.mkSet(t1p1), new HashMap<>(), new HashMap<>(), Optional.empty())));
+        Assertions.assertTrue(threadMetadata.activeTasks().isEmpty());
 
         thread.taskManager().shutdown(true);
     }
@@ -1729,13 +1729,13 @@ public class StreamThreadTest {
 
         final StandbyTask standbyTask1 = standbyTask(thread.taskManager(), t1p1);
         final StandbyTask standbyTask2 = standbyTask(thread.taskManager(), t2p1);
-        assertEquals(task1, standbyTask1.id());
-        assertEquals(task3, standbyTask2.id());
+        Assertions.assertEquals(task1, standbyTask1.id());
+        Assertions.assertEquals(task3, standbyTask2.id());
 
         final KeyValueStore<Object, Long> store1 = (KeyValueStore<Object, Long>) standbyTask1.getStore(storeName1);
         final KeyValueStore<Object, Long> store2 = (KeyValueStore<Object, Long>) standbyTask2.getStore(storeName2);
-        assertEquals(0L, store1.approximateNumEntries());
-        assertEquals(0L, store2.approximateNumEntries());
+        Assertions.assertEquals(0L, store1.approximateNumEntries());
+        Assertions.assertEquals(0L, store2.approximateNumEntries());
 
         // let the store1 be restored from 0 to 10; store2 be restored from 5 (checkpointed) to 10
         for (long i = 0L; i < 10L; i++) {
@@ -1755,8 +1755,8 @@ public class StreamThreadTest {
 
         thread.runOnce();
 
-        assertEquals(10L, store1.approximateNumEntries());
-        assertEquals(4L, store2.approximateNumEntries());
+        Assertions.assertEquals(10L, store1.approximateNumEntries());
+        Assertions.assertEquals(4L, store2.approximateNumEntries());
 
         thread.taskManager().shutdown(true);
     }
@@ -1827,8 +1827,8 @@ public class StreamThreadTest {
 
         thread.runOnce();
 
-        assertEquals(0, punctuatedStreamTime.size());
-        assertEquals(0, punctuatedWallClockTime.size());
+        Assertions.assertEquals(0, punctuatedStreamTime.size());
+        Assertions.assertEquals(0, punctuatedWallClockTime.size());
 
         mockTime.sleep(100L);
         clientSupplier.consumer.addRecord(new ConsumerRecord<>(
@@ -1846,16 +1846,16 @@ public class StreamThreadTest {
 
         thread.runOnce();
 
-        assertEquals(1, punctuatedStreamTime.size());
-        assertEquals(1, punctuatedWallClockTime.size());
+        Assertions.assertEquals(1, punctuatedStreamTime.size());
+        Assertions.assertEquals(1, punctuatedWallClockTime.size());
 
         mockTime.sleep(100L);
 
         thread.runOnce();
 
         // we should skip stream time punctuation, only trigger wall-clock time punctuation
-        assertEquals(1, punctuatedStreamTime.size());
-        assertEquals(2, punctuatedWallClockTime.size());
+        Assertions.assertEquals(1, punctuatedStreamTime.size());
+        Assertions.assertEquals(2, punctuatedWallClockTime.size());
     }
 
     @Test
@@ -1907,13 +1907,13 @@ public class StreamThreadTest {
         thread.rebalanceListener().onPartitionsAssigned(assignedPartitions);
 
         thread.runOnce();
-        assertEquals(0, peekedContextTime.size());
+        Assertions.assertEquals(0, peekedContextTime.size());
 
         mockTime.sleep(100L);
         thread.runOnce();
 
-        assertEquals(1, peekedContextTime.size());
-        assertEquals(currTime + 100L, peekedContextTime.get(0).longValue());
+        Assertions.assertEquals(1, peekedContextTime.size());
+        Assertions.assertEquals(currTime + 100L, peekedContextTime.get(0).longValue());
 
         clientSupplier.consumer.addRecord(new ConsumerRecord<>(
             topic1,
@@ -1930,22 +1930,22 @@ public class StreamThreadTest {
 
         thread.runOnce();
 
-        assertEquals(2, peekedContextTime.size());
-        assertEquals(110L, peekedContextTime.get(1).longValue());
+        Assertions.assertEquals(2, peekedContextTime.size());
+        Assertions.assertEquals(110L, peekedContextTime.get(1).longValue());
     }
 
     @Test
     public void shouldAlwaysUpdateTasksMetadataAfterChangingState() {
         final StreamThread thread = createStreamThread(CLIENT_ID, config, false);
         ThreadMetadata metadata = thread.threadMetadata();
-        assertEquals(StreamThread.State.CREATED.name(), metadata.threadState());
+        Assertions.assertEquals(StreamThread.State.CREATED.name(), metadata.threadState());
 
         thread.setState(StreamThread.State.STARTING);
         thread.setState(StreamThread.State.PARTITIONS_REVOKED);
         thread.setState(StreamThread.State.PARTITIONS_ASSIGNED);
         thread.setState(StreamThread.State.RUNNING);
         metadata = thread.threadMetadata();
-        assertEquals(StreamThread.State.RUNNING.name(), metadata.threadState());
+        Assertions.assertEquals(StreamThread.State.RUNNING.name(), metadata.threadState());
     }
 
     @Test
@@ -2119,9 +2119,9 @@ public class StreamThreadTest {
             thread.runOnce();
 
             final List<String> strings = appender.getMessages();
-            assertTrue(strings.contains("stream-thread [" + Thread.currentThread().getName() + "] task [0_1]" +
+            Assertions.assertTrue(strings.contains("stream-thread [" + Thread.currentThread().getName() + "] task [0_1]" +
                 " Skipping record due to deserialization error. topic=[topic1] partition=[1] offset=[0]"));
-            assertTrue(strings.contains("stream-thread [" + Thread.currentThread().getName() + "] task [0_1]" +
+            Assertions.assertTrue(strings.contains("stream-thread [" + Thread.currentThread().getName() + "] task [0_1]" +
                 " Skipping record due to deserialization error. topic=[topic1] partition=[1] offset=[1]"));
         }
     }
@@ -2649,32 +2649,32 @@ public class StreamThreadTest {
             final List<String> strings = appender.getMessages();
 
             final String threadTaskPrefix = "stream-thread [" + Thread.currentThread().getName() + "] task [0_1] ";
-            assertTrue(strings.contains(
+            Assertions.assertTrue(strings.contains(
                 threadTaskPrefix + "Skipping record due to negative extracted timestamp. " +
                     "topic=[topic1] partition=[1] offset=[0] extractedTimestamp=[-1] " +
                     "extractor=[org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp]"
             ));
-            assertTrue(strings.contains(
+            Assertions.assertTrue(strings.contains(
                 threadTaskPrefix + "Skipping record due to negative extracted timestamp. " +
                     "topic=[topic1] partition=[1] offset=[1] extractedTimestamp=[-1] " +
                     "extractor=[org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp]"
             ));
-            assertTrue(strings.contains(
+            Assertions.assertTrue(strings.contains(
                 threadTaskPrefix + "Skipping record due to negative extracted timestamp. " +
                     "topic=[topic1] partition=[1] offset=[2] extractedTimestamp=[-1] " +
                     "extractor=[org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp]"
             ));
-            assertTrue(strings.contains(
+            Assertions.assertTrue(strings.contains(
                 threadTaskPrefix + "Skipping record due to negative extracted timestamp. " +
                     "topic=[topic1] partition=[1] offset=[3] extractedTimestamp=[-1] " +
                     "extractor=[org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp]"
             ));
-            assertTrue(strings.contains(
+            Assertions.assertTrue(strings.contains(
                 threadTaskPrefix + "Skipping record due to negative extracted timestamp. " +
                     "topic=[topic1] partition=[1] offset=[4] extractedTimestamp=[-1] " +
                     "extractor=[org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp]"
             ));
-            assertTrue(strings.contains(
+            Assertions.assertTrue(strings.contains(
                 threadTaskPrefix + "Skipping record due to negative extracted timestamp. " +
                     "topic=[topic1] partition=[1] offset=[5] extractedTimestamp=[-1] " +
                     "extractor=[org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp]"
@@ -2964,7 +2964,7 @@ public class StreamThreadTest {
 
         adminClient.setMockMetrics(testMetricName, testMetric);
         final Map<MetricName, Metric> adminClientMetrics = thread.adminClientMetrics();
-        assertEquals(testMetricName, adminClientMetrics.get(testMetricName).metricName());
+        Assertions.assertEquals(testMetricName, adminClientMetrics.get(testMetricName).metricName());
     }
 
     @Test

@@ -44,8 +44,9 @@ import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +71,7 @@ public class KGroupedStreamImplTest {
 
     private final Properties props = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.String());
 
-    @Before
+    @BeforeEach
     public void before() {
         final KStream<String, String> stream = builder.stream(TOPIC, Consumed.with(Serdes.String(), Serdes.String()));
         groupedStream = stream.groupByKey(Grouped.with(Serdes.String(), Serdes.String()));
@@ -326,13 +327,13 @@ public class KGroupedStreamImplTest {
         }
         final Map<Windowed<String>, ValueAndTimestamp<Integer>> result
             = supplier.theCapturedProcessor().lastValueAndTimestampPerKey();
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make(2, 30L),
             result.get(new Windowed<>("1", new SessionWindow(10L, 30L))));
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make(1, 15L),
             result.get(new Windowed<>("2", new SessionWindow(15L, 15L))));
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make(3, 100L),
             result.get(new Windowed<>("1", new SessionWindow(70L, 100L))));
     }
@@ -352,7 +353,7 @@ public class KGroupedStreamImplTest {
         table.toStream().process(supplier);
 
         doAggregateSessionWindows(supplier);
-        assertEquals(table.queryableStoreName(), "session-store");
+        Assertions.assertEquals(table.queryableStoreName(), "session-store");
     }
 
     @Test
@@ -383,13 +384,13 @@ public class KGroupedStreamImplTest {
         }
         final Map<Windowed<String>, ValueAndTimestamp<Long>> result =
             supplier.theCapturedProcessor().lastValueAndTimestampPerKey();
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make(2L, 30L),
             result.get(new Windowed<>("1", new SessionWindow(10L, 30L))));
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make(1L, 15L),
             result.get(new Windowed<>("2", new SessionWindow(15L, 15L))));
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make(3L, 100L),
             result.get(new Windowed<>("1", new SessionWindow(70L, 100L))));
     }
@@ -402,7 +403,7 @@ public class KGroupedStreamImplTest {
             .count(Materialized.as("session-store"));
         table.toStream().process(supplier);
         doCountSessionWindows(supplier);
-        assertEquals(table.queryableStoreName(), "session-store");
+        Assertions.assertEquals(table.queryableStoreName(), "session-store");
     }
 
     @Test
@@ -413,7 +414,7 @@ public class KGroupedStreamImplTest {
             .count();
         table.toStream().process(supplier);
         doCountSessionWindows(supplier);
-        assertNull(table.queryableStoreName());
+        Assertions.assertNull(table.queryableStoreName());
     }
 
     private void doReduceSessionWindows(final MockApiProcessorSupplier<Windowed<String>, String, Void, Void> supplier) {
@@ -429,13 +430,13 @@ public class KGroupedStreamImplTest {
         }
         final Map<Windowed<String>, ValueAndTimestamp<String>> result =
             supplier.theCapturedProcessor().lastValueAndTimestampPerKey();
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make("A:B", 30L),
             result.get(new Windowed<>("1", new SessionWindow(10L, 30L))));
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make("Z", 15L),
             result.get(new Windowed<>("2", new SessionWindow(15L, 15L))));
-        assertEquals(
+        Assertions.assertEquals(
             ValueAndTimestamp.make("A:B:C", 100L),
             result.get(new Windowed<>("1", new SessionWindow(70L, 100L))));
     }
@@ -448,7 +449,7 @@ public class KGroupedStreamImplTest {
             .reduce((value1, value2) -> value1 + ":" + value2, Materialized.as("session-store"));
         table.toStream().process(supplier);
         doReduceSessionWindows(supplier);
-        assertEquals(table.queryableStoreName(), "session-store");
+        Assertions.assertEquals(table.queryableStoreName(), "session-store");
     }
 
     @Test
@@ -459,7 +460,7 @@ public class KGroupedStreamImplTest {
             .reduce((value1, value2) -> value1 + ":" + value2);
         table.toStream().process(supplier);
         doReduceSessionWindows(supplier);
-        assertNull(table.queryableStoreName());
+        Assertions.assertNull(table.queryableStoreName());
     }
 
     @Test

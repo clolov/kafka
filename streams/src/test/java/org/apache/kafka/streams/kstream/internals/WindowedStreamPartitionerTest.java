@@ -23,7 +23,8 @@ import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.streams.kstream.TimeWindowedSerializer;
 import org.apache.kafka.streams.kstream.Windowed;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,7 +75,7 @@ public class WindowedStreamPartitionerTest {
                 final Windowed<Integer> windowedKey = new Windowed<>(key, window);
                 final Integer actual = streamPartitioner.partition(topicName, windowedKey, value, infos.size());
 
-                assertEquals(expected, actual);
+                Assertions.assertEquals(expected, actual);
             }
         }
 

@@ -28,7 +28,8 @@ import org.apache.kafka.streams.kstream.ValueMapperWithKey;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -73,7 +74,7 @@ public class KStreamFlatMapValuesTest {
             new KeyValueTimestamp<>(2, "v2", 0), new KeyValueTimestamp<>(2, "V2", 0),
             new KeyValueTimestamp<>(3, "v3", 0), new KeyValueTimestamp<>(3, "V3", 0)};
 
-        assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
+        Assertions.assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
     }
 
 
@@ -114,6 +115,6 @@ public class KStreamFlatMapValuesTest {
             new KeyValueTimestamp<>(3, "v3", 0),
             new KeyValueTimestamp<>(3, "k3", 0)};
 
-        assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
+        Assertions.assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
     }
 }

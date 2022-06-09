@@ -26,7 +26,8 @@ import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.StoreBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,7 +39,7 @@ public class GraphGraceSearchUtilTest {
     public void shouldThrowOnNull() {
         try {
             GraphGraceSearchUtil.findAndVerifyWindowGrace(null);
-            fail("Should have thrown.");
+            Assertions.fail("Should have thrown.");
         } catch (final TopologyException e) {
             assertThat(e.getMessage(), is("Invalid topology: Window close time is only defined for windowed computations. Got []."));
         }
@@ -71,7 +72,7 @@ public class GraphGraceSearchUtilTest {
 
         try {
             GraphGraceSearchUtil.findAndVerifyWindowGrace(node);
-            fail("should have thrown.");
+            Assertions.fail("should have thrown.");
         } catch (final TopologyException e) {
             assertThat(e.getMessage(), is("Invalid topology: Window close time is only defined for windowed computations. Got [stateful->stateless]."));
         }

@@ -32,7 +32,8 @@ import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.processor.To;
 import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -100,9 +101,9 @@ public class KStreamTransformTest {
                 new KeyValueTimestamp<>(-1, 3, 3)
             };
 
-            assertEquals(expected.length, processor.theCapturedProcessor().processed().size());
+            Assertions.assertEquals(expected.length, processor.theCapturedProcessor().processed().size());
             for (int i = 0; i < expected.length; i++) {
-                assertEquals(expected[i], processor.theCapturedProcessor().processed().get(i));
+                Assertions.assertEquals(expected[i], processor.theCapturedProcessor().processed().get(i));
             }
         }
     }
@@ -153,7 +154,7 @@ public class KStreamTransformTest {
             driver.advanceWallClockTime(Duration.ofMillis(1));
         }
 
-        assertEquals(6, processor.theCapturedProcessor().processed().size());
+        Assertions.assertEquals(6, processor.theCapturedProcessor().processed().size());
 
         final KeyValueTimestamp[] expected = {new KeyValueTimestamp<>(2, 10, 0),
             new KeyValueTimestamp<>(20, 110, 0),
@@ -163,7 +164,7 @@ public class KStreamTransformTest {
             new KeyValueTimestamp<>(-1, 3, 3)};
 
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], processor.theCapturedProcessor().processed().get(i));
+            Assertions.assertEquals(expected[i], processor.theCapturedProcessor().processed().get(i));
         }
     }
 

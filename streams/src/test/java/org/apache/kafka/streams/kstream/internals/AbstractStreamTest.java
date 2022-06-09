@@ -35,7 +35,8 @@ import org.apache.kafka.streams.kstream.ValueTransformerSupplier;
 import org.apache.kafka.streams.kstream.ValueTransformerWithKeySupplier;
 import org.apache.kafka.streams.kstream.internals.graph.ProcessorGraphNode;
 import org.apache.kafka.streams.kstream.internals.graph.ProcessorParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -90,7 +91,7 @@ public class AbstractStreamTest {
                 inputTopic.pipeInput(expectedKey, "V" + expectedKey);
             }
 
-            assertTrue(supplier.theCapturedProcessor().processed().size() <= expectedKeys.length);
+            Assertions.assertTrue(supplier.theCapturedProcessor().processed().size() <= expectedKeys.length);
         }
     }
 

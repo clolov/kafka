@@ -39,7 +39,8 @@ import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.kstream.TransformerSupplier;
 import org.apache.kafka.streams.kstream.ValueJoiner;
 import org.apache.kafka.streams.processor.ProcessorContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -74,15 +75,15 @@ public class StreamsGraphTest {
         final KStream<String, String> joinedStream = stream.join(streamII, valueJoiner, JoinWindows.of(ofMillis(5000)));
 
         // build step one
-        assertEquals(expectedJoinedTopology, builder.build().describe().toString());
+        Assertions.assertEquals(expectedJoinedTopology, builder.build().describe().toString());
 
         final KStream<String, String> filteredJoinStream = joinedStream.filter((k, v) -> v.equals("foo"));
         // build step two
-        assertEquals(expectedJoinedFilteredTopology, builder.build().describe().toString());
+        Assertions.assertEquals(expectedJoinedFilteredTopology, builder.build().describe().toString());
 
         filteredJoinStream.mapValues(v -> v + "some value").to("output-topic");
         // build step three
-        assertEquals(expectedFullTopology, builder.build().describe().toString());
+        Assertions.assertEquals(expectedFullTopology, builder.build().describe().toString());
 
     }
 
@@ -181,7 +182,7 @@ public class StreamsGraphTest {
                 }));
 
         final Topology topology = builder.build(properties);
-        assertEquals(expectedComplexMergeOptimizeTopology, topology.describe().toString());
+        Assertions.assertEquals(expectedComplexMergeOptimizeTopology, topology.describe().toString());
     }
 
     @Test
@@ -190,9 +191,9 @@ public class StreamsGraphTest {
         final Topology attemptedOptimize = getTopologyWithChangingValuesAfterChangingKey(StreamsConfig.OPTIMIZE);
         final Topology noOptimization = getTopologyWithChangingValuesAfterChangingKey(StreamsConfig.NO_OPTIMIZATION);
 
-        assertEquals(attemptedOptimize.describe().toString(), noOptimization.describe().toString());
-        assertEquals(2, getCountOfRepartitionTopicsFound(attemptedOptimize.describe().toString()));
-        assertEquals(2, getCountOfRepartitionTopicsFound(noOptimization.describe().toString()));
+        Assertions.assertEquals(attemptedOptimize.describe().toString(), noOptimization.describe().toString());
+        Assertions.assertEquals(2, getCountOfRepartitionTopicsFound(attemptedOptimize.describe().toString()));
+        Assertions.assertEquals(2, getCountOfRepartitionTopicsFound(noOptimization.describe().toString()));
     }
 
     // no need to optimize as user has already performed the repartitioning manually
@@ -202,9 +203,9 @@ public class StreamsGraphTest {
         final Topology attemptedOptimize = getTopologyWithThroughOperation(StreamsConfig.OPTIMIZE);
         final Topology noOptimziation = getTopologyWithThroughOperation(StreamsConfig.NO_OPTIMIZATION);
 
-        assertEquals(attemptedOptimize.describe().toString(), noOptimziation.describe().toString());
-        assertEquals(0, getCountOfRepartitionTopicsFound(attemptedOptimize.describe().toString()));
-        assertEquals(0, getCountOfRepartitionTopicsFound(noOptimziation.describe().toString()));
+        Assertions.assertEquals(attemptedOptimize.describe().toString(), noOptimziation.describe().toString());
+        Assertions.assertEquals(0, getCountOfRepartitionTopicsFound(attemptedOptimize.describe().toString()));
+        Assertions.assertEquals(0, getCountOfRepartitionTopicsFound(noOptimziation.describe().toString()));
 
     }
 
@@ -227,7 +228,7 @@ public class StreamsGraphTest {
         properties.setProperty(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG, StreamsConfig.OPTIMIZE);
         final Topology topology = streamsBuilder.build(properties);
 
-        assertEquals(expectedMergeOptimizedTopology, topology.describe().toString());
+        Assertions.assertEquals(expectedMergeOptimizedTopology, topology.describe().toString());
     }
 
     @Test
@@ -235,9 +236,9 @@ public class StreamsGraphTest {
         final Topology attemptedOptimize = getTopologyWithRepartitionOperation(StreamsConfig.OPTIMIZE);
         final Topology noOptimziation = getTopologyWithRepartitionOperation(StreamsConfig.NO_OPTIMIZATION);
 
-        assertEquals(attemptedOptimize.describe().toString(), noOptimziation.describe().toString());
-        assertEquals(2, getCountOfRepartitionTopicsFound(attemptedOptimize.describe().toString()));
-        assertEquals(2, getCountOfRepartitionTopicsFound(noOptimziation.describe().toString()));
+        Assertions.assertEquals(attemptedOptimize.describe().toString(), noOptimziation.describe().toString());
+        Assertions.assertEquals(2, getCountOfRepartitionTopicsFound(attemptedOptimize.describe().toString()));
+        Assertions.assertEquals(2, getCountOfRepartitionTopicsFound(noOptimziation.describe().toString()));
     }
 
     private Topology getTopologyWithChangingValuesAfterChangingKey(final String optimizeConfig) {

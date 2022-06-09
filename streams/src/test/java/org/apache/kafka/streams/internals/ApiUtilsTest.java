@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.internals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -42,7 +43,7 @@ public class ApiUtilsTest {
 
         try {
             validateMillisecondDuration(null, nullDurationPrefix);
-            fail("Expected exception when null passed to duration.");
+            Assertions.fail("Expected exception when null passed to duration.");
         } catch (final IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString(nullDurationPrefix));
         }
@@ -55,7 +56,7 @@ public class ApiUtilsTest {
 
         try {
             validateMillisecondDuration(maxDurationInDays, maxDurationPrefix);
-            fail("Expected exception when maximum days passed for duration, because of long overflow");
+            Assertions.fail("Expected exception when maximum days passed for duration, because of long overflow");
         } catch (final IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString(maxDurationPrefix));
         }
@@ -67,7 +68,7 @@ public class ApiUtilsTest {
 
         try {
             validateMillisecondInstant(null, nullInstantPrefix);
-            fail("Expected exception when null value passed for instant.");
+            Assertions.fail("Expected exception when null value passed for instant.");
         } catch (final IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString(nullInstantPrefix));
         }
@@ -79,7 +80,7 @@ public class ApiUtilsTest {
 
         try {
             validateMillisecondInstant(Instant.MAX, maxInstantPrefix);
-            fail("Expected exception when maximum value passed for instant, because of long overflow.");
+            Assertions.fail("Expected exception when maximum value passed for instant, because of long overflow.");
         } catch (final IllegalArgumentException e) {
             assertThat(e.getMessage(), containsString(maxInstantPrefix));
         }
@@ -89,14 +90,14 @@ public class ApiUtilsTest {
     public void shouldReturnMillisecondsOnValidDuration() {
         final Duration sampleDuration = Duration.ofDays(MAX_ACCEPTABLE_DAYS_FOR_DURATION_TO_MILLIS);
 
-        assertEquals(sampleDuration.toMillis(), validateMillisecondDuration(sampleDuration, "sampleDuration"));
+        Assertions.assertEquals(sampleDuration.toMillis(), validateMillisecondDuration(sampleDuration, "sampleDuration"));
     }
 
     @Test
     public void shouldReturnMillisecondsOnValidInstant() {
         final Instant sampleInstant = Instant.now();
 
-        assertEquals(sampleInstant.toEpochMilli(), validateMillisecondInstant(sampleInstant, "sampleInstant"));
+        Assertions.assertEquals(sampleInstant.toEpochMilli(), validateMillisecondInstant(sampleInstant, "sampleInstant"));
     }
 
     @Test

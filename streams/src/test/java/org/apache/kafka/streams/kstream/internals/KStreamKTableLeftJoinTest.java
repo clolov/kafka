@@ -31,9 +31,8 @@ import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -59,7 +58,7 @@ public class KStreamKTableLeftJoinTest {
     private MockApiProcessor<Integer, String, Void, Void> processor;
     private StreamsBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         builder = new StreamsBuilder();
 
@@ -80,7 +79,7 @@ public class KStreamKTableLeftJoinTest {
         processor = supplier.theCapturedProcessor();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         driver.close();
     }
@@ -112,8 +111,8 @@ public class KStreamKTableLeftJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(streamTopic, tableTopic)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(streamTopic, tableTopic)), copartitionGroups.iterator().next());
     }
 
     @Test

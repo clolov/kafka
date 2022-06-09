@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.kstream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 
@@ -86,7 +87,7 @@ public class JoinWindowsTest {
         final JoinWindows windowSpec = JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(ANY_SIZE));
         try {
             windowSpec.after(ofMillis(-ANY_SIZE - 1));
-            fail("window end time should not be before window start time");
+            Assertions.fail("window end time should not be before window start time");
         } catch (final IllegalArgumentException e) {
             // expected
         }
@@ -97,7 +98,7 @@ public class JoinWindowsTest {
         final JoinWindows windowSpec = JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(ANY_SIZE));
         try {
             windowSpec.before(ofMillis(-ANY_SIZE - 1));
-            fail("window start time should not be after window end time");
+            Assertions.fail("window start time should not be after window end time");
         } catch (final IllegalArgumentException e) {
             // expected
         }
@@ -108,7 +109,7 @@ public class JoinWindowsTest {
     public void untilShouldSetGraceDuration() {
         final JoinWindows windowSpec = JoinWindows.of(ofMillis(ANY_SIZE));
         final long windowSize = windowSpec.size();
-        assertEquals(windowSize, windowSpec.grace(ofMillis(windowSize)).gracePeriodMs());
+        Assertions.assertEquals(windowSize, windowSpec.grace(ofMillis(windowSize)).gracePeriodMs());
     }
 
     @Test
@@ -117,7 +118,7 @@ public class JoinWindowsTest {
 
         try {
             JoinWindows.ofTimeDifferenceAndGrace(ofMillis(3L), ofMillis(-1L));
-            fail("should not accept negatives");
+            Assertions.fail("should not accept negatives");
         } catch (final IllegalArgumentException e) {
             //expected
         }
@@ -126,24 +127,24 @@ public class JoinWindowsTest {
     @SuppressWarnings("deprecation")
     @Test
     public void oldAPIShouldSetDefaultGracePeriod() {
-        assertEquals(Duration.ofDays(1).toMillis(), DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD);
-        assertEquals(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD - 6L, JoinWindows.of(ofMillis(3L)).gracePeriodMs());
-        assertEquals(0L, JoinWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD)).gracePeriodMs());
-        assertEquals(0L, JoinWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD + 1L)).gracePeriodMs());
+        Assertions.assertEquals(Duration.ofDays(1).toMillis(), DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD);
+        Assertions.assertEquals(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD - 6L, JoinWindows.of(ofMillis(3L)).gracePeriodMs());
+        Assertions.assertEquals(0L, JoinWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD)).gracePeriodMs());
+        Assertions.assertEquals(0L, JoinWindows.of(ofMillis(DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD + 1L)).gracePeriodMs());
     }
 
     @Test
     public void noGraceAPIShouldNotSetGracePeriod() {
-        assertEquals(0L, JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(3L)).gracePeriodMs());
-        assertEquals(0L, JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(ANY_SIZE)).gracePeriodMs());
-        assertEquals(0L, JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(ANY_OTHER_SIZE)).gracePeriodMs());
+        Assertions.assertEquals(0L, JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(3L)).gracePeriodMs());
+        Assertions.assertEquals(0L, JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(ANY_SIZE)).gracePeriodMs());
+        Assertions.assertEquals(0L, JoinWindows.ofTimeDifferenceWithNoGrace(ofMillis(ANY_OTHER_SIZE)).gracePeriodMs());
     }
 
     @Test
     public void withGraceAPIShouldSetGracePeriod() {
-        assertEquals(ANY_GRACE, JoinWindows.ofTimeDifferenceAndGrace(ofMillis(3L), ofMillis(ANY_GRACE)).gracePeriodMs());
-        assertEquals(ANY_GRACE, JoinWindows.ofTimeDifferenceAndGrace(ofMillis(ANY_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
-        assertEquals(ANY_GRACE, JoinWindows.ofTimeDifferenceAndGrace(ofMillis(ANY_OTHER_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
+        Assertions.assertEquals(ANY_GRACE, JoinWindows.ofTimeDifferenceAndGrace(ofMillis(3L), ofMillis(ANY_GRACE)).gracePeriodMs());
+        Assertions.assertEquals(ANY_GRACE, JoinWindows.ofTimeDifferenceAndGrace(ofMillis(ANY_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
+        Assertions.assertEquals(ANY_GRACE, JoinWindows.ofTimeDifferenceAndGrace(ofMillis(ANY_OTHER_SIZE), ofMillis(ANY_GRACE)).gracePeriodMs());
     }
 
     @Test

@@ -23,7 +23,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.TopologyMetadata.Subtopology;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +72,7 @@ public class PartitionGrouperTest {
         expectedPartitionsForTask.put(new TaskId(SUBTOPOLOGY_1.nodeGroupId, 0, SUBTOPOLOGY_1.namedTopology), mkSet(new TopicPartition("topic2", 0)));
         expectedPartitionsForTask.put(new TaskId(SUBTOPOLOGY_1.nodeGroupId, 1, SUBTOPOLOGY_1.namedTopology), mkSet(new TopicPartition("topic2", 1)));
 
-        assertEquals(expectedPartitionsForTask, grouper.partitionGroups(topicGroups, metadata));
+        Assertions.assertEquals(expectedPartitionsForTask, grouper.partitionGroups(topicGroups, metadata));
     }
 
     @Test
@@ -91,7 +92,7 @@ public class PartitionGrouperTest {
                 new TaskId(SUBTOPOLOGY_0.nodeGroupId, 2,  SUBTOPOLOGY_0.namedTopology),
             mkSet(new TopicPartition("topic1", 2)));
 
-        assertEquals(expectedPartitionsForTask, grouper.partitionGroups(topicGroups, metadata));
+        Assertions.assertEquals(expectedPartitionsForTask, grouper.partitionGroups(topicGroups, metadata));
     }
 
     @Test

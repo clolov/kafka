@@ -22,7 +22,8 @@ import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.streams.state.internals.Murmur3;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -81,9 +82,9 @@ public class SubscriptionResponseWrapperSerdeTest {
         final byte[] serResponse = srwSerde.serializer().serialize(null, srw);
         final SubscriptionResponseWrapper<String> result = srwSerde.deserializer().deserialize(null, serResponse);
 
-        assertArrayEquals(hashedValue, result.getOriginalValueHash());
-        assertEquals(foreignValue, result.getForeignValue());
-        assertNull(result.getPrimaryPartition());
+        Assertions.assertArrayEquals(hashedValue, result.getOriginalValueHash());
+        Assertions.assertEquals(foreignValue, result.getForeignValue());
+        Assertions.assertNull(result.getPrimaryPartition());
     }
 
     @Test
@@ -95,9 +96,9 @@ public class SubscriptionResponseWrapperSerdeTest {
         final byte[] serResponse = srwSerde.serializer().serialize(null, srw);
         final SubscriptionResponseWrapper<String> result = srwSerde.deserializer().deserialize(null, serResponse);
 
-        assertArrayEquals(hashedValue, result.getOriginalValueHash());
-        assertNull(result.getForeignValue());
-        assertNull(result.getPrimaryPartition());
+        Assertions.assertArrayEquals(hashedValue, result.getOriginalValueHash());
+        Assertions.assertNull(result.getForeignValue());
+        Assertions.assertNull(result.getPrimaryPartition());
     }
 
     @Test
@@ -110,9 +111,9 @@ public class SubscriptionResponseWrapperSerdeTest {
         final byte[] serResponse = srwSerde.serializer().serialize(null, srw);
         final SubscriptionResponseWrapper<String> result = srwSerde.deserializer().deserialize(null, serResponse);
 
-        assertArrayEquals(hashedValue, result.getOriginalValueHash());
-        assertEquals(foreignValue, result.getForeignValue());
-        assertNull(result.getPrimaryPartition());
+        Assertions.assertArrayEquals(hashedValue, result.getOriginalValueHash());
+        Assertions.assertEquals(foreignValue, result.getForeignValue());
+        Assertions.assertNull(result.getPrimaryPartition());
     }
 
     @Test
@@ -125,9 +126,9 @@ public class SubscriptionResponseWrapperSerdeTest {
         final byte[] serResponse = srwSerde.serializer().serialize(null, srw);
         final SubscriptionResponseWrapper<String> result = srwSerde.deserializer().deserialize(null, serResponse);
 
-        assertArrayEquals(hashedValue, result.getOriginalValueHash());
-        assertEquals(foreignValue, result.getForeignValue());
-        assertNull(result.getPrimaryPartition());
+        Assertions.assertArrayEquals(hashedValue, result.getOriginalValueHash());
+        Assertions.assertEquals(foreignValue, result.getForeignValue());
+        Assertions.assertNull(result.getPrimaryPartition());
     }
 
     @Test

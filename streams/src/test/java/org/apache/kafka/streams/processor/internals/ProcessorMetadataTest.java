@@ -18,7 +18,9 @@ package org.apache.kafka.streams.processor.internals;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -131,23 +133,23 @@ public class ProcessorMetadataTest {
     @Test
     public void shouldUpdateCommitFlag() {
         final ProcessorMetadata emptyMeta = new ProcessorMetadata();
-        assertFalse(emptyMeta.needsCommit());
+        Assertions.assertFalse(emptyMeta.needsCommit());
 
         emptyMeta.setNeedsCommit(true);
-        assertTrue(emptyMeta.needsCommit());
+        Assertions.assertTrue(emptyMeta.needsCommit());
 
         emptyMeta.setNeedsCommit(false);
-        assertFalse(emptyMeta.needsCommit());
+        Assertions.assertFalse(emptyMeta.needsCommit());
 
         emptyMeta.put("key1", 1L);
-        assertTrue(emptyMeta.needsCommit());
+        Assertions.assertTrue(emptyMeta.needsCommit());
 
         final Map<String, Long> map1 = new HashMap<>();
         map1.put("key1", 2L);
         map1.put("key2", 3L);
         final ProcessorMetadata metadata1 = new ProcessorMetadata(map1);
         emptyMeta.update(metadata1);
-        assertTrue(emptyMeta.needsCommit());
+        Assertions.assertTrue(emptyMeta.needsCommit());
     }
 
     @Test
@@ -157,7 +159,7 @@ public class ProcessorMetadataTest {
         final ProcessorMetadata metadata2 = new ProcessorMetadata();
         metadata2.setNeedsCommit(false);
 
-        assertEquals(metadata1, metadata2);
-        assertEquals(metadata1.hashCode(), metadata2.hashCode());
+        Assertions.assertEquals(metadata1, metadata2);
+        Assertions.assertEquals(metadata1.hashCode(), metadata2.hashCode());
     }
 }

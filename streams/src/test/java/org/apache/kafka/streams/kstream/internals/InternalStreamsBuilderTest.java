@@ -34,7 +34,8 @@ import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.MockTimestampExtractor;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -63,28 +64,28 @@ public class InternalStreamsBuilderTest {
 
     @Test
     public void testNewName() {
-        assertEquals("X-0000000000", builder.newProcessorName("X-"));
-        assertEquals("Y-0000000001", builder.newProcessorName("Y-"));
-        assertEquals("Z-0000000002", builder.newProcessorName("Z-"));
+        Assertions.assertEquals("X-0000000000", builder.newProcessorName("X-"));
+        Assertions.assertEquals("Y-0000000001", builder.newProcessorName("Y-"));
+        Assertions.assertEquals("Z-0000000002", builder.newProcessorName("Z-"));
 
         final InternalStreamsBuilder newBuilder = new InternalStreamsBuilder(new InternalTopologyBuilder());
 
-        assertEquals("X-0000000000", newBuilder.newProcessorName("X-"));
-        assertEquals("Y-0000000001", newBuilder.newProcessorName("Y-"));
-        assertEquals("Z-0000000002", newBuilder.newProcessorName("Z-"));
+        Assertions.assertEquals("X-0000000000", newBuilder.newProcessorName("X-"));
+        Assertions.assertEquals("Y-0000000001", newBuilder.newProcessorName("Y-"));
+        Assertions.assertEquals("Z-0000000002", newBuilder.newProcessorName("Z-"));
     }
 
     @Test
     public void testNewStoreName() {
-        assertEquals("X-STATE-STORE-0000000000", builder.newStoreName("X-"));
-        assertEquals("Y-STATE-STORE-0000000001", builder.newStoreName("Y-"));
-        assertEquals("Z-STATE-STORE-0000000002", builder.newStoreName("Z-"));
+        Assertions.assertEquals("X-STATE-STORE-0000000000", builder.newStoreName("X-"));
+        Assertions.assertEquals("Y-STATE-STORE-0000000001", builder.newStoreName("Y-"));
+        Assertions.assertEquals("Z-STATE-STORE-0000000002", builder.newStoreName("Z-"));
 
         final InternalStreamsBuilder newBuilder = new InternalStreamsBuilder(new InternalTopologyBuilder());
 
-        assertEquals("X-STATE-STORE-0000000000", newBuilder.newStoreName("X-"));
-        assertEquals("Y-STATE-STORE-0000000001", newBuilder.newStoreName("Y-"));
-        assertEquals("Z-STATE-STORE-0000000002", newBuilder.newStoreName("Z-"));
+        Assertions.assertEquals("X-STATE-STORE-0000000000", newBuilder.newStoreName("X-"));
+        Assertions.assertEquals("Y-STATE-STORE-0000000001", newBuilder.newStoreName("Y-"));
+        Assertions.assertEquals("Z-STATE-STORE-0000000002", newBuilder.newStoreName("Z-"));
     }
 
     @Test
@@ -104,7 +105,7 @@ public class InternalStreamsBuilderTest {
         merged.groupByKey().count(Materialized.as("my-table"));
         builder.buildAndOptimizeTopology();
         final Map<String, List<String>> actual = builder.internalTopologyBuilder.stateStoreNameToFullSourceTopicNames();
-        assertEquals(asList("topic-1", "topic-2", "topic-3"), actual.get("my-table"));
+        Assertions.assertEquals(asList("topic-1", "topic-2", "topic-3"), actual.get("my-table"));
     }
 
     @Test
@@ -118,9 +119,9 @@ public class InternalStreamsBuilderTest {
             .rewriteTopology(new StreamsConfig(StreamsTestUtils.getStreamsConfig(APP_ID)))
             .buildTopology();
 
-        assertEquals(0, topology.stateStores().size());
-        assertEquals(0, topology.storeToChangelogTopic().size());
-        assertNull(table1.queryableStoreName());
+        Assertions.assertEquals(0, topology.stateStores().size());
+        Assertions.assertEquals(0, topology.storeToChangelogTopic().size());
+        Assertions.assertNull(table1.queryableStoreName());
     }
     
     @Test
@@ -130,7 +131,7 @@ public class InternalStreamsBuilderTest {
 
         final GlobalKTable<String, String> table1 = builder.globalTable("topic2", consumed, materializedInternal);
 
-        assertNull(table1.queryableStoreName());
+        Assertions.assertNull(table1.queryableStoreName());
     }
 
     @Test
@@ -139,7 +140,7 @@ public class InternalStreamsBuilderTest {
             new MaterializedInternal<>(Materialized.as("globalTable"), builder, storePrefix);
         final GlobalKTable<String, String> table1 = builder.globalTable("topic2", consumed, materializedInternal);
 
-        assertEquals("globalTable", table1.queryableStoreName());
+        Assertions.assertEquals("globalTable", table1.queryableStoreName());
     }
 
     @Test
@@ -156,8 +157,8 @@ public class InternalStreamsBuilderTest {
             .buildGlobalStateTopology();
         final List<StateStore> stateStores = topology.globalStateStores();
 
-        assertEquals(1, stateStores.size());
-        assertEquals("globalTable", stateStores.get(0).name());
+        Assertions.assertEquals(1, stateStores.size());
+        Assertions.assertEquals("globalTable", stateStores.get(0).name());
     }
 
     private void doBuildGlobalTopologyWithAllGlobalTables() {
@@ -168,8 +169,8 @@ public class InternalStreamsBuilderTest {
         final List<StateStore> stateStores = topology.globalStateStores();
         final Set<String> sourceTopics = topology.sourceTopics();
 
-        assertEquals(Utils.mkSet("table", "table2"), sourceTopics);
-        assertEquals(2, stateStores.size());
+        Assertions.assertEquals(Utils.mkSet("table", "table2"), sourceTopics);
+        Assertions.assertEquals(2, stateStores.size());
     }
 
     @Test
@@ -222,9 +223,9 @@ public class InternalStreamsBuilderTest {
                 names.add(stateStore.name());
             }
 
-            assertEquals(2, stateStores.size());
-            assertTrue(names.contains(one));
-            assertTrue(names.contains(two));
+            Assertions.assertEquals(2, stateStores.size());
+            Assertions.assertTrue(names.contains(one));
+            Assertions.assertTrue(names.contains(two));
         }
     }
 
@@ -240,8 +241,8 @@ public class InternalStreamsBuilderTest {
         mapped.leftJoin(table, MockValueJoiner.TOSTRING_JOINER).groupByKey().count(Materialized.as("count"));
         builder.buildAndOptimizeTopology();
         builder.internalTopologyBuilder.rewriteTopology(new StreamsConfig(StreamsTestUtils.getStreamsConfig(APP_ID)));
-        assertEquals(Collections.singletonList("table-topic"), builder.internalTopologyBuilder.sourceTopicsForStore("table-store"));
-        assertEquals(Collections.singletonList(APP_ID + "-KSTREAM-MAP-0000000003-repartition"), builder.internalTopologyBuilder.sourceTopicsForStore("count"));
+        Assertions.assertEquals(Collections.singletonList("table-topic"), builder.internalTopologyBuilder.sourceTopicsForStore("table-store"));
+        Assertions.assertEquals(Collections.singletonList(APP_ID + "-KSTREAM-MAP-0000000003-repartition"), builder.internalTopologyBuilder.sourceTopicsForStore("count"));
     }
 
     @Test
@@ -329,7 +330,7 @@ public class InternalStreamsBuilderTest {
         builder.buildAndOptimizeTopology();
         builder.internalTopologyBuilder.rewriteTopology(new StreamsConfig(StreamsTestUtils.getStreamsConfig(APP_ID)));
         final ProcessorTopology processorTopology = builder.internalTopologyBuilder.buildTopology();
-        assertNull(processorTopology.source("topic").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic").getTimestampExtractor());
     }
 
     @Test
@@ -350,7 +351,7 @@ public class InternalStreamsBuilderTest {
         final ProcessorTopology processorTopology = builder.internalTopologyBuilder
             .rewriteTopology(new StreamsConfig(StreamsTestUtils.getStreamsConfig(APP_ID)))
             .buildTopology();
-        assertNull(processorTopology.source("topic").getTimestampExtractor());
+        Assertions.assertNull(processorTopology.source("topic").getTimestampExtractor());
     }
 
     @Test

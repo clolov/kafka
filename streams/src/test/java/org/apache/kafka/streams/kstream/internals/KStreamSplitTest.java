@@ -32,7 +32,8 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Named;
 import org.apache.kafka.streams.kstream.Predicate;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -61,7 +62,7 @@ public class KStreamSplitTest {
                         .branch(isMultipleOfThree, Branched.withConsumer(ks -> ks.to("x3")))
                         .branch(isMultipleOfFive, Branched.withConsumer(ks -> ks.to("x5"))).noDefaultBranch();
 
-        assertEquals(0, branches.size());
+        Assertions.assertEquals(0, branches.size());
 
         builder.build();
 
@@ -69,9 +70,9 @@ public class KStreamSplitTest {
             final TestOutputTopic<Integer, String> x2 = driver.createOutputTopic("x2", new IntegerDeserializer(), new StringDeserializer());
             final TestOutputTopic<Integer, String> x3 = driver.createOutputTopic("x3", new IntegerDeserializer(), new StringDeserializer());
             final TestOutputTopic<Integer, String> x5 = driver.createOutputTopic("x5", new IntegerDeserializer(), new StringDeserializer());
-            assertEquals(Arrays.asList("V0", "V2", "V4", "V6"), x2.readValuesToList());
-            assertEquals(Arrays.asList("V3"), x3.readValuesToList());
-            assertEquals(Arrays.asList("V5"), x5.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V0", "V2", "V4", "V6"), x2.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V3"), x3.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V5"), x5.readValuesToList());
         });
     }
 
@@ -114,7 +115,7 @@ public class KStreamSplitTest {
                         .branch(isMultipleOfSeven)
                         // "foo-0": "0" is the default name for the default branch
                         .defaultBranch();
-        assertEquals(4, branches.size());
+        Assertions.assertEquals(4, branches.size());
         // direct the branched streams into different topics named with branch name
         for (final Map.Entry<String, KStream<Integer, String>> branch: branches.entrySet()) {
             branch.getValue().to(branch.getKey());
@@ -126,10 +127,10 @@ public class KStreamSplitTest {
             final TestOutputTopic<Integer, String> negative = driver.createOutputTopic("foo-4", new IntegerDeserializer(), new StringDeserializer());
             final TestOutputTopic<Integer, String> x7 = driver.createOutputTopic("foo-5", new IntegerDeserializer(), new StringDeserializer());
             final TestOutputTopic<Integer, String> defaultBranch = driver.createOutputTopic("foo-0", new IntegerDeserializer(), new StringDeserializer());
-            assertEquals(Arrays.asList("V0", "V2", "V4", "V6"), even.readValuesToList());
-            assertEquals(Arrays.asList("V-1"), negative.readValuesToList());
-            assertEquals(Arrays.asList("V7"), x7.readValuesToList());
-            assertEquals(Arrays.asList("V1"), defaultBranch.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V0", "V2", "V4", "V6"), even.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V-1"), negative.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V7"), x7.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V1"), defaultBranch.readValuesToList());
         });
     }
 
@@ -143,7 +144,7 @@ public class KStreamSplitTest {
         withDriver(driver -> {
             final TestOutputTopic<Integer, String> outputTopic =
                     driver.createOutputTopic(outputTopicName, new IntegerDeserializer(), new StringDeserializer());
-            assertEquals(Arrays.asList("V0", "V2", "V4", "V5", "V6"), outputTopic.readValuesToList());
+            Assertions.assertEquals(Arrays.asList("V0", "V2", "V4", "V5", "V6"), outputTopic.readValuesToList());
         });
     }
 }

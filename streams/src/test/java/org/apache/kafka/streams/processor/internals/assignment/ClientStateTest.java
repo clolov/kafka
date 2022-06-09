@@ -20,7 +20,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Utils;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.Task;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,13 +93,13 @@ public class ClientStateTest {
 
     @Test
     public void shouldHaveNotReachedCapacityWhenAssignedTasksLessThanCapacity() {
-        assertFalse(client.reachedCapacity());
+        Assertions.assertFalse(client.reachedCapacity());
     }
 
     @Test
     public void shouldHaveReachedCapacityWhenAssignedTasksGreaterThanOrEqualToCapacity() {
         client.assignActive(TASK_0_1);
-        assertTrue(client.reachedCapacity());
+        Assertions.assertTrue(client.reachedCapacity());
     }
 
     @Test
@@ -233,34 +234,34 @@ public class ClientStateTest {
     @Test
     public void shouldHaveAssignedTaskIfActiveTaskAssigned() {
         client.assignActive(TASK_0_1);
-        assertTrue(client.hasAssignedTask(TASK_0_1));
+        Assertions.assertTrue(client.hasAssignedTask(TASK_0_1));
     }
 
     @Test
     public void shouldHaveAssignedTaskIfStandbyTaskAssigned() {
         client.assignStandby(TASK_0_1);
-        assertTrue(client.hasAssignedTask(TASK_0_1));
+        Assertions.assertTrue(client.hasAssignedTask(TASK_0_1));
     }
 
     @Test
     public void shouldNotHaveAssignedTaskIfTaskNotAssigned() {
         client.assignActive(TASK_0_1);
-        assertFalse(client.hasAssignedTask(TASK_0_2));
+        Assertions.assertFalse(client.hasAssignedTask(TASK_0_2));
     }
 
     @Test
     public void shouldHaveMoreAvailableCapacityWhenCapacityTheSameButFewerAssignedTasks() {
         final ClientState otherClient = new ClientState(1);
         client.assignActive(TASK_0_1);
-        assertTrue(otherClient.hasMoreAvailableCapacityThan(client));
-        assertFalse(client.hasMoreAvailableCapacityThan(otherClient));
+        Assertions.assertTrue(otherClient.hasMoreAvailableCapacityThan(client));
+        Assertions.assertFalse(client.hasMoreAvailableCapacityThan(otherClient));
     }
 
     @Test
     public void shouldHaveMoreAvailableCapacityWhenCapacityHigherAndSameAssignedTaskCount() {
         final ClientState otherClient = new ClientState(2);
-        assertTrue(otherClient.hasMoreAvailableCapacityThan(client));
-        assertFalse(client.hasMoreAvailableCapacityThan(otherClient));
+        Assertions.assertTrue(otherClient.hasMoreAvailableCapacityThan(client));
+        Assertions.assertFalse(client.hasMoreAvailableCapacityThan(otherClient));
     }
 
     @Test
@@ -275,7 +276,7 @@ public class ClientStateTest {
             client.assignActive(new TaskId(0, i));
         }
 
-        assertTrue(otherClient.hasMoreAvailableCapacityThan(client));
+        Assertions.assertTrue(otherClient.hasMoreAvailableCapacityThan(client));
     }
 
     @Test
@@ -287,7 +288,7 @@ public class ClientStateTest {
             otherClient.assignActive(new TaskId(0, i));
         }
         otherClient.assignActive(new TaskId(0, 5));
-        assertTrue(client.hasMoreAvailableCapacityThan(otherClient));
+        Assertions.assertTrue(client.hasMoreAvailableCapacityThan(otherClient));
     }
 
     @Test
@@ -303,13 +304,13 @@ public class ClientStateTest {
     @Test
     public void shouldHaveUnfulfilledQuotaWhenActiveTaskSizeLessThanCapacityTimesTasksPerThread() {
         client.assignActive(new TaskId(0, 1));
-        assertTrue(client.hasUnfulfilledQuota(2));
+        Assertions.assertTrue(client.hasUnfulfilledQuota(2));
     }
 
     @Test
     public void shouldNotHaveUnfulfilledQuotaWhenActiveTaskSizeGreaterEqualThanCapacityTimesTasksPerThread() {
         client.assignActive(new TaskId(0, 1));
-        assertFalse(client.hasUnfulfilledQuota(1));
+        Assertions.assertFalse(client.hasUnfulfilledQuota(1));
     }
 
     @Test
@@ -319,7 +320,7 @@ public class ClientStateTest {
         client.initializePrevTasks(Collections.emptyMap(), false);
         assertThat(client.prevActiveTasks(), equalTo(Collections.singleton(TASK_0_1)));
         assertThat(client.previousAssignedTasks(), equalTo(Collections.singleton(TASK_0_1)));
-        assertTrue(client.prevStandbyTasks().isEmpty());
+        Assertions.assertTrue(client.prevStandbyTasks().isEmpty());
     }
 
     @Test
@@ -354,7 +355,7 @@ public class ClientStateTest {
 
         assertThat(client.prevOwnedStatefulTasksByConsumer("c1"), equalTo(mkSet(TASK_0_0, TASK_0_1)));
         assertThat(client.prevOwnedStatefulTasksByConsumer("c2"), equalTo(mkSet(TASK_0_2)));
-        assertTrue(client.prevOwnedStatefulTasksByConsumer("c3").isEmpty());
+        Assertions.assertTrue(client.prevOwnedStatefulTasksByConsumer("c3").isEmpty());
     }
 
     @Test
@@ -434,7 +435,7 @@ public class ClientStateTest {
         client.initializePrevTasks(Collections.emptyMap(), false);
         assertThat(client.prevStandbyTasks(), equalTo(mkSet(TASK_0_1, TASK_0_2)));
         assertThat(client.previousAssignedTasks(), equalTo(mkSet(TASK_0_1, TASK_0_2)));
-        assertTrue(client.prevActiveTasks().isEmpty());
+        Assertions.assertTrue(client.prevActiveTasks().isEmpty());
     }
 
     @Test
@@ -537,12 +538,12 @@ public class ClientStateTest {
     @Test
     public void shouldReturnClientTags() {
         final Map<String, String> clientTags = mkMap(mkEntry("k1", "v1"));
-        assertEquals(clientTags, new ClientState(0, clientTags).clientTags());
+        Assertions.assertEquals(clientTags, new ClientState(0, clientTags).clientTags());
     }
 
     @Test
     public void shouldReturnEmptyClientTagsMapByDefault() {
-        assertTrue(new ClientState().clientTags().isEmpty());
+        Assertions.assertTrue(new ClientState().clientTags().isEmpty());
     }
 
 }

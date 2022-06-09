@@ -25,7 +25,8 @@ import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.errors.TopologyException;
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.Record;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -66,16 +67,16 @@ public class RepartitionTopicNamingTest {
         // only one repartition topic
         assertThat(1, is(getCountOfRepartitionTopicsFound(optimizedTopology, repartitionTopicPattern)));
         // the first named repartition topic
-        assertTrue(optimizedTopology.contains(firstRepartitionTopicName + "-repartition"));
+        Assertions.assertTrue(optimizedTopology.contains(firstRepartitionTopicName + "-repartition"));
 
         assertThat(unOptimizedTopology, is(EXPECTED_UNOPTIMIZED_TOPOLOGY));
         // now 4 repartition topic
         assertThat(4, is(getCountOfRepartitionTopicsFound(unOptimizedTopology, repartitionTopicPattern)));
         // all 4 named repartition topics present
-        assertTrue(unOptimizedTopology.contains(firstRepartitionTopicName + "-repartition"));
-        assertTrue(unOptimizedTopology.contains(secondRepartitionTopicName + "-repartition"));
-        assertTrue(unOptimizedTopology.contains(thirdRepartitionTopicName + "-repartition"));
-        assertTrue(unOptimizedTopology.contains(fourthRepartitionTopicName + "-left-repartition"));
+        Assertions.assertTrue(unOptimizedTopology.contains(firstRepartitionTopicName + "-repartition"));
+        Assertions.assertTrue(unOptimizedTopology.contains(secondRepartitionTopicName + "-repartition"));
+        Assertions.assertTrue(unOptimizedTopology.contains(thirdRepartitionTopicName + "-repartition"));
+        Assertions.assertTrue(unOptimizedTopology.contains(fourthRepartitionTopicName + "-left-repartition"));
 
     }
 
@@ -92,7 +93,7 @@ public class RepartitionTopicNamingTest {
                                               .groupByKey(Grouped.as("grouping"))
                                               .count().toStream();
             builder.build();
-            fail("Should not build re-using repartition topic name");
+            Assertions.fail("Should not build re-using repartition topic name");
         } catch (final TopologyException te) {
               // ok
         }
@@ -110,7 +111,7 @@ public class RepartitionTopicNamingTest {
 
         final String topologyString = builder.build().describe().toString();
         assertThat(1, is(getCountOfRepartitionTopicsFound(topologyString, repartitionTopicPattern)));
-        assertTrue(topologyString.contains("grouping-repartition"));
+        Assertions.assertTrue(topologyString.contains("grouping-repartition"));
     }
 
     @Test
@@ -128,7 +129,7 @@ public class RepartitionTopicNamingTest {
 
         final String topologyString = builder.build().describe().toString();
         assertThat(1, is(getCountOfRepartitionTopicsFound(topologyString, repartitionTopicPattern)));
-        assertTrue(topologyString.contains("grouping-repartition"));
+        Assertions.assertTrue(topologyString.contains("grouping-repartition"));
     }
 
     @Test
@@ -146,7 +147,7 @@ public class RepartitionTopicNamingTest {
 
         final String topologyString = builder.build().describe().toString();
         assertThat(1, is(getCountOfRepartitionTopicsFound(topologyString, repartitionTopicPattern)));
-        assertTrue(topologyString.contains("grouping-repartition"));
+        Assertions.assertTrue(topologyString.contains("grouping-repartition"));
     }
 
     @Test
@@ -158,7 +159,7 @@ public class RepartitionTopicNamingTest {
         kGroupedTable.reduce((v, v2) -> v2, (v, v2) -> v2).toStream().to("output-reduce");
         final String topologyString = builder.build().describe().toString();
         assertThat(1, is(getCountOfRepartitionTopicsFound(topologyString, repartitionTopicPattern)));
-        assertTrue(topologyString.contains("grouping-repartition"));
+        Assertions.assertTrue(topologyString.contains("grouping-repartition"));
     }
 
     @Test
@@ -215,7 +216,7 @@ public class RepartitionTopicNamingTest {
                 StreamJoined.<String, String, String>as("join-store").withName("join-repartition"));
 
             builder.build();
-            fail("Should not build re-using repartition topic name");
+            Assertions.fail("Should not build re-using repartition topic name");
         } catch (final TopologyException te) {
             // ok
         }
@@ -244,13 +245,13 @@ public class RepartitionTopicNamingTest {
 
         final String joinTopologyFirst = buildStreamJoin(false);
 
-        assertTrue(joinTopologyFirst.contains(expectedLeftRepartitionTopic));
-        assertTrue(joinTopologyFirst.contains(expectedRightRepartitionTopic));
+        Assertions.assertTrue(joinTopologyFirst.contains(expectedLeftRepartitionTopic));
+        Assertions.assertTrue(joinTopologyFirst.contains(expectedRightRepartitionTopic));
 
         final String joinTopologyUpdated = buildStreamJoin(true);
 
-        assertTrue(joinTopologyUpdated.contains(expectedLeftRepartitionTopic));
-        assertTrue(joinTopologyUpdated.contains(expectedRightRepartitionTopic));
+        Assertions.assertTrue(joinTopologyUpdated.contains(expectedLeftRepartitionTopic));
+        Assertions.assertTrue(joinTopologyUpdated.contains(expectedRightRepartitionTopic));
     }
 
     @Test
@@ -259,10 +260,10 @@ public class RepartitionTopicNamingTest {
         final String expectedTimeWindowRepartitionTopic = "(topic: time-window-grouping-repartition)";
 
         final String timeWindowGroupingRepartitionTopology = buildStreamGroupByKeyTimeWindows(false, true);
-        assertTrue(timeWindowGroupingRepartitionTopology.contains(expectedTimeWindowRepartitionTopic));
+        Assertions.assertTrue(timeWindowGroupingRepartitionTopology.contains(expectedTimeWindowRepartitionTopic));
 
         final String timeWindowGroupingUpdatedTopology = buildStreamGroupByKeyTimeWindows(true, true);
-        assertTrue(timeWindowGroupingUpdatedTopology.contains(expectedTimeWindowRepartitionTopic));
+        Assertions.assertTrue(timeWindowGroupingUpdatedTopology.contains(expectedTimeWindowRepartitionTopic));
     }
 
     @Test
@@ -271,10 +272,10 @@ public class RepartitionTopicNamingTest {
         final String expectedTimeWindowRepartitionTopic = "(topic: time-window-grouping-repartition)";
 
         final String timeWindowGroupingRepartitionTopology = buildStreamGroupByKeyTimeWindows(false, false);
-        assertTrue(timeWindowGroupingRepartitionTopology.contains(expectedTimeWindowRepartitionTopic));
+        Assertions.assertTrue(timeWindowGroupingRepartitionTopology.contains(expectedTimeWindowRepartitionTopic));
 
         final String timeWindowGroupingUpdatedTopology = buildStreamGroupByKeyTimeWindows(true, false);
-        assertTrue(timeWindowGroupingUpdatedTopology.contains(expectedTimeWindowRepartitionTopic));
+        Assertions.assertTrue(timeWindowGroupingUpdatedTopology.contains(expectedTimeWindowRepartitionTopic));
     }
 
 
@@ -284,10 +285,10 @@ public class RepartitionTopicNamingTest {
         final String expectedNoWindowRepartitionTopic = "(topic: kstream-grouping-repartition)";
 
         final String noWindowGroupingRepartitionTopology = buildStreamGroupByKeyNoWindows(false, true);
-        assertTrue(noWindowGroupingRepartitionTopology.contains(expectedNoWindowRepartitionTopic));
+        Assertions.assertTrue(noWindowGroupingRepartitionTopology.contains(expectedNoWindowRepartitionTopic));
 
         final String noWindowGroupingUpdatedTopology = buildStreamGroupByKeyNoWindows(true, true);
-        assertTrue(noWindowGroupingUpdatedTopology.contains(expectedNoWindowRepartitionTopic));
+        Assertions.assertTrue(noWindowGroupingUpdatedTopology.contains(expectedNoWindowRepartitionTopic));
     }
 
     @Test
@@ -296,10 +297,10 @@ public class RepartitionTopicNamingTest {
         final String expectedNoWindowRepartitionTopic = "(topic: kstream-grouping-repartition)";
 
         final String noWindowGroupingRepartitionTopology = buildStreamGroupByKeyNoWindows(false, false);
-        assertTrue(noWindowGroupingRepartitionTopology.contains(expectedNoWindowRepartitionTopic));
+        Assertions.assertTrue(noWindowGroupingRepartitionTopology.contains(expectedNoWindowRepartitionTopic));
 
         final String noWindowGroupingUpdatedTopology = buildStreamGroupByKeyNoWindows(true, false);
-        assertTrue(noWindowGroupingUpdatedTopology.contains(expectedNoWindowRepartitionTopic));
+        Assertions.assertTrue(noWindowGroupingUpdatedTopology.contains(expectedNoWindowRepartitionTopic));
     }
 
 
@@ -309,10 +310,10 @@ public class RepartitionTopicNamingTest {
         final String expectedSessionWindowRepartitionTopic = "(topic: session-window-grouping-repartition)";
 
         final String sessionWindowGroupingRepartitionTopology = buildStreamGroupByKeySessionWindows(false, true);
-        assertTrue(sessionWindowGroupingRepartitionTopology.contains(expectedSessionWindowRepartitionTopic));
+        Assertions.assertTrue(sessionWindowGroupingRepartitionTopology.contains(expectedSessionWindowRepartitionTopic));
 
         final String sessionWindowGroupingUpdatedTopology = buildStreamGroupByKeySessionWindows(true, true);
-        assertTrue(sessionWindowGroupingUpdatedTopology.contains(expectedSessionWindowRepartitionTopic));
+        Assertions.assertTrue(sessionWindowGroupingUpdatedTopology.contains(expectedSessionWindowRepartitionTopic));
     }
 
     @Test
@@ -321,10 +322,10 @@ public class RepartitionTopicNamingTest {
         final String expectedSessionWindowRepartitionTopic = "(topic: session-window-grouping-repartition)";
 
         final String sessionWindowGroupingRepartitionTopology = buildStreamGroupByKeySessionWindows(false, false);
-        assertTrue(sessionWindowGroupingRepartitionTopology.contains(expectedSessionWindowRepartitionTopic));
+        Assertions.assertTrue(sessionWindowGroupingRepartitionTopology.contains(expectedSessionWindowRepartitionTopic));
 
         final String sessionWindowGroupingUpdatedTopology = buildStreamGroupByKeySessionWindows(true, false);
-        assertTrue(sessionWindowGroupingUpdatedTopology.contains(expectedSessionWindowRepartitionTopic));
+        Assertions.assertTrue(sessionWindowGroupingUpdatedTopology.contains(expectedSessionWindowRepartitionTopic));
     }
 
     @Test
@@ -332,10 +333,10 @@ public class RepartitionTopicNamingTest {
         final String expectedKTableGroupByRepartitionTopic = "(topic: ktable-group-by-repartition)";
 
         final String ktableGroupByTopology = buildKTableGroupBy(false);
-        assertTrue(ktableGroupByTopology.contains(expectedKTableGroupByRepartitionTopic));
+        Assertions.assertTrue(ktableGroupByTopology.contains(expectedKTableGroupByRepartitionTopic));
 
         final String ktableUpdatedGroupByTopology = buildKTableGroupBy(true);
-        assertTrue(ktableUpdatedGroupByTopology.contains(expectedKTableGroupByRepartitionTopic));
+        Assertions.assertTrue(ktableUpdatedGroupByTopology.contains(expectedKTableGroupByRepartitionTopic));
     }
 
 

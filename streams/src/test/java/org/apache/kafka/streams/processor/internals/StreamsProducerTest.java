@@ -42,8 +42,9 @@ import org.apache.kafka.streams.errors.StreamsException;
 import org.apache.kafka.streams.errors.TaskMigratedException;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.test.MockClientSupplier;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -153,7 +154,7 @@ public class StreamsProducerTest {
         mkEntry(new TopicPartition(topic, 0), new OffsetAndMetadata(0L, null))
     );
 
-    @Before
+    @BeforeEach
     public void before() {
         mockClientSupplier.setCluster(cluster);
         nonEosStreamsProducer =
@@ -243,7 +244,7 @@ public class StreamsProducerTest {
         expect(mockedProducer.metrics()).andReturn(metrics);
         replay(mockedProducer);
 
-        assertSame(metrics, streamsProducerWithMock.metrics());
+        Assertions.assertSame(metrics, streamsProducerWithMock.metrics());
 
         verify(mockedProducer);
     }
@@ -1121,7 +1122,7 @@ public class StreamsProducerTest {
     public void shouldCloseExistingProducerOnResetProducer() {
         eosBetaStreamsProducer.resetProducer();
 
-        assertTrue(eosBetaMockProducer.closed());
+        Assertions.assertTrue(eosBetaMockProducer.closed());
     }
 
     @Test

@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.kstream.internals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -29,9 +30,9 @@ public class UnlimitedWindowTest {
 
     @Test
     public void shouldAlwaysOverlap() {
-        assertTrue(window.overlap(new UnlimitedWindow(start - 1)));
-        assertTrue(window.overlap(new UnlimitedWindow(start)));
-        assertTrue(window.overlap(new UnlimitedWindow(start + 1)));
+        Assertions.assertTrue(window.overlap(new UnlimitedWindow(start - 1)));
+        Assertions.assertTrue(window.overlap(new UnlimitedWindow(start)));
+        Assertions.assertTrue(window.overlap(new UnlimitedWindow(start + 1)));
     }
 
     @Test

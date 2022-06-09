@@ -22,8 +22,9 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.test.GenericInMemoryKeyValueStore;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +64,7 @@ public class FilteredCacheIteratorTest {
     private FilteredCacheIterator allIterator;
     private FilteredCacheIterator firstEntryIterator;
 
-    @Before
+    @BeforeEach
     public void before() {
         store.putAll(entries);
         final HasNextCondition allCondition = new HasNextCondition() {
@@ -114,9 +115,9 @@ public class FilteredCacheIteratorTest {
 
     @Test
     public void shouldNotHaveNextIfHasNextConditionNotMet() {
-        assertTrue(firstEntryIterator.hasNext());
+        Assertions.assertTrue(firstEntryIterator.hasNext());
         firstEntryIterator.next();
-        assertFalse(firstEntryIterator.hasNext());
+        Assertions.assertFalse(firstEntryIterator.hasNext());
     }
 
     @Test

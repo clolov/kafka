@@ -25,8 +25,9 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.processor.internals.InternalProcessorContext;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +44,7 @@ public class KStreamFlatTransformTest extends EasyMockSupport {
 
     private KStreamFlatTransformProcessor<Number, Number, Integer, Integer> processor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         inputKey = 1;
         inputValue = 10;
@@ -133,6 +134,6 @@ public class KStreamFlatTransformTest extends EasyMockSupport {
         final Processor<Number, Number, Integer, Integer> processor = processorSupplier.get();
 
         verifyAll();
-        assertTrue(processor instanceof KStreamFlatTransformProcessor);
+        Assertions.assertTrue(processor instanceof KStreamFlatTransformProcessor);
     }
 }

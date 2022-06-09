@@ -42,7 +42,8 @@ import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -83,8 +84,8 @@ public class KTableKTableLeftJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(topic1, topic2)), copartitionGroups.iterator().next());
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             final TestInputTopic<Integer, String> inputTopic1 =
@@ -104,7 +105,7 @@ public class KTableKTableLeftJoinTest {
             // right:
             assertOutputKeyValueTimestamp(outputTopic, 0, "X0+null", 5L);
             assertOutputKeyValueTimestamp(outputTopic, 1, "X1+null", 6L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push two items to the other stream. this should produce two items.
             for (int i = 0; i < 2; i++) {
@@ -116,7 +117,7 @@ public class KTableKTableLeftJoinTest {
             // right: Y0:0 (ts: 0), Y1:1 (ts: 10)
             assertOutputKeyValueTimestamp(outputTopic, 0, "X0+Y0", 5L);
             assertOutputKeyValueTimestamp(outputTopic, 1, "X1+Y1", 10L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all four items to the primary stream. this should produce four items.
             for (final int expectedKey : expectedKeys) {
@@ -128,7 +129,7 @@ public class KTableKTableLeftJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, "XX1+Y1", 10L);
             assertOutputKeyValueTimestamp(outputTopic, 2, "XX2+null", 7L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XX3+null", 7L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all items to the other stream. this should produce four items.
             for (final int expectedKey : expectedKeys) {
@@ -140,7 +141,7 @@ public class KTableKTableLeftJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, "XX1+YY1", 7L);
             assertOutputKeyValueTimestamp(outputTopic, 2, "XX2+YY2", 10L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XX3+YY3", 15L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all four items to the primary stream. this should produce four items.
             for (final int expectedKey : expectedKeys) {
@@ -152,7 +153,7 @@ public class KTableKTableLeftJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, "XXX1+YY1", 6L);
             assertOutputKeyValueTimestamp(outputTopic, 2, "XXX2+YY2", 10L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XXX3+YY3", 15L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push two items with null to the other stream as deletes. this should produce two item.
             inputTopic2.pipeInput(expectedKeys[0], null, 5L);
@@ -161,7 +162,7 @@ public class KTableKTableLeftJoinTest {
             // right: YY2:2 (ts: 10), YY3:3 (ts: 15)
             assertOutputKeyValueTimestamp(outputTopic, 0, "XXX0+null", 6L);
             assertOutputKeyValueTimestamp(outputTopic, 1, "XXX1+null", 7L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push all four items to the primary stream. this should produce four items.
             for (final int expectedKey : expectedKeys) {
@@ -173,7 +174,7 @@ public class KTableKTableLeftJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, "XXXX1+null", 13L);
             assertOutputKeyValueTimestamp(outputTopic, 2, "XXXX2+YY2", 13L);
             assertOutputKeyValueTimestamp(outputTopic, 3, "XXXX3+YY3", 15L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
 
             // push three items to the primary stream with null. this should produce four items.
             inputTopic1.pipeInput(expectedKeys[0], null, 0L);
@@ -186,7 +187,7 @@ public class KTableKTableLeftJoinTest {
             assertOutputKeyValueTimestamp(outputTopic, 1, null, 42L);
             assertOutputKeyValueTimestamp(outputTopic, 2, null, 10L);
             assertOutputKeyValueTimestamp(outputTopic, 3, null, 20L);
-            assertTrue(outputTopic.isEmpty());
+            Assertions.assertTrue(outputTopic.isEmpty());
         }
     }
 
@@ -214,9 +215,9 @@ public class KTableKTableLeftJoinTest {
                     driver.createInputTopic(topic2, Serdes.Integer().serializer(), Serdes.String().serializer(), Instant.ofEpochMilli(0L), Duration.ZERO);
             final MockApiProcessor<Integer, String, Void, Void> proc = supplier.theCapturedProcessor();
 
-            assertTrue(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
-            assertFalse(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
-            assertFalse(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
+            Assertions.assertFalse(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
+            Assertions.assertFalse(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
 
             // push two items to the primary stream. the other table is empty
             for (int i = 0; i < 2; i++) {
@@ -336,9 +337,9 @@ public class KTableKTableLeftJoinTest {
                     driver.createInputTopic(topic2, Serdes.Integer().serializer(), Serdes.String().serializer(), Instant.ofEpochMilli(0L), Duration.ZERO);
             final MockApiProcessor<Integer, String, Void, Void> proc = supplier.theCapturedProcessor();
 
-            assertTrue(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
-            assertTrue(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
-            assertTrue(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) table1).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) table2).sendingOldValueEnabled());
+            Assertions.assertTrue(((KTableImpl<?, ?, ?>) joined).sendingOldValueEnabled());
 
             // push two items to the primary stream. the other table is empty
             for (int i = 0; i < 2; i++) {

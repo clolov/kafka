@@ -17,7 +17,7 @@
 package org.apache.kafka.streams.processor.internals.assignment;
 
 import org.apache.kafka.common.config.ConfigException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.kafka.streams.processor.internals.assignment.AssignmentTestUtils.EMPTY_RACK_AWARE_ASSIGNMENT_TAGS;
 import static org.hamcrest.MatcherAssert.assertThat;

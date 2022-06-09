@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.kstream.internals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -46,13 +47,13 @@ public class NamedInternalTest {
         final String name = "foo";
         final TestNameProvider provider = new TestNameProvider();
 
-        assertEquals(
+        Assertions.assertEquals(
             name + TEST_SUFFIX,
             NamedInternal.with(name).suffixWithOrElseGet(TEST_SUFFIX, provider, TEST_PREFIX)
         );
 
         // 1, not 0, indicates that the named call still burned an index number.
-        assertEquals(
+        Assertions.assertEquals(
             "prefix-PROCESSOR-1",
             NamedInternal.with(null).suffixWithOrElseGet(TEST_SUFFIX, provider, TEST_PREFIX)
         );
@@ -61,7 +62,7 @@ public class NamedInternalTest {
     @Test
     public void shouldGenerateWithPrefixGivenEmptyName() {
         final String prefix = "KSTREAM-MAP-";
-        assertEquals(prefix + "PROCESSOR-0", NamedInternal.with(null).orElseGenerateWithPrefix(
+        Assertions.assertEquals(prefix + "PROCESSOR-0", NamedInternal.with(null).orElseGenerateWithPrefix(
             new TestNameProvider(),
             prefix)
         );
@@ -70,7 +71,7 @@ public class NamedInternalTest {
     @Test
     public void shouldNotGenerateWithPrefixGivenValidName() {
         final String validName = "validName";
-        assertEquals(validName, NamedInternal.with(validName).orElseGenerateWithPrefix(new TestNameProvider(), "KSTREAM-MAP-")
+        Assertions.assertEquals(validName, NamedInternal.with(validName).orElseGenerateWithPrefix(new TestNameProvider(), "KSTREAM-MAP-")
         );
     }
 }

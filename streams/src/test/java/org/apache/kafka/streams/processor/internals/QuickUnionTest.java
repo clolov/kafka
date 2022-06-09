@@ -16,7 +16,8 @@
  */
 package org.apache.kafka.streams.processor.internals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,29 +39,29 @@ public class QuickUnionTest {
             qu.add(id);
         }
 
-        assertEquals(5, roots(qu, ids).size());
+        Assertions.assertEquals(5, roots(qu, ids).size());
 
         qu.unite(1L, 2L);
-        assertEquals(4, roots(qu, ids).size());
-        assertEquals(qu.root(1L), qu.root(2L));
+        Assertions.assertEquals(4, roots(qu, ids).size());
+        Assertions.assertEquals(qu.root(1L), qu.root(2L));
 
         qu.unite(3L, 4L);
-        assertEquals(3, roots(qu, ids).size());
-        assertEquals(qu.root(1L), qu.root(2L));
-        assertEquals(qu.root(3L), qu.root(4L));
+        Assertions.assertEquals(3, roots(qu, ids).size());
+        Assertions.assertEquals(qu.root(1L), qu.root(2L));
+        Assertions.assertEquals(qu.root(3L), qu.root(4L));
 
         qu.unite(1L, 5L);
-        assertEquals(2, roots(qu, ids).size());
-        assertEquals(qu.root(1L), qu.root(2L));
-        assertEquals(qu.root(2L), qu.root(5L));
-        assertEquals(qu.root(3L), qu.root(4L));
+        Assertions.assertEquals(2, roots(qu, ids).size());
+        Assertions.assertEquals(qu.root(1L), qu.root(2L));
+        Assertions.assertEquals(qu.root(2L), qu.root(5L));
+        Assertions.assertEquals(qu.root(3L), qu.root(4L));
 
         qu.unite(3L, 5L);
-        assertEquals(1, roots(qu, ids).size());
-        assertEquals(qu.root(1L), qu.root(2L));
-        assertEquals(qu.root(2L), qu.root(3L));
-        assertEquals(qu.root(3L), qu.root(4L));
-        assertEquals(qu.root(4L), qu.root(5L));
+        Assertions.assertEquals(1, roots(qu, ids).size());
+        Assertions.assertEquals(qu.root(1L), qu.root(2L));
+        Assertions.assertEquals(qu.root(2L), qu.root(3L));
+        Assertions.assertEquals(qu.root(3L), qu.root(4L));
+        Assertions.assertEquals(qu.root(4L), qu.root(5L));
     }
 
     @Test
@@ -75,14 +76,14 @@ public class QuickUnionTest {
             qu.add(id);
         }
 
-        assertEquals(5, roots(qu, ids).size());
+        Assertions.assertEquals(5, roots(qu, ids).size());
 
         qu.unite(1L, 2L, 3L, 4L);
-        assertEquals(2, roots(qu, ids).size());
-        assertEquals(qu.root(1L), qu.root(2L));
-        assertEquals(qu.root(2L), qu.root(3L));
-        assertEquals(qu.root(3L), qu.root(4L));
-        assertNotEquals(qu.root(1L), qu.root(5L));
+        Assertions.assertEquals(2, roots(qu, ids).size());
+        Assertions.assertEquals(qu.root(1L), qu.root(2L));
+        Assertions.assertEquals(qu.root(2L), qu.root(3L));
+        Assertions.assertEquals(qu.root(3L), qu.root(4L));
+        Assertions.assertNotEquals(qu.root(1L), qu.root(5L));
     }
 
     private Set<Long> roots(final QuickUnion<Long> qu, final long... ids) {

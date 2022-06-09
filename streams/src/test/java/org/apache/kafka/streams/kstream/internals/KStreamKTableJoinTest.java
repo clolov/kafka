@@ -48,9 +48,8 @@ import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
 
 public class KStreamKTableJoinTest {
     private final static KeyValueTimestamp<?, ?>[] EMPTY = new KeyValueTimestamp[0];
@@ -66,7 +65,7 @@ public class KStreamKTableJoinTest {
     private StreamsBuilder builder;
     private final MockApiProcessorSupplier<Integer, String, Void, Void> supplier = new MockApiProcessorSupplier<>();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         builder = new StreamsBuilder();
 
@@ -85,7 +84,7 @@ public class KStreamKTableJoinTest {
         processor = supplier.theCapturedProcessor();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         driver.close();
     }
@@ -124,7 +123,7 @@ public class KStreamKTableJoinTest {
         rekeyedStream.join(tableB, (value1, value2) -> value1 + value2).to("out-one");
         rekeyedStream.join(tableC, (value1, value2) -> value1 + value2).to("out-two");
         final Topology topology = builder.build(props);
-        assertEquals(expectedTopologyWithGeneratedRepartitionTopicNames, topology.describe().toString());
+        Assertions.assertEquals(expectedTopologyWithGeneratedRepartitionTopicNames, topology.describe().toString());
     }
 
     @Test
@@ -141,7 +140,7 @@ public class KStreamKTableJoinTest {
         rekeyedStream.join(tableC, (value1, value2) -> value1 + value2, Joined.with(Serdes.String(), Serdes.String(), Serdes.String(), "second-join")).to("out-two");
         final Topology topology = builder.build(props);
         System.out.println(topology.describe().toString());
-        assertEquals(expectedTopologyWithUserProvidedRepartitionTopicNames, topology.describe().toString());
+        Assertions.assertEquals(expectedTopologyWithUserProvidedRepartitionTopicNames, topology.describe().toString());
     }
 
     @Test
@@ -149,8 +148,8 @@ public class KStreamKTableJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals(1, copartitionGroups.size());
-        assertEquals(new HashSet<>(Arrays.asList(streamTopic, tableTopic)), copartitionGroups.iterator().next());
+        Assertions.assertEquals(1, copartitionGroups.size());
+        Assertions.assertEquals(new HashSet<>(Arrays.asList(streamTopic, tableTopic)), copartitionGroups.iterator().next());
     }
 
     @Test

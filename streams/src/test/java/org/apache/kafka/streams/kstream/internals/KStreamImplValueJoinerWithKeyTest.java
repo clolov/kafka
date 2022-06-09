@@ -36,8 +36,9 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.StreamJoined;
 import org.apache.kafka.streams.kstream.ValueJoinerWithKey;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -72,7 +73,7 @@ public class KStreamImplValueJoinerWithKeyTest {
     private final KeyValueMapper<String, Integer, String> keyValueMapper =
         (k, v) -> k;
 
-    @Before
+    @BeforeEach
     public void setup() {
         builder = new StreamsBuilder();
         leftStream = builder.stream(leftTopic, Consumed.with(Serdes.String(), Serdes.Integer()));
@@ -228,7 +229,7 @@ public class KStreamImplValueJoinerWithKeyTest {
             }
 
             final List<KeyValue<String, String>> actualResult = joinResultTopic.readKeyValuesToList();
-            assertEquals(expectedResults, actualResult);
+            Assertions.assertEquals(expectedResults, actualResult);
         }
     }
 }

@@ -42,8 +42,9 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -102,7 +103,7 @@ public class MeteredWindowStoreTest {
         expect(innerStoreMock.name()).andReturn(STORE_NAME).anyTimes();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final StreamsMetricsImpl streamsMetrics =
             new StreamsMetricsImpl(metrics, "test", StreamsConfig.METRICS_LATEST, new MockTime());
@@ -214,7 +215,7 @@ public class MeteredWindowStoreTest {
         reporter.contextChange(metricsContext);
 
         metrics.addReporter(reporter);
-        assertTrue(reporter.containsMbean(String.format(
+        Assertions.assertTrue(reporter.containsMbean(String.format(
             "kafka.streams:type=%s,%s=%s,task-id=%s,%s-state-id=%s",
             STORE_LEVEL_GROUP,
             THREAD_ID_TAG_KEY,
@@ -377,7 +378,7 @@ public class MeteredWindowStoreTest {
         // it suffices to verify one flush metric since all flush metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("flush-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStoreMock);
     }
 
@@ -387,7 +388,7 @@ public class MeteredWindowStoreTest {
         replay(innerStoreMock);
 
         store.init((StateStoreContext) context, store);
-        assertNull(store.fetch("a", 0));
+        Assertions.assertNull(store.fetch("a", 0));
     }
 
     private interface CachedWindowStore extends WindowStore<Bytes, byte[]>, CachedStateStore<byte[], byte[]> {
@@ -409,14 +410,14 @@ public class MeteredWindowStoreTest {
             Serdes.String(),
             new SerdeThatDoesntHandleNull()
         );
-        assertTrue(metered.setFlushListener(null, false));
+        Assertions.assertTrue(metered.setFlushListener(null, false));
 
         verify(cachedWindowStore);
     }
 
     @Test
     public void shouldNotSetFlushListenerOnWrappedNoneCachingStore() {
-        assertFalse(store.setFlushListener(null, false));
+        Assertions.assertFalse(store.setFlushListener(null, false));
     }
 
     @Test

@@ -36,8 +36,9 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.TimestampedWindowStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.apache.kafka.test.NoOpReadOnlyStore;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -62,7 +63,7 @@ public class GlobalStateStoreProviderTest {
     private final Map<String, StateStore> stores = new HashMap<>();
     private final static Map<String, Object> CONFIGS =  mkMap(mkEntry(StreamsConfig.InternalConfig.TOPIC_PREFIX_ALTERNATIVE, "appId"));
 
-    @Before
+    @BeforeEach
     public void before() {
         stores.put(
             "kv-store",
@@ -133,7 +134,7 @@ public class GlobalStateStoreProviderTest {
             new GlobalStateStoreProvider(Collections.singletonMap("global", new NoOpReadOnlyStore<>()));
         final List<ReadOnlyKeyValueStore<Object, Object>> stores =
             provider.stores("global", QueryableStoreTypes.keyValueStore());
-        assertEquals(stores.size(), 1);
+        Assertions.assertEquals(stores.size(), 1);
     }
 
     @Test
@@ -141,7 +142,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(Collections.emptyMap());
         final List<ReadOnlyKeyValueStore<Object, Object>> stores =
             provider.stores("global", QueryableStoreTypes.keyValueStore());
-        assertTrue(stores.isEmpty());
+        Assertions.assertTrue(stores.isEmpty());
     }
 
     @Test
@@ -159,7 +160,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyKeyValueStore<String, String>> stores =
             provider.stores("kv-store", QueryableStoreTypes.keyValueStore());
-        assertEquals(1, stores.size());
+        Assertions.assertEquals(1, stores.size());
         for (final ReadOnlyKeyValueStore<String, String> store : stores) {
             assertThat(store, instanceOf(ReadOnlyKeyValueStore.class));
             assertThat(store, not(instanceOf(TimestampedKeyValueStore.class)));
@@ -171,7 +172,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyKeyValueStore<String, ValueAndTimestamp<String>>> stores =
             provider.stores("ts-kv-store", QueryableStoreTypes.timestampedKeyValueStore());
-        assertEquals(1, stores.size());
+        Assertions.assertEquals(1, stores.size());
         for (final ReadOnlyKeyValueStore<String, ValueAndTimestamp<String>> store : stores) {
             assertThat(store, instanceOf(ReadOnlyKeyValueStore.class));
             assertThat(store, instanceOf(TimestampedKeyValueStore.class));
@@ -183,7 +184,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyKeyValueStore<String, ValueAndTimestamp<String>>> stores =
             provider.stores("kv-store", QueryableStoreTypes.timestampedKeyValueStore());
-        assertEquals(0, stores.size());
+        Assertions.assertEquals(0, stores.size());
     }
 
     @Test
@@ -191,7 +192,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyKeyValueStore<String, ValueAndTimestamp<String>>> stores =
             provider.stores("ts-kv-store", QueryableStoreTypes.keyValueStore());
-        assertEquals(1, stores.size());
+        Assertions.assertEquals(1, stores.size());
         for (final ReadOnlyKeyValueStore<String, ValueAndTimestamp<String>> store : stores) {
             assertThat(store, instanceOf(ReadOnlyKeyValueStore.class));
             assertThat(store, not(instanceOf(TimestampedKeyValueStore.class)));
@@ -203,7 +204,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyWindowStore<String, String>> stores =
                 provider.stores("w-store", QueryableStoreTypes.windowStore());
-        assertEquals(1, stores.size());
+        Assertions.assertEquals(1, stores.size());
         for (final ReadOnlyWindowStore<String, String> store : stores) {
             assertThat(store, instanceOf(ReadOnlyWindowStore.class));
             assertThat(store, not(instanceOf(TimestampedWindowStore.class)));
@@ -215,7 +216,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyWindowStore<String, ValueAndTimestamp<String>>> stores =
                 provider.stores("w-store", QueryableStoreTypes.timestampedWindowStore());
-        assertEquals(0, stores.size());
+        Assertions.assertEquals(0, stores.size());
     }
 
     @Test
@@ -223,7 +224,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlyWindowStore<String, ValueAndTimestamp<String>>> stores =
             provider.stores("ts-w-store", QueryableStoreTypes.windowStore());
-        assertEquals(1, stores.size());
+        Assertions.assertEquals(1, stores.size());
         for (final ReadOnlyWindowStore<String, ValueAndTimestamp<String>> store : stores) {
             assertThat(store, instanceOf(ReadOnlyWindowStore.class));
             assertThat(store, not(instanceOf(TimestampedWindowStore.class)));
@@ -235,7 +236,7 @@ public class GlobalStateStoreProviderTest {
         final GlobalStateStoreProvider provider = new GlobalStateStoreProvider(stores);
         final List<ReadOnlySessionStore<String, String>> stores =
                 provider.stores("s-store", QueryableStoreTypes.sessionStore());
-        assertEquals(1, stores.size());
+        Assertions.assertEquals(1, stores.size());
         for (final ReadOnlySessionStore<String, String> store : stores) {
             assertThat(store, instanceOf(ReadOnlySessionStore.class));
         }

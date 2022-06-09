@@ -24,7 +24,8 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.metrics.Metrics;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.utils.LogContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
@@ -58,14 +59,14 @@ public class RecordDeserializerTest {
             new Metrics().sensor("dropped-records")
         );
         final ConsumerRecord<Object, Object> record = recordDeserializer.deserialize(null, rawRecord);
-        assertEquals(rawRecord.topic(), record.topic());
-        assertEquals(rawRecord.partition(), record.partition());
-        assertEquals(rawRecord.offset(), record.offset());
-        assertEquals("key", record.key());
-        assertEquals("value", record.value());
-        assertEquals(rawRecord.timestamp(), record.timestamp());
-        assertEquals(TimestampType.CREATE_TIME, record.timestampType());
-        assertEquals(rawRecord.headers(), record.headers());
+        Assertions.assertEquals(rawRecord.topic(), record.topic());
+        Assertions.assertEquals(rawRecord.partition(), record.partition());
+        Assertions.assertEquals(rawRecord.offset(), record.offset());
+        Assertions.assertEquals("key", record.key());
+        Assertions.assertEquals("value", record.value());
+        Assertions.assertEquals(rawRecord.timestamp(), record.timestamp());
+        Assertions.assertEquals(TimestampType.CREATE_TIME, record.timestampType());
+        Assertions.assertEquals(rawRecord.headers(), record.headers());
     }
 
     static class TheSourceNode extends SourceNode<Object, Object> {

@@ -24,8 +24,9 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.StateSerdes;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.fail;
 
@@ -41,7 +42,7 @@ public class SinkNodeTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private final SinkNode<Object, Object> illTypedSink = (SinkNode) sink;
 
-    @Before
+    @BeforeEach
     public void before() {
         sink.init(context);
     }
@@ -52,7 +53,7 @@ public class SinkNodeTest {
         context.setTime(-1); // ensures a negative timestamp is set for the record we send next
         try {
             illTypedSink.process(new Record<>("any key".getBytes(), "any value".getBytes(), -1));
-            fail("Should have thrown StreamsException");
+            Assertions.fail("Should have thrown StreamsException");
         } catch (final StreamsException ignored) {
             // expected
         }

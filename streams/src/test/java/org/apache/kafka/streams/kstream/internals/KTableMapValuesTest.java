@@ -35,7 +35,8 @@ import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -63,7 +64,7 @@ public class KTableMapValuesTest {
             inputTopic1.pipeInput("B", "2", 25L);
             inputTopic1.pipeInput("C", "3", 20L);
             inputTopic1.pipeInput("D", "4", 10L);
-            assertEquals(asList(new KeyValueTimestamp<>("A", 1, 5),
+            Assertions.assertEquals(asList(new KeyValueTimestamp<>("A", 1, 5),
                     new KeyValueTimestamp<>("B", 2, 25),
                     new KeyValueTimestamp<>("C", 3, 20),
                     new KeyValueTimestamp<>("D", 4, 10)), supplier.theCapturedProcessor().processed());
@@ -129,44 +130,44 @@ public class KTableMapValuesTest {
             inputTopic1.pipeInput("B", "01", 10L);
             inputTopic1.pipeInput("C", "01", 30L);
 
-            assertEquals(ValueAndTimestamp.make(1, 50L), getter2.get("A"));
-            assertEquals(ValueAndTimestamp.make(1, 10L), getter2.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 50L), getter2.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 10L), getter2.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
 
-            assertEquals(ValueAndTimestamp.make(-1, 50L), getter3.get("A"));
-            assertEquals(ValueAndTimestamp.make(-1, 10L), getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-1, 50L), getter3.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-1, 10L), getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
 
             inputTopic1.pipeInput("A", "02", 25L);
             inputTopic1.pipeInput("B", "02", 20L);
 
-            assertEquals(ValueAndTimestamp.make(2, 25L), getter2.get("A"));
-            assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 25L), getter2.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
 
-            assertEquals(ValueAndTimestamp.make(-2, 25L), getter3.get("A"));
-            assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-2, 25L), getter3.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
 
             inputTopic1.pipeInput("A", "03", 35L);
 
-            assertEquals(ValueAndTimestamp.make(3, 35L), getter2.get("A"));
-            assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(3, 35L), getter2.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
 
-            assertEquals(ValueAndTimestamp.make(-3, 35L), getter3.get("A"));
-            assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-3, 35L), getter3.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
 
             inputTopic1.pipeInput("A", (String) null, 1L);
 
-            assertNull(getter2.get("A"));
-            assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
-            assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
+            Assertions.assertNull(getter2.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(1, 30L), getter2.get("C"));
 
-            assertNull(getter3.get("A"));
-            assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
-            assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
+            Assertions.assertNull(getter3.get("A"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
+            Assertions.assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
         }
     }
 
@@ -192,9 +193,9 @@ public class KTableMapValuesTest {
         final KTableImpl<String, String, Integer> table4 =
             (KTableImpl<String, String, Integer>) table1.mapValues(s -> Integer.valueOf(s));
 
-        assertEquals(storeName2, table2.queryableStoreName());
-        assertEquals(storeName3, table3.queryableStoreName());
-        assertNull(table4.queryableStoreName());
+        Assertions.assertEquals(storeName2, table2.queryableStoreName());
+        Assertions.assertEquals(storeName3, table3.queryableStoreName());
+        Assertions.assertNull(table4.queryableStoreName());
 
         doTestValueGetter(builder, topic1, table2, table3);
     }
@@ -217,8 +218,8 @@ public class KTableMapValuesTest {
                     driver.createInputTopic(topic1, new StringSerializer(), new StringSerializer(), Instant.ofEpochMilli(0L), Duration.ZERO);
             final MockApiProcessor<String, Integer, Void, Void> proc = supplier.theCapturedProcessor();
 
-            assertFalse(table1.sendingOldValueEnabled());
-            assertFalse(table2.sendingOldValueEnabled());
+            Assertions.assertFalse(table1.sendingOldValueEnabled());
+            Assertions.assertFalse(table2.sendingOldValueEnabled());
 
             inputTopic1.pipeInput("A", "01", 5L);
             inputTopic1.pipeInput("B", "01", 10L);

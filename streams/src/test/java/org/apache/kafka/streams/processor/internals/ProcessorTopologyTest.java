@@ -47,9 +47,8 @@ import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.test.TestRecord;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.File;
 import java.time.Duration;
@@ -102,7 +101,7 @@ public class ProcessorTopologyTest {
     private TopologyTestDriver driver;
     private final Properties props = new Properties();
 
-    @Before
+    @BeforeEach
     public void setup() {
         // Create a new directory in which we'll put all of the state for this test, enabling running tests in parallel ...
         final File localState = TestUtils.tempDirectory();
@@ -112,7 +111,7 @@ public class ProcessorTopologyTest {
         props.setProperty(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, CustomTimestampExtractor.class.getName());
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         props.clear();
         if (driver != null) {
@@ -144,19 +143,19 @@ public class ProcessorTopologyTest {
 
         final ProcessorTopology processorTopology = topology.getInternalBuilder("X").buildTopology();
 
-        assertEquals(6, processorTopology.processors().size());
+        Assertions.assertEquals(6, processorTopology.processors().size());
 
-        assertEquals(2, processorTopology.sources().size());
+        Assertions.assertEquals(2, processorTopology.sources().size());
 
-        assertEquals(3, processorTopology.sourceTopics().size());
+        Assertions.assertEquals(3, processorTopology.sourceTopics().size());
 
-        assertNotNull(processorTopology.source("topic-1"));
+        Assertions.assertNotNull(processorTopology.source("topic-1"));
 
-        assertNotNull(processorTopology.source("topic-2"));
+        Assertions.assertNotNull(processorTopology.source("topic-2"));
 
-        assertNotNull(processorTopology.source("topic-3"));
+        Assertions.assertNotNull(processorTopology.source("topic-3"));
 
-        assertEquals(processorTopology.source("topic-2"), processorTopology.source("topic-3"));
+        Assertions.assertEquals(processorTopology.source("topic-2"), processorTopology.source("topic-3"));
     }
 
     @Test
@@ -283,11 +282,11 @@ public class ProcessorTopologyTest {
 
         inputTopic.pipeInput("key1", "value1");
         assertNextOutputRecord(outputTopic1.readRecord(), "key1", "value1");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         inputTopic.pipeInput("key2", "value2");
         assertNextOutputRecord(outputTopic1.readRecord(), "key2", "value2");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key4", "value4");
@@ -295,7 +294,7 @@ public class ProcessorTopologyTest {
         assertNextOutputRecord(outputTopic1.readRecord(), "key3", "value3");
         assertNextOutputRecord(outputTopic1.readRecord(), "key4", "value4");
         assertNextOutputRecord(outputTopic1.readRecord(), "key5", "value5");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
     }
 
     @Test
@@ -310,13 +309,13 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(storeName);
-        assertEquals("value4", store.get("key1"));
-        assertEquals("value2", store.get("key2"));
-        assertEquals("value3", store.get("key3"));
-        assertNull(store.get("key4"));
+        Assertions.assertEquals("value4", store.get("key1"));
+        Assertions.assertEquals("value2", store.get("key2"));
+        Assertions.assertEquals("value3", store.get("key3"));
+        Assertions.assertNull(store.get("key4"));
     }
 
     @Test
@@ -330,13 +329,13 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore("connectedStore");
-        assertEquals("value4", store.get("key1"));
-        assertEquals("value2", store.get("key2"));
-        assertEquals("value3", store.get("key3"));
-        assertNull(store.get("key4"));
+        Assertions.assertEquals("value4", store.get("key1"));
+        Assertions.assertEquals("value2", store.get("key2"));
+        Assertions.assertEquals("value3", store.get("key3"));
+        Assertions.assertNull(store.get("key4"));
     }
 
     @Deprecated // testing old PAPI
@@ -362,13 +361,13 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore("connectedStore");
-        assertEquals("value4", store.get("key1"));
-        assertEquals("value2", store.get("key2"));
-        assertEquals("value3", store.get("key3"));
-        assertNull(store.get("key4"));
+        Assertions.assertEquals("value4", store.get("key1"));
+        Assertions.assertEquals("value2", store.get("key2"));
+        Assertions.assertEquals("value3", store.get("key3"));
+        Assertions.assertNull(store.get("key4"));
     }
 
     @Test
@@ -393,13 +392,13 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore("connectedStore");
-        assertEquals("value4", store.get("key1"));
-        assertEquals("value2", store.get("key2"));
-        assertEquals("value3", store.get("key3"));
-        assertNull(store.get("key4"));
+        Assertions.assertEquals("value4", store.get("key1"));
+        Assertions.assertEquals("value2", store.get("key2"));
+        Assertions.assertEquals("value3", store.get("key3"));
+        Assertions.assertNull(store.get("key4"));
     }
 
     @Test
@@ -423,17 +422,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -458,17 +457,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -493,17 +492,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -528,17 +527,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -563,17 +562,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -598,17 +597,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -633,17 +632,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -668,17 +667,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -703,17 +702,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -738,17 +737,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -773,17 +772,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -808,17 +807,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -844,17 +843,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -880,17 +879,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -916,17 +915,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -952,17 +951,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -988,17 +987,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1024,17 +1023,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1060,17 +1059,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1096,17 +1095,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1132,17 +1131,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1168,17 +1167,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1204,17 +1203,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1240,17 +1239,17 @@ public class ProcessorTopologyTest {
         inputTopic.pipeInput("key2", "value2");
         inputTopic.pipeInput("key3", "value3");
         inputTopic.pipeInput("key1", "value4");
-        assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
 
         final KeyValueStore<String, String> store = driver.getKeyValueStore(DEFAULT_STORE_NAME);
         final List<KeyValue<String, String>> results = prefixScanResults(store, DEFAULT_PREFIX);
 
-        assertEquals("key1", results.get(0).key);
-        assertEquals("value4", results.get(0).value);
-        assertEquals("key2", results.get(1).key);
-        assertEquals("value2", results.get(1).value);
-        assertEquals("key3", results.get(2).key);
-        assertEquals("value3", results.get(2).value);
+        Assertions.assertEquals("key1", results.get(0).key);
+        Assertions.assertEquals("value4", results.get(0).value);
+        Assertions.assertEquals("key2", results.get(1).key);
+        Assertions.assertEquals("value2", results.get(1).value);
+        Assertions.assertEquals("key3", results.get(2).key);
+        Assertions.assertEquals("value3", results.get(2).value);
 
     }
 
@@ -1279,8 +1278,8 @@ public class ProcessorTopologyTest {
         final KeyValueStore<String, String> globalStore = driver.getKeyValueStore(storeName);
         inputTopic.pipeInput("key1", "value1");
         inputTopic.pipeInput("key2", "value2");
-        assertEquals("value1", globalStore.get("key1"));
-        assertEquals("value2", globalStore.get("key2"));
+        Assertions.assertEquals("value1", globalStore.get("key1"));
+        Assertions.assertEquals("value2", globalStore.get("key2"));
     }
 
     @Test
@@ -1295,12 +1294,12 @@ public class ProcessorTopologyTest {
 
         inputTopic.pipeInput("key1", "value1");
         assertNextOutputRecord(outputTopic1.readRecord(), "key1", "value1");
-        assertTrue(outputTopic2.isEmpty());
+        Assertions.assertTrue(outputTopic2.isEmpty());
 
         final TestInputTopic<String, String> inputTopic2 = driver.createInputTopic(INPUT_TOPIC_2, STRING_SERIALIZER, STRING_SERIALIZER, Instant.ofEpochMilli(0L), Duration.ZERO);
         inputTopic2.pipeInput("key2", "value2");
         assertNextOutputRecord(outputTopic2.readRecord(), "key2", "value2");
-        assertTrue(outputTopic2.isEmpty());
+        Assertions.assertTrue(outputTopic2.isEmpty());
     }
 
     @Test
@@ -1437,8 +1436,8 @@ public class ProcessorTopologyTest {
         assertNextOutputRecord(outputTopic2.readRecord(), "key1", "value1", 20L);
         assertNextOutputRecord(outputTopic1.readRecord(), "key1", "value1", 12L);
         assertNextOutputRecord(outputTopic2.readRecord(), "key1", "value1", 22L);
-        assertTrue(outputTopic1.isEmpty());
-        assertTrue(outputTopic2.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic2.isEmpty());
 
         inputTopic.pipeInput("key2", "value2", 20L);
         assertNextOutputRecord(outputTopic1.readRecord(), "key2", "value2", 20L);
@@ -1447,8 +1446,8 @@ public class ProcessorTopologyTest {
         assertNextOutputRecord(outputTopic2.readRecord(), "key2", "value2", 30L);
         assertNextOutputRecord(outputTopic1.readRecord(), "key2", "value2", 22L);
         assertNextOutputRecord(outputTopic2.readRecord(), "key2", "value2", 32L);
-        assertTrue(outputTopic1.isEmpty());
-        assertTrue(outputTopic2.isEmpty());
+        Assertions.assertTrue(outputTopic1.isEmpty());
+        Assertions.assertTrue(outputTopic2.isEmpty());
     }
 
     @Test
@@ -1482,32 +1481,32 @@ public class ProcessorTopologyTest {
     public void statelessTopologyShouldNotHavePersistentStore() {
         final TopologyWrapper topology = new TopologyWrapper();
         final ProcessorTopology processorTopology = topology.getInternalBuilder("anyAppId").buildTopology();
-        assertFalse(processorTopology.hasPersistentLocalStore());
-        assertFalse(processorTopology.hasPersistentGlobalStore());
+        Assertions.assertFalse(processorTopology.hasPersistentLocalStore());
+        Assertions.assertFalse(processorTopology.hasPersistentGlobalStore());
     }
 
     @Test
     public void inMemoryStoreShouldNotResultInPersistentLocalStore() {
         final ProcessorTopology processorTopology = createLocalStoreTopology(Stores.inMemoryKeyValueStore("my-store"));
-        assertFalse(processorTopology.hasPersistentLocalStore());
+        Assertions.assertFalse(processorTopology.hasPersistentLocalStore());
     }
 
     @Test
     public void persistentLocalStoreShouldBeDetected() {
         final ProcessorTopology processorTopology = createLocalStoreTopology(Stores.persistentKeyValueStore("my-store"));
-        assertTrue(processorTopology.hasPersistentLocalStore());
+        Assertions.assertTrue(processorTopology.hasPersistentLocalStore());
     }
 
     @Test
     public void inMemoryStoreShouldNotResultInPersistentGlobalStore() {
         final ProcessorTopology processorTopology = createGlobalStoreTopology(Stores.inMemoryKeyValueStore("my-store"));
-        assertFalse(processorTopology.hasPersistentGlobalStore());
+        Assertions.assertFalse(processorTopology.hasPersistentGlobalStore());
     }
 
     @Test
     public void persistentGlobalStoreShouldBeDetected() {
         final ProcessorTopology processorTopology = createGlobalStoreTopology(Stores.persistentKeyValueStore("my-store"));
-        assertTrue(processorTopology.hasPersistentGlobalStore());
+        Assertions.assertTrue(processorTopology.hasPersistentGlobalStore());
     }
 
     private ProcessorTopology createLocalStoreTopology(final KeyValueBytesStoreSupplier storeSupplier) {
@@ -1549,10 +1548,10 @@ public class ProcessorTopologyTest {
                                         final String value,
                                         final Headers headers,
                                         final Long timestamp) {
-        assertEquals(key, record.key());
-        assertEquals(value, record.value());
-        assertEquals(timestamp, record.timestamp());
-        assertEquals(headers, record.headers());
+        Assertions.assertEquals(key, record.key());
+        Assertions.assertEquals(value, record.value());
+        Assertions.assertEquals(timestamp, record.timestamp());
+        Assertions.assertEquals(headers, record.headers());
     }
 
     private StreamPartitioner<Object, Object> constantPartitioner(final Integer partition) {

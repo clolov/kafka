@@ -30,8 +30,9 @@ import org.apache.kafka.streams.processor.internals.ForwardingDisabledProcessorC
 import org.apache.kafka.streams.processor.internals.InternalProcessorContext;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class KStreamFlatTransformValuesTest extends EasyMockSupport {
 
@@ -43,7 +44,7 @@ public class KStreamFlatTransformValuesTest extends EasyMockSupport {
 
     private KStreamFlatTransformValuesProcessor<Integer, Integer, String> processor;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         inputKey = 1;
         inputValue = 10;
@@ -131,6 +132,6 @@ public class KStreamFlatTransformValuesTest extends EasyMockSupport {
         final Processor<Integer, Integer, Integer, String> processor = processorSupplier.get();
 
         verifyAll();
-        assertTrue(processor instanceof KStreamFlatTransformValuesProcessor);
+        Assertions.assertTrue(processor instanceof KStreamFlatTransformValuesProcessor);
     }
 }

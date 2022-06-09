@@ -52,8 +52,9 @@ import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -78,7 +79,7 @@ public class KTableImplTest {
 
     private KTable<String, String> table;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         table = new StreamsBuilder().table("test");
     }
@@ -117,7 +118,7 @@ public class KTableImplTest {
         }
 
         final List<MockApiProcessor<String, Object, Void, Void>> processors = supplier.capturedProcessors(4);
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", "01", 5),
             new KeyValueTimestamp<>("B", "02", 100),
             new KeyValueTimestamp<>("C", "03", 0),
@@ -125,7 +126,7 @@ public class KTableImplTest {
             new KeyValueTimestamp<>("A", "05", 10),
             new KeyValueTimestamp<>("A", "06", 8)),
             processors.get(0).processed());
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", 1, 5),
             new KeyValueTimestamp<>("B", 2, 100),
             new KeyValueTimestamp<>("C", 3, 0),
@@ -133,7 +134,7 @@ public class KTableImplTest {
             new KeyValueTimestamp<>("A", 5, 10),
             new KeyValueTimestamp<>("A", 6, 8)),
             processors.get(1).processed());
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", null, 5),
             new KeyValueTimestamp<>("B", 2, 100),
             new KeyValueTimestamp<>("C", null, 0),
@@ -141,7 +142,7 @@ public class KTableImplTest {
             new KeyValueTimestamp<>("A", null, 10),
             new KeyValueTimestamp<>("A", 6, 8)),
             processors.get(2).processed());
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", "01", 5),
             new KeyValueTimestamp<>("B", "02", 100),
             new KeyValueTimestamp<>("C", "03", 0),
@@ -185,7 +186,7 @@ public class KTableImplTest {
         }
 
         final List<MockApiProcessor<String, Object, Void, Void>> processors = supplier.capturedProcessors(4);
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", "01", 5),
             new KeyValueTimestamp<>("B", "02", 100),
             new KeyValueTimestamp<>("C", "03", 0),
@@ -193,7 +194,7 @@ public class KTableImplTest {
             new KeyValueTimestamp<>("A", "05", 10),
             new KeyValueTimestamp<>("A", "06", 8)),
             processors.get(0).processed());
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", 1, 5),
             new KeyValueTimestamp<>("B", 2, 100),
             new KeyValueTimestamp<>("C", 3, 0),
@@ -201,12 +202,12 @@ public class KTableImplTest {
             new KeyValueTimestamp<>("A", 5, 10),
             new KeyValueTimestamp<>("A", 6, 8)),
             processors.get(1).processed());
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("B", 2, 100),
             new KeyValueTimestamp<>("D", 4, 0),
             new KeyValueTimestamp<>("A", 6, 8)),
             processors.get(2).processed());
-        assertEquals(asList(
+        Assertions.assertEquals(asList(
             new KeyValueTimestamp<>("A", "01", 5),
             new KeyValueTimestamp<>("B", "02", 100),
             new KeyValueTimestamp<>("C", "03", 0),
@@ -239,103 +240,103 @@ public class KTableImplTest {
                 public void close() {}
             };
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filter((key, value) -> false)).keySerde(),
             consumedInternal.keySerde());
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filter((key, value) -> false)).valueSerde(),
             consumedInternal.valueSerde());
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filter((key, value) -> false, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filter((key, value) -> false, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filterNot((key, value) -> false)).keySerde(),
             consumedInternal.keySerde());
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filterNot((key, value) -> false)).valueSerde(),
             consumedInternal.valueSerde());
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filterNot((key, value) -> false, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.filterNot((key, value) -> false, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.mapValues(mapper)).keySerde(),
             consumedInternal.keySerde());
-        assertNull(((AbstractStream) table1.mapValues(mapper)).valueSerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.mapValues(mapper)).valueSerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.mapValues(mapper, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.mapValues(mapper, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.toStream()).keySerde(),
             consumedInternal.keySerde());
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.toStream()).valueSerde(),
             consumedInternal.valueSerde());
-        assertNull(((AbstractStream) table1.toStream(selector)).keySerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.toStream(selector)).keySerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.toStream(selector)).valueSerde(),
             consumedInternal.valueSerde());
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.transformValues(valueTransformerWithKeySupplier)).keySerde(),
             consumedInternal.keySerde());
-        assertNull(((AbstractStream) table1.transformValues(valueTransformerWithKeySupplier)).valueSerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.transformValues(valueTransformerWithKeySupplier)).valueSerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.transformValues(valueTransformerWithKeySupplier, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(((AbstractStream) table1.transformValues(valueTransformerWithKeySupplier, Materialized.with(mySerde, mySerde))).valueSerde(),
+        Assertions.assertEquals(((AbstractStream) table1.transformValues(valueTransformerWithKeySupplier, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertNull(((AbstractStream) table1.groupBy(KeyValue::new)).keySerde());
-        assertNull(((AbstractStream) table1.groupBy(KeyValue::new)).valueSerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.groupBy(KeyValue::new)).keySerde());
+        Assertions.assertNull(((AbstractStream) table1.groupBy(KeyValue::new)).valueSerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.groupBy(KeyValue::new, Grouped.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.groupBy(KeyValue::new, Grouped.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.join(table1, joiner)).keySerde(),
             consumedInternal.keySerde());
-        assertNull(((AbstractStream) table1.join(table1, joiner)).valueSerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.join(table1, joiner)).valueSerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.join(table1, joiner, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.join(table1, joiner, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.leftJoin(table1, joiner)).keySerde(),
             consumedInternal.keySerde());
-        assertNull(((AbstractStream) table1.leftJoin(table1, joiner)).valueSerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.leftJoin(table1, joiner)).valueSerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.leftJoin(table1, joiner, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.leftJoin(table1, joiner, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
 
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.outerJoin(table1, joiner)).keySerde(),
             consumedInternal.keySerde());
-        assertNull(((AbstractStream) table1.outerJoin(table1, joiner)).valueSerde());
-        assertEquals(
+        Assertions.assertNull(((AbstractStream) table1.outerJoin(table1, joiner)).valueSerde());
+        Assertions.assertEquals(
             ((AbstractStream) table1.outerJoin(table1, joiner, Materialized.with(mySerde, mySerde))).keySerde(),
             mySerde);
-        assertEquals(
+        Assertions.assertEquals(
             ((AbstractStream) table1.outerJoin(table1, joiner, Materialized.with(mySerde, mySerde))).valueSerde(),
             mySerde);
     }
@@ -355,7 +356,7 @@ public class KTableImplTest {
         table1Mapped.filter((key, value) -> (value % 2) == 0);
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
-            assertEquals(0, driver.getAllStateStores().size());
+            Assertions.assertEquals(0, driver.getAllStateStores().size());
         }
     }
 
@@ -377,7 +378,7 @@ public class KTableImplTest {
         table2.join(table1MappedFiltered, (v1, v2) -> v1 + v2);
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
-            assertEquals(2, driver.getAllStateStores().size());
+            Assertions.assertEquals(2, driver.getAllStateStores().size());
         }
     }
 
@@ -448,7 +449,7 @@ public class KTableImplTest {
         final Topology topology = builder.build();
         try (final TopologyTestDriverWrapper driver = new TopologyTestDriverWrapper(topology, props)) {
 
-            assertEquals(3, driver.getAllStateStores().size());
+            Assertions.assertEquals(3, driver.getAllStateStores().size());
 
             assertTopologyContainsProcessor(topology, "KSTREAM-SINK-0000000003");
             assertTopologyContainsProcessor(topology, "KSTREAM-SOURCE-0000000004");
@@ -464,10 +465,10 @@ public class KTableImplTest {
             valSerializerField.setAccessible(true);
             valDeserializerField.setAccessible(true);
 
-            assertNotNull(((ChangedSerializer) valSerializerField.get(driver.getProcessor("KSTREAM-SINK-0000000003"))).inner());
-            assertNotNull(((ChangedDeserializer) valDeserializerField.get(driver.getProcessor("KSTREAM-SOURCE-0000000004"))).inner());
-            assertNotNull(((ChangedSerializer) valSerializerField.get(driver.getProcessor("KSTREAM-SINK-0000000007"))).inner());
-            assertNotNull(((ChangedDeserializer) valDeserializerField.get(driver.getProcessor("KSTREAM-SOURCE-0000000008"))).inner());
+            Assertions.assertNotNull(((ChangedSerializer) valSerializerField.get(driver.getProcessor("KSTREAM-SINK-0000000003"))).inner());
+            Assertions.assertNotNull(((ChangedDeserializer) valDeserializerField.get(driver.getProcessor("KSTREAM-SOURCE-0000000004"))).inner());
+            Assertions.assertNotNull(((ChangedSerializer) valSerializerField.get(driver.getProcessor("KSTREAM-SINK-0000000007"))).inner());
+            Assertions.assertNotNull(((ChangedDeserializer) valDeserializerField.get(driver.getProcessor("KSTREAM-SOURCE-0000000008"))).inner());
         }
     }
 

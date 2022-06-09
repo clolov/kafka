@@ -42,9 +42,9 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class ChangeLoggingKeyValueBytesStoreTest {
     private static final Integer INPUT_PARTITION = 0;
     private static final Long INPUT_OFFSET = 100L;
 
-    @Before
+    @BeforeEach
     public void before() {
         context = mockContext();
         context.setTime(0);
@@ -101,7 +101,7 @@ public class ChangeLoggingKeyValueBytesStoreTest {
         );
     }
 
-    @After
+    @AfterEach
     public void after() {
         store.close();
     }

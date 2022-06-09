@@ -41,9 +41,8 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.test.StreamsTestUtils;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +50,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,14 +84,14 @@ public class RepartitionWithMergeOptimizingTest {
     private final List<KeyValue<String, String>> expectedStringCountKeyValues =
         Arrays.asList(KeyValue.pair("A", "6"), KeyValue.pair("B", "6"), KeyValue.pair("C", "6"));
 
-    @Before
+    @BeforeEach
     public void setUp() {
         streamsConfiguration = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.String());
         streamsConfiguration.setProperty(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, Integer.toString(1024 * 10));
         streamsConfiguration.setProperty(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, Long.toString(5000));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         topologyTestDriver.close();
     }
@@ -155,13 +156,13 @@ public class RepartitionWithMergeOptimizingTest {
 
         // Verify the topology
         if (optimizationConfig.equals(StreamsConfig.OPTIMIZE)) {
-            assertEquals(EXPECTED_OPTIMIZED_TOPOLOGY, topologyString);
+            Assertions.assertEquals(EXPECTED_OPTIMIZED_TOPOLOGY, topologyString);
         } else {
-            assertEquals(EXPECTED_UNOPTIMIZED_TOPOLOGY, topologyString);
+            Assertions.assertEquals(EXPECTED_UNOPTIMIZED_TOPOLOGY, topologyString);
         }
 
         // Verify the number of repartition topics
-        assertEquals(expectedNumberRepartitionTopics, getCountOfRepartitionTopicsFound(topologyString));
+        Assertions.assertEquals(expectedNumberRepartitionTopics, getCountOfRepartitionTopicsFound(topologyString));
 
         // Verify the expected output
         assertThat(countOutputTopic.readKeyValuesToMap(), equalTo(keyValueListToMap(expectedCountKeyValues)));

@@ -43,8 +43,8 @@ import org.apache.kafka.test.MockClientSupplier;
 import org.apache.kafka.test.MockInternalTopicManager;
 import org.apache.kafka.test.MockKeyValueStoreBuilder;
 import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -188,7 +188,7 @@ public class HighAvailabilityStreamsPartitionAssignorTest {
         partitionAssignor.setInternalTopicManager(mockInternalTopicManager);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         createMockAdminClient(EMPTY_CHANGELOG_END_OFFSETS);
     }

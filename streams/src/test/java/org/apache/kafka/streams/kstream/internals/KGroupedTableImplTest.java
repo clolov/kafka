@@ -39,8 +39,9 @@ import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Properties;
@@ -59,7 +60,7 @@ public class KGroupedTableImplTest {
     private final Properties props = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.Integer());
     private final String topic = "input";
 
-    @Before
+    @BeforeEach
     public void before() {
         groupedTable = builder
             .table("blah", Consumed.with(Serdes.String(), Serdes.String()))
@@ -142,16 +143,16 @@ public class KGroupedTableImplTest {
         inputTopic.pipeInput("A", 1.1, 10);
         inputTopic.pipeInput("B", 2.2, 11);
 
-        assertEquals(ValueAndTimestamp.make(1, 10L), reducedResults.get("A"));
-        assertEquals(ValueAndTimestamp.make(2, 11L), reducedResults.get("B"));
+        Assertions.assertEquals(ValueAndTimestamp.make(1, 10L), reducedResults.get("A"));
+        Assertions.assertEquals(ValueAndTimestamp.make(2, 11L), reducedResults.get("B"));
 
         inputTopic.pipeInput("A", 2.6, 30);
         inputTopic.pipeInput("B", 1.3, 30);
         inputTopic.pipeInput("A", 5.7, 50);
         inputTopic.pipeInput("B", 6.2, 20);
 
-        assertEquals(ValueAndTimestamp.make(5, 50L), reducedResults.get("A"));
-        assertEquals(ValueAndTimestamp.make(6, 30L), reducedResults.get("B"));
+        Assertions.assertEquals(ValueAndTimestamp.make(5, 50L), reducedResults.get("A"));
+        Assertions.assertEquals(ValueAndTimestamp.make(6, 30L), reducedResults.get("B"));
     }
 
     @Test
@@ -175,7 +176,7 @@ public class KGroupedTableImplTest {
         final MockApiProcessorSupplier<String, Integer, Void, Void> supplier = getReducedResults(reduced);
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             assertReduced(supplier.theCapturedProcessor().lastValueAndTimestampPerKey(), topic, driver);
-            assertEquals(reduced.queryableStoreName(), "reduced");
+            Assertions.assertEquals(reduced.queryableStoreName(), "reduced");
         }
     }
 
@@ -197,7 +198,7 @@ public class KGroupedTableImplTest {
         final MockApiProcessorSupplier<String, Integer, Void, Void> supplier = getReducedResults(reduced);
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             assertReduced(supplier.theCapturedProcessor().lastValueAndTimestampPerKey(), topic, driver);
-            assertNull(reduced.queryableStoreName());
+            Assertions.assertNull(reduced.queryableStoreName());
         }
     }
 

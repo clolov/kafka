@@ -34,8 +34,9 @@ import org.apache.kafka.test.MockProcessorNode;
 import org.apache.kafka.test.MockSourceNode;
 import org.apache.kafka.test.NoOpProcessorContext;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Collections;
@@ -78,7 +79,7 @@ public class GlobalStateTaskTest {
     private GlobalStateManagerStub stateMgr;
     private GlobalStateUpdateTask globalStateTask;
 
-    @Before
+    @BeforeEach
     public void before() {
         final Set<String> storeNames = Utils.mkSet("t1-store", "t2-store");
         final Map<String, SourceNode<?, ?>> sourceByTopics = new HashMap<>();
@@ -108,31 +109,31 @@ public class GlobalStateTaskTest {
     @Test
     public void shouldInitializeStateManager() {
         final Map<TopicPartition, Long> startingOffsets = globalStateTask.initialize();
-        assertTrue(stateMgr.initialized);
-        assertEquals(offsets, startingOffsets);
+        Assertions.assertTrue(stateMgr.initialized);
+        Assertions.assertEquals(offsets, startingOffsets);
     }
 
     @Test
     public void shouldInitializeContext() {
         globalStateTask.initialize();
-        assertTrue(context.initialized);
+        Assertions.assertTrue(context.initialized);
     }
 
     @Test
     public void shouldInitializeProcessorTopology() {
         globalStateTask.initialize();
-        assertTrue(sourceOne.initialized);
-        assertTrue(sourceTwo.initialized);
-        assertTrue(processorOne.initialized);
-        assertTrue(processorTwo.initialized);
+        Assertions.assertTrue(sourceOne.initialized);
+        Assertions.assertTrue(sourceTwo.initialized);
+        Assertions.assertTrue(processorOne.initialized);
+        Assertions.assertTrue(processorTwo.initialized);
     }
 
     @Test
     public void shouldProcessRecordsForTopic() {
         globalStateTask.initialize();
         globalStateTask.update(record(topic1, 1, 1, "foo".getBytes(), "bar".getBytes()));
-        assertEquals(1, sourceOne.numReceived);
-        assertEquals(0, sourceTwo.numReceived);
+        Assertions.assertEquals(1, sourceOne.numReceived);
+        Assertions.assertEquals(0, sourceTwo.numReceived);
     }
 
     @Test
@@ -140,8 +141,8 @@ public class GlobalStateTaskTest {
         final byte[] integerBytes = new IntegerSerializer().serialize("foo", 1);
         globalStateTask.initialize();
         globalStateTask.update(record(topic2, 1, 1, integerBytes, integerBytes));
-        assertEquals(1, sourceTwo.numReceived);
-        assertEquals(0, sourceOne.numReceived);
+        Assertions.assertEquals(1, sourceTwo.numReceived);
+        Assertions.assertEquals(0, sourceOne.numReceived);
     }
 
     private void maybeDeserialize(final GlobalStateUpdateTask globalStateTask,
@@ -156,11 +157,11 @@ public class GlobalStateTaskTest {
         try {
             globalStateTask.update(record);
             if (failExpected) {
-                fail("Should have failed to deserialize.");
+                Assertions.fail("Should have failed to deserialize.");
             }
         } catch (final StreamsException e) {
             if (!failExpected) {
-                fail("Shouldn't have failed to deserialize.");
+                Assertions.fail("Shouldn't have failed to deserialize.");
             }
         }
     }
@@ -220,7 +221,7 @@ public class GlobalStateTaskTest {
         globalStateTask.initialize();
         globalStateTask.update(record(topic1, 1, 51, "foo".getBytes(), "foo".getBytes()));
         globalStateTask.flushState();
-        assertEquals(expectedOffsets, stateMgr.changelogOffsets());
+        Assertions.assertEquals(expectedOffsets, stateMgr.changelogOffsets());
     }
 
     @Test
@@ -236,8 +237,8 @@ public class GlobalStateTaskTest {
 
     @Test
     public void shouldWipeGlobalStateDirectory() throws Exception {
-        assertTrue(stateMgr.baseDir().exists());
+        Assertions.assertTrue(stateMgr.baseDir().exists());
         globalStateTask.close(true);
-        assertFalse(stateMgr.baseDir().exists());
+        Assertions.assertFalse(stateMgr.baseDir().exists());
     }
 }

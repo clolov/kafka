@@ -33,8 +33,9 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.NoOpReadOnlyStore;
 import org.apache.kafka.test.StateStoreProviderStub;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
     private KeyValueStore<String, String> otherUnderlyingStore;
     private CompositeReadOnlyKeyValueStore<String, String> theStore;
 
-    @Before
+    @BeforeEach
     public void before() {
         final StateStoreProviderStub stubProviderOne = new StateStoreProviderStub(false);
         stubProviderTwo = new StateStoreProviderStub(false);
@@ -97,7 +98,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
 
     @Test
     public void shouldReturnNullIfKeyDoesNotExist() {
-        assertNull(theStore.get("whatever"));
+        Assertions.assertNull(theStore.get("whatever"));
     }
 
     @Test
@@ -116,7 +117,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         expectedContents.add(new KeyValue<>("1", "one"));
 
         try (final KeyValueIterator<String, String> iterator = theStore.range(null, "1")) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -131,7 +132,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         expectedContents.add(new KeyValue<>("2", "two"));
 
         try (final KeyValueIterator<String, String> iterator = theStore.range("1", null)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -156,7 +157,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         expectedContents.add(new KeyValue<>("0", "zero"));
 
         try (final KeyValueIterator<String, String> iterator = theStore.reverseRange(null, "1")) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
@@ -171,20 +172,20 @@ public class CompositeReadOnlyKeyValueStoreTest {
         expectedContents.add(new KeyValue<>("1", "one"));
 
         try (final KeyValueIterator<String, String> iterator = theStore.reverseRange("1", null)) {
-            assertEquals(expectedContents, Utils.toList(iterator));
+            Assertions.assertEquals(expectedContents, Utils.toList(iterator));
         }
     }
 
     @Test
     public void shouldReturnValueIfExists() {
         stubOneUnderlying.put("key", "value");
-        assertEquals("value", theStore.get("key"));
+        Assertions.assertEquals("value", theStore.get("key"));
     }
 
     @Test
     public void shouldNotGetValuesFromOtherStores() {
         otherUnderlyingStore.put("otherKey", "otherValue");
-        assertNull(theStore.get("otherKey"));
+        Assertions.assertNull(theStore.get("otherKey"));
     }
 
     @Test
@@ -265,8 +266,8 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("key-two", "key-two-value");
         stubOneUnderlying.put("key-one", "key-one-value");
 
-        assertEquals("key-two-value", theStore.get("key-two"));
-        assertEquals("key-one-value", theStore.get("key-one"));
+        Assertions.assertEquals("key-two-value", theStore.get("key-two"));
+        Assertions.assertEquals("key-one-value", theStore.get("key-one"));
     }
 
     @Test
@@ -276,9 +277,9 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("c", "c");
 
         final List<KeyValue<String, String>> results = toList(theStore.range("a", "b"));
-        assertTrue(results.contains(new KeyValue<>("a", "a")));
-        assertTrue(results.contains(new KeyValue<>("b", "b")));
-        assertEquals(2, results.size());
+        Assertions.assertTrue(results.contains(new KeyValue<>("a", "a")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("b", "b")));
+        Assertions.assertEquals(2, results.size());
     }
 
     @Test
@@ -288,7 +289,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("c", "c");
 
         final List<KeyValue<String, String>> results = toList(theStore.reverseRange("a", "b"));
-        assertArrayEquals(
+        Assertions.assertArrayEquals(
             asList(
                 new KeyValue<>("b", "b"),
                 new KeyValue<>("a", "a")
@@ -303,8 +304,8 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("abce", "c");
 
         final List<KeyValue<String, String>> results = toList(theStore.prefixScan("abcd", new StringSerializer()));
-        assertTrue(results.contains(new KeyValue<>("abcd", "b")));
-        assertEquals(1, results.size());
+        Assertions.assertTrue(results.contains(new KeyValue<>("abcd", "b")));
+        Assertions.assertEquals(1, results.size());
     }
 
     @Test
@@ -314,9 +315,9 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("b", "c");
 
         final List<KeyValue<String, String>> results = toList(theStore.prefixScan("a", new StringSerializer()));
-        assertTrue(results.contains(new KeyValue<>("a", "a")));
-        assertTrue(results.contains(new KeyValue<>("aa", "b")));
-        assertEquals(2, results.size());
+        Assertions.assertTrue(results.contains(new KeyValue<>("a", "a")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("aa", "b")));
+        Assertions.assertEquals(2, results.size());
     }
 
     @Test
@@ -333,7 +334,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("x", "x");
 
         final List<KeyValue<String, String>> results = toList(theStore.range("a", "e"));
-        assertArrayEquals(
+        Assertions.assertArrayEquals(
             asList(
                 new KeyValue<>("a", "a"),
                 new KeyValue<>("b", "b"),
@@ -357,7 +358,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("x", "x");
 
         final List<KeyValue<String, String>> results = toList(theStore.prefixScan("a", new StringSerializer()));
-        assertArrayEquals(
+        Assertions.assertArrayEquals(
             asList(
                 new KeyValue<>("a", "a"),
                 new KeyValue<>("aa", "c"),
@@ -380,11 +381,11 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("x", "x");
 
         final List<KeyValue<String, String>> results = toList(theStore.reverseRange("a", "e"));
-        assertTrue(results.contains(new KeyValue<>("a", "a")));
-        assertTrue(results.contains(new KeyValue<>("b", "b")));
-        assertTrue(results.contains(new KeyValue<>("c", "c")));
-        assertTrue(results.contains(new KeyValue<>("d", "d")));
-        assertEquals(4, results.size());
+        Assertions.assertTrue(results.contains(new KeyValue<>("a", "a")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("b", "b")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("c", "c")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("d", "d")));
+        Assertions.assertEquals(4, results.size());
     }
 
     @Test
@@ -401,13 +402,13 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("x", "x");
 
         final List<KeyValue<String, String>> results = toList(theStore.all());
-        assertTrue(results.contains(new KeyValue<>("a", "a")));
-        assertTrue(results.contains(new KeyValue<>("b", "b")));
-        assertTrue(results.contains(new KeyValue<>("c", "c")));
-        assertTrue(results.contains(new KeyValue<>("d", "d")));
-        assertTrue(results.contains(new KeyValue<>("x", "x")));
-        assertTrue(results.contains(new KeyValue<>("z", "z")));
-        assertEquals(6, results.size());
+        Assertions.assertTrue(results.contains(new KeyValue<>("a", "a")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("b", "b")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("c", "c")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("d", "d")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("x", "x")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("z", "z")));
+        Assertions.assertEquals(6, results.size());
     }
 
     @Test
@@ -424,13 +425,13 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("x", "x");
 
         final List<KeyValue<String, String>> results = toList(theStore.reverseAll());
-        assertTrue(results.contains(new KeyValue<>("a", "a")));
-        assertTrue(results.contains(new KeyValue<>("b", "b")));
-        assertTrue(results.contains(new KeyValue<>("c", "c")));
-        assertTrue(results.contains(new KeyValue<>("d", "d")));
-        assertTrue(results.contains(new KeyValue<>("x", "x")));
-        assertTrue(results.contains(new KeyValue<>("z", "z")));
-        assertEquals(6, results.size());
+        Assertions.assertTrue(results.contains(new KeyValue<>("a", "a")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("b", "b")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("c", "c")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("d", "d")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("x", "x")));
+        Assertions.assertTrue(results.contains(new KeyValue<>("z", "z")));
+        Assertions.assertEquals(6, results.size());
     }
 
     @Test
@@ -481,7 +482,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         cache.put("d", "d");
         cache.put("x", "x");
 
-        assertEquals(6, theStore.approximateNumEntries());
+        Assertions.assertEquals(6, theStore.approximateNumEntries());
     }
 
     @Test
@@ -494,7 +495,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         });
 
         stubOneUnderlying.put("overflow", "me");
-        assertEquals(Long.MAX_VALUE, theStore.approximateNumEntries());
+        Assertions.assertEquals(Long.MAX_VALUE, theStore.approximateNumEntries());
     }
 
     @Test
@@ -512,7 +513,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
             }
         });
 
-        assertEquals(Long.MAX_VALUE, theStore.approximateNumEntries());
+        Assertions.assertEquals(Long.MAX_VALUE, theStore.approximateNumEntries());
     }
 
     private CompositeReadOnlyKeyValueStore<Object, Object> rebalancing() {

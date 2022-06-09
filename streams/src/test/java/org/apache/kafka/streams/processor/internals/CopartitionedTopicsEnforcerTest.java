@@ -22,8 +22,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Utils;
 import org.apache.kafka.streams.errors.TopologyException;
 import org.apache.kafka.streams.processor.internals.assignment.CopartitionedTopicsEnforcer;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class CopartitionedTopicsEnforcerTest {
     private final Map<TopicPartition, PartitionInfo> partitions = new HashMap<>();
     private final Cluster cluster = Cluster.empty();
 
-    @Before
+    @BeforeEach
     public void before() {
         partitions.put(
             new TopicPartition("first", 0),
@@ -126,7 +127,7 @@ public class CopartitionedTopicsEnforcerTest {
                         Utils.mkEntry(topic2.name(), topic2.numberOfPartitions().get()))
         );
 
-        assertEquals(String.format("Invalid topology: thread " +
+        Assertions.assertEquals(String.format("Invalid topology: thread " +
                                    "Following topics do not have the same number of partitions: " +
                                    "[%s]", sorted), ex.getMessage());
     }
@@ -156,7 +157,7 @@ public class CopartitionedTopicsEnforcerTest {
                                     cluster.withPartitions(partitions))
         );
 
-        assertEquals(String.format("Invalid topology: thread Number of partitions [%s] " +
+        Assertions.assertEquals(String.format("Invalid topology: thread Number of partitions [%s] " +
                                    "of repartition topic [%s] " +
                                    "doesn't match number of partitions [%s] of the source topic.",
                                    topic1.numberOfPartitions().get(), topic1.name(), 2), ex.getMessage());
@@ -185,8 +186,8 @@ public class CopartitionedTopicsEnforcerTest {
                                       Utils.mkEntry(topic3.name(), topic3)),
                           cluster.withPartitions(partitions));
 
-        assertEquals(topic1.numberOfPartitions(), topic2.numberOfPartitions());
-        assertEquals(topic2.numberOfPartitions(), topic3.numberOfPartitions());
+        Assertions.assertEquals(topic1.numberOfPartitions(), topic2.numberOfPartitions());
+        Assertions.assertEquals(topic2.numberOfPartitions(), topic3.numberOfPartitions());
     }
 
     private InternalTopicConfig createTopicConfig(final String repartitionTopic,

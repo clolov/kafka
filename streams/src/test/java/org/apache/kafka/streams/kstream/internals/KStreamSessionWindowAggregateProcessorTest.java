@@ -48,9 +48,8 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockRecordCollector;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +92,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
     private InternalMockProcessorContext<Windowed<String>, Change<Long>> context;
     private final Metrics metrics = new Metrics();
 
-    @Before
+    @BeforeEach
     public void setup() {
         setup(true);
     }
@@ -144,7 +143,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
         sessionStore.init((StateStoreContext) context, sessionStore);
     }
 
-    @After
+    @AfterEach
     public void closeStore() {
         sessionStore.close();
     }
@@ -156,8 +155,8 @@ public class KStreamSessionWindowAggregateProcessorTest {
 
         try (final KeyValueIterator<Windowed<String>, Long> values =
                  sessionStore.findSessions("john", 0, 2000)) {
-            assertTrue(values.hasNext());
-            assertEquals(Long.valueOf(2), values.next().value);
+            Assertions.assertTrue(values.hasNext());
+            Assertions.assertEquals(Long.valueOf(2), values.next().value);
         }
     }
 
@@ -165,13 +164,13 @@ public class KStreamSessionWindowAggregateProcessorTest {
     public void shouldMergeSessions() {
         final String sessionId = "mel";
         processor.process(new Record<>(sessionId, "first", 0L));
-        assertTrue(sessionStore.findSessions(sessionId, 0, 0).hasNext());
+        Assertions.assertTrue(sessionStore.findSessions(sessionId, 0, 0).hasNext());
 
         // move time beyond gap
         processor.process(new Record<>(sessionId, "second", GAP_MS + 1));
-        assertTrue(sessionStore.findSessions(sessionId, GAP_MS + 1, GAP_MS + 1).hasNext());
+        Assertions.assertTrue(sessionStore.findSessions(sessionId, GAP_MS + 1, GAP_MS + 1).hasNext());
         // should still exist as not within gap
-        assertTrue(sessionStore.findSessions(sessionId, 0, 0).hasNext());
+        Assertions.assertTrue(sessionStore.findSessions(sessionId, 0, 0).hasNext());
         // move time back
         processor.process(new Record<>(sessionId, "third", GAP_MS / 2));
 
@@ -179,8 +178,8 @@ public class KStreamSessionWindowAggregateProcessorTest {
                  sessionStore.findSessions(sessionId, 0, GAP_MS + 1)) {
             final KeyValue<Windowed<String>, Long> kv = iterator.next();
 
-            assertEquals(Long.valueOf(3), kv.value);
-            assertFalse(iterator.hasNext());
+            Assertions.assertEquals(Long.valueOf(3), kv.value);
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -190,8 +189,8 @@ public class KStreamSessionWindowAggregateProcessorTest {
         processor.process(new Record<>("mel", "second", 0L));
         try (final KeyValueIterator<Windowed<String>, Long> iterator =
                  sessionStore.findSessions("mel", 0, 0)) {
-            assertEquals(Long.valueOf(2L), iterator.next().value);
-            assertFalse(iterator.hasNext());
+            Assertions.assertEquals(Long.valueOf(2L), iterator.next().value);
+            Assertions.assertFalse(iterator.hasNext());
         }
     }
 
@@ -209,7 +208,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
         processor.process(new Record<>(sessionId, "third", time2));
 
         sessionStore.flush();
-        assertEquals(
+        Assertions.assertEquals(
             Arrays.asList(
                 new KeyValueTimestamp<>(
                     new Windowed<>(sessionId, new SessionWindow(0, 0)),
@@ -236,7 +235,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
         // first ensure it is in the store
         try (final KeyValueIterator<Windowed<String>, Long> a1 =
                  sessionStore.findSessions("a", 0, 0)) {
-            assertEquals(KeyValue.pair(new Windowed<>("a", new SessionWindow(0, 0)), 1L), a1.next());
+            Assertions.assertEquals(KeyValue.pair(new Windowed<>("a", new SessionWindow(0, 0)), 1L), a1.next());
         }
 
 
@@ -245,8 +244,8 @@ public class KStreamSessionWindowAggregateProcessorTest {
         // should have merged session in store
         try (final KeyValueIterator<Windowed<String>, Long> a2 =
                  sessionStore.findSessions("a", 0, 100)) {
-            assertEquals(KeyValue.pair(new Windowed<>("a", new SessionWindow(0, 100)), 2L), a2.next());
-            assertFalse(a2.hasNext());
+            Assertions.assertEquals(KeyValue.pair(new Windowed<>("a", new SessionWindow(0, 100)), 2L), a2.next());
+            Assertions.assertFalse(a2.hasNext());
         }
     }
 
@@ -264,7 +263,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
 
         sessionStore.flush();
 
-        assertEquals(
+        Assertions.assertEquals(
             Arrays.asList(
                 new KeyValueTimestamp<>(
                     new Windowed<>("a", new SessionWindow(0, 0)),
@@ -308,8 +307,8 @@ public class KStreamSessionWindowAggregateProcessorTest {
         processor.process(new Record<>("a", "2", GAP_MS + 1));
         final long t0 = getter.get(new Windowed<>("a", new SessionWindow(0, 0))).value();
         final long t1 = getter.get(new Windowed<>("a", new SessionWindow(GAP_MS + 1, GAP_MS + 1))).value();
-        assertEquals(1L, t0);
-        assertEquals(2L, t1);
+        Assertions.assertEquals(1L, t0);
+        Assertions.assertEquals(2L, t1);
     }
 
     @Test
@@ -321,7 +320,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
         processor.process(new Record<>("b", "1", 0L));
         processor.process(new Record<>("c", "1", 0L));
 
-        assertEquals(
+        Assertions.assertEquals(
             Arrays.asList(
                 new KeyValueTimestamp<>(
                     new Windowed<>("a", new SessionWindow(0, 0)),
@@ -347,7 +346,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
 
         processor.process(new Record<>("a", "1", 0L));
         processor.process(new Record<>("a", "1", 5L));
-        assertEquals(
+        Assertions.assertEquals(
             Arrays.asList(
                 new KeyValueTimestamp<>(
                     new Windowed<>("a", new SessionWindow(0, 0)),
@@ -387,7 +386,7 @@ public class KStreamSessionWindowAggregateProcessorTest {
             );
         }
 
-        assertEquals(
+        Assertions.assertEquals(
             1.0,
             getMetricByName(context.metrics().metrics(), "dropped-records-total", "stream-task-metrics").metricValue()
         );

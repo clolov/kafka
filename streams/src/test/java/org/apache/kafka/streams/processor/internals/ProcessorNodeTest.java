@@ -33,7 +33,8 @@ import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -107,19 +108,19 @@ public class ProcessorNodeTest {
         metricTags.put(threadIdTagKey, threadId);
 
         for (final String opName : latencyOperations) {
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-avg", groupName, metricTags));
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-max", groupName, metricTags));
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-rate", groupName, metricTags));
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-total", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-avg", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-max", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-rate", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-total", groupName, metricTags));
         }
 
         // test parent sensors
         metricTags.put("processor-node-id", ROLLUP_VALUE);
         for (final String opName : latencyOperations) {
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-avg", groupName, metricTags));
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-max", groupName, metricTags));
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-rate", groupName, metricTags));
-            assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-total", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-avg", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-latency-max", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-rate", groupName, metricTags));
+            Assertions.assertFalse(StreamsTestUtils.containsMetric(metrics, opName + "-total", groupName, metricTags));
         }
     }
 
@@ -140,8 +141,8 @@ public class ProcessorNodeTest {
 
             final StreamsException se = assertThrows(StreamsException.class, () -> topic.pipeInput("a-key", "a value"));
             final String msg = se.getMessage();
-            assertTrue("Error about class cast with serdes", msg.contains("ClassCastException"));
-            assertTrue("Error about class cast with serdes", msg.contains("Serdes"));
+            Assertions.assertTrue(msg.contains("ClassCastException"), "Error about class cast with serdes");
+            Assertions.assertTrue(msg.contains("Serdes"), "Error about class cast with serdes");
         }
     }
 
@@ -156,8 +157,8 @@ public class ProcessorNodeTest {
 
         final ConfigException se = assertThrows(ConfigException.class, () -> new TopologyTestDriver(topology));
         final String msg = se.getMessage();
-        assertTrue("Error about class cast with serdes", msg.contains("StreamsConfig#DEFAULT_KEY_SERDE_CLASS_CONFIG"));
-        assertTrue("Error about class cast with serdes", msg.contains("specify a key serde"));
+        Assertions.assertTrue(msg.contains("StreamsConfig#DEFAULT_KEY_SERDE_CLASS_CONFIG"), "Error about class cast with serdes");
+        Assertions.assertTrue(msg.contains("specify a key serde"), "Error about class cast with serdes");
     }
 
     private static class ClassCastProcessor extends ExceptionalProcessor {

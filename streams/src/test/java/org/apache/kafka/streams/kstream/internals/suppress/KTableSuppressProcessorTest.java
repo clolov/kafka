@@ -41,7 +41,8 @@ import org.easymock.EasyMock;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -417,7 +418,7 @@ public class KTableSuppressProcessorTest {
         context.setTimestamp(timestamp);
         try {
             harness.processor.process(new Record<>("dummyKey", value, timestamp));
-            fail("expected an exception");
+            Assertions.fail("expected an exception");
         } catch (final StreamsException e) {
             assertThat(e.getMessage(), containsString("buffer exceeded its max capacity"));
         }
@@ -441,7 +442,7 @@ public class KTableSuppressProcessorTest {
         context.setTimestamp(1L);
         try {
             harness.processor.process(new Record<>("dummyKey", value, timestamp));
-            fail("expected an exception");
+            Assertions.fail("expected an exception");
         } catch (final StreamsException e) {
             assertThat(e.getMessage(), containsString("buffer exceeded its max capacity"));
         }

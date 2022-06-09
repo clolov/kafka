@@ -57,9 +57,9 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockClientSupplier;
 
 import java.util.UUID;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -134,7 +134,7 @@ public class RecordCollectorTest {
 
     private RecordCollectorImpl collector;
 
-    @Before
+    @BeforeEach
     public void setup() {
         final MockClientSupplier clientSupplier = new MockClientSupplier();
         clientSupplier.setCluster(cluster);
@@ -173,7 +173,7 @@ public class RecordCollectorTest {
         );
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         collector.closeClean();
     }
@@ -248,10 +248,10 @@ public class RecordCollectorTest {
 
         Map<TopicPartition, Long> offsets = collector.offsets();
 
-        assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 0)));
-        assertEquals(1L, (long) offsets.get(new TopicPartition(topic, 1)));
-        assertEquals(0L, (long) offsets.get(new TopicPartition(topic, 2)));
-        assertEquals(6, mockProducer.history().size());
+        Assertions.assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 0)));
+        Assertions.assertEquals(1L, (long) offsets.get(new TopicPartition(topic, 1)));
+        Assertions.assertEquals(0L, (long) offsets.get(new TopicPartition(topic, 2)));
+        Assertions.assertEquals(6, mockProducer.history().size());
 
         collector.send(topic, "999", "0", null, 0, null, stringSerializer, stringSerializer, null, null);
         collector.send(topic, "999", "0", null, 1, null, stringSerializer, stringSerializer, null, null);
@@ -259,10 +259,10 @@ public class RecordCollectorTest {
 
         offsets = collector.offsets();
 
-        assertEquals(3L, (long) offsets.get(new TopicPartition(topic, 0)));
-        assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 1)));
-        assertEquals(1L, (long) offsets.get(new TopicPartition(topic, 2)));
-        assertEquals(9, mockProducer.history().size());
+        Assertions.assertEquals(3L, (long) offsets.get(new TopicPartition(topic, 0)));
+        Assertions.assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 1)));
+        Assertions.assertEquals(1L, (long) offsets.get(new TopicPartition(topic, 2)));
+        Assertions.assertEquals(9, mockProducer.history().size());
     }
 
     @Test
@@ -281,10 +281,10 @@ public class RecordCollectorTest {
 
         final Map<TopicPartition, Long> offsets = collector.offsets();
 
-        assertEquals(4L, (long) offsets.get(new TopicPartition(topic, 0)));
-        assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 1)));
-        assertEquals(0L, (long) offsets.get(new TopicPartition(topic, 2)));
-        assertEquals(9, mockProducer.history().size());
+        Assertions.assertEquals(4L, (long) offsets.get(new TopicPartition(topic, 0)));
+        Assertions.assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 1)));
+        Assertions.assertEquals(0L, (long) offsets.get(new TopicPartition(topic, 2)));
+        Assertions.assertEquals(9, mockProducer.history().size());
 
         // returned offsets should not be modified
         final TopicPartition topicPartition = new TopicPartition(topic, 0);
@@ -308,10 +308,10 @@ public class RecordCollectorTest {
         final Map<TopicPartition, Long> offsets = collector.offsets();
 
         // with mock producer without specific partition, we would use default producer partitioner with murmur hash
-        assertEquals(3L, (long) offsets.get(new TopicPartition(topic, 0)));
-        assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 1)));
-        assertEquals(1L, (long) offsets.get(new TopicPartition(topic, 2)));
-        assertEquals(9, mockProducer.history().size());
+        Assertions.assertEquals(3L, (long) offsets.get(new TopicPartition(topic, 0)));
+        Assertions.assertEquals(2L, (long) offsets.get(new TopicPartition(topic, 1)));
+        Assertions.assertEquals(1L, (long) offsets.get(new TopicPartition(topic, 2)));
+        Assertions.assertEquals(9, mockProducer.history().size());
     }
 
     @Test
@@ -322,14 +322,14 @@ public class RecordCollectorTest {
         collector.send(topic, "999", "0", null, 1, null, stringSerializer, stringSerializer, null, null);
         collector.send(topic, "999", "0", null, 2, null, stringSerializer, stringSerializer, null, null);
 
-        assertEquals(Collections.<TopicPartition, Long>emptyMap(), offsets);
+        Assertions.assertEquals(Collections.<TopicPartition, Long>emptyMap(), offsets);
 
         collector.flush();
 
         offsets = collector.offsets();
-        assertEquals((Long) 0L, offsets.get(new TopicPartition(topic, 0)));
-        assertEquals((Long) 0L, offsets.get(new TopicPartition(topic, 1)));
-        assertEquals((Long) 0L, offsets.get(new TopicPartition(topic, 2)));
+        Assertions.assertEquals((Long) 0L, offsets.get(new TopicPartition(topic, 0)));
+        Assertions.assertEquals((Long) 0L, offsets.get(new TopicPartition(topic, 1)));
+        Assertions.assertEquals((Long) 0L, offsets.get(new TopicPartition(topic, 2)));
     }
 
     @Test
@@ -343,9 +343,9 @@ public class RecordCollectorTest {
         final List<ProducerRecord<byte[], byte[]>> recordHistory = mockProducer.history();
         for (final ProducerRecord<byte[], byte[]> sentRecord : recordHistory) {
             final Headers headers = sentRecord.headers();
-            assertEquals(2, headers.toArray().length);
-            assertEquals(new RecordHeader("key", "key".getBytes()), headers.lastHeader("key"));
-            assertEquals(new RecordHeader("value", "value".getBytes()), headers.lastHeader("value"));
+            Assertions.assertEquals(2, headers.toArray().length);
+            Assertions.assertEquals(new RecordHeader("key", "key".getBytes()), headers.lastHeader("key"));
+            Assertions.assertEquals(new RecordHeader("value", "value".getBytes()), headers.lastHeader("value"));
         }
     }
 
@@ -635,7 +635,7 @@ public class RecordCollectorTest {
             TaskMigratedException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
     }
 
     @Test
@@ -662,7 +662,7 @@ public class RecordCollectorTest {
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
         final TaskMigratedException thrown = assertThrows(TaskMigratedException.class, collector::flush);
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
     }
 
     @Test
@@ -689,7 +689,7 @@ public class RecordCollectorTest {
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
         final TaskMigratedException thrown = assertThrows(TaskMigratedException.class, collector::closeClean);
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
     }
 
     @Test
@@ -710,7 +710,7 @@ public class RecordCollectorTest {
             StreamsException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
             equalTo("Error encountered sending record to topic topic for task 0_0 due to:" +
@@ -734,7 +734,7 @@ public class RecordCollectorTest {
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
         final StreamsException thrown = assertThrows(StreamsException.class, collector::flush);
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
             equalTo("Error encountered sending record to topic topic for task 0_0 due to:" +
@@ -758,7 +758,7 @@ public class RecordCollectorTest {
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
         final StreamsException thrown = assertThrows(StreamsException.class, collector::closeClean);
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
             equalTo("Error encountered sending record to topic topic for task 0_0 due to:" +
@@ -785,7 +785,7 @@ public class RecordCollectorTest {
             StreamsException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
             equalTo("Error encountered sending record to topic topic for task 0_0 due to:" +
@@ -809,7 +809,7 @@ public class RecordCollectorTest {
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
         final StreamsException thrown = assertThrows(StreamsException.class, collector::flush);
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
             equalTo("Error encountered sending record to topic topic for task 0_0 due to:" +
@@ -833,7 +833,7 @@ public class RecordCollectorTest {
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
         final StreamsException thrown = assertThrows(StreamsException.class, collector::closeClean);
-        assertEquals(exception, thrown.getCause());
+        Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
             equalTo("Error encountered sending record to topic topic for task 0_0 due to:" +
@@ -864,11 +864,10 @@ public class RecordCollectorTest {
             for (final String error : messages) {
                 errorMessage.append("\n - ").append(error);
             }
-            assertTrue(
-                errorMessage.toString(),
-                messages.get(messages.size() - 1)
-                    .endsWith("Exception handler choose to CONTINUE processing in spite of this error but written offsets would not be recorded.")
-            );
+            Assertions.assertTrue(
+                    messages.get(messages.size() - 1)
+                    .endsWith("Exception handler choose to CONTINUE processing in spite of this error but written offsets would not be recorded."),
+                    errorMessage.toString());
         }
 
         final Metric metric = streamsMetrics.metrics().get(new MetricName(
@@ -880,7 +879,7 @@ public class RecordCollectorTest {
                 mkEntry("task-id", taskId.toString())
             )
         ));
-        assertEquals(1.0, metric.metricValue());
+        Assertions.assertEquals(1.0, metric.metricValue());
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
         collector.flush();
@@ -918,7 +917,7 @@ public class RecordCollectorTest {
         );
 
         collector.closeDirty();
-        assertFalse(functionCalled.get());
+        Assertions.assertFalse(functionCalled.get());
     }
 
     @Test

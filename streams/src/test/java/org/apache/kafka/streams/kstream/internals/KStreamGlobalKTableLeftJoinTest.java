@@ -32,9 +32,8 @@ import org.apache.kafka.test.MockApiProcessor;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -55,7 +54,7 @@ public class KStreamGlobalKTableLeftJoinTest {
     private TopologyTestDriver driver;
     private StreamsBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         builder = new StreamsBuilder();
@@ -82,7 +81,7 @@ public class KStreamGlobalKTableLeftJoinTest {
         processor = supplier.theCapturedProcessor();
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         driver.close();
     }
@@ -124,7 +123,7 @@ public class KStreamGlobalKTableLeftJoinTest {
         final Collection<Set<String>> copartitionGroups =
             TopologyWrapper.getInternalTopologyBuilder(builder.build()).copartitionGroups();
 
-        assertEquals("KStream-GlobalKTable joins do not need to be co-partitioned", 0, copartitionGroups.size());
+        Assertions.assertEquals(0, copartitionGroups.size(), "KStream-GlobalKTable joins do not need to be co-partitioned");
     }
 
     @Test

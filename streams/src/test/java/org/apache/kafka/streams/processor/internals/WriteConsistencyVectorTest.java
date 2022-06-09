@@ -32,8 +32,8 @@ import org.apache.kafka.streams.query.Position;
 import org.apache.kafka.streams.state.internals.PositionSerde;
 import org.apache.kafka.streams.state.internals.ThreadCache;
 import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class WriteConsistencyVectorTest {
     private static final Integer INPUT_PARTITION = 0;
     private static final Long INPUT_OFFSET = 100L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         final ProcessorStateManager stateManager = mock(ProcessorStateManager.class);
         expect(stateManager.taskType()).andStubReturn(TaskType.ACTIVE);
