@@ -45,7 +45,7 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 @SuppressWarnings("unchecked")
 public abstract class AbstractKeyValueStoreTest {
@@ -342,7 +342,7 @@ public abstract class AbstractKeyValueStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutNullKey() {
-        assertThrows(NullPointerException.class, () -> store.put(null, "anyValue"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.put(null, "anyValue"));
     }
 
     @Test
@@ -352,7 +352,7 @@ public abstract class AbstractKeyValueStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutIfAbsentNullKey() {
-        assertThrows(NullPointerException.class, () -> store.putIfAbsent(null, "anyValue"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.putIfAbsent(null, "anyValue"));
     }
 
     @Test
@@ -362,7 +362,7 @@ public abstract class AbstractKeyValueStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutAllNullKey() {
-        assertThrows(NullPointerException.class, () -> store.putAll(Collections.singletonList(new KeyValue<>(null, "anyValue"))));
+        Assertions.assertThrows(NullPointerException.class, () -> store.putAll(Collections.singletonList(new KeyValue<>(null, "anyValue"))));
     }
 
     @Test
@@ -372,12 +372,12 @@ public abstract class AbstractKeyValueStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnDeleteNullKey() {
-        assertThrows(NullPointerException.class, () -> store.delete(null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.delete(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnGetNullKey() {
-        assertThrows(NullPointerException.class, () -> store.get(null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.get(null));
     }
 
     @Test

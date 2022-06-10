@@ -74,13 +74,13 @@ import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThrows;
+
 
 public class InternalTopicManagerTest {
     private final Node broker1 = new Node(0, "dummyHost-1", 1234);
@@ -267,7 +267,7 @@ public class InternalTopicManagerTest {
         final InternalTopicConfig topicConfig = new RepartitionTopicConfig(topic1, Collections.emptyMap());
         topicConfig.setNumberOfPartitions(1);
 
-        final StreamsException exception = assertThrows(
+        final StreamsException exception = Assertions.assertThrows(
             StreamsException.class,
             () -> topicManager.makeReady(Collections.singletonMap(topic1, topicConfig))
         );
@@ -287,7 +287,7 @@ public class InternalTopicManagerTest {
             new InternalTopicManager(time, mockAdminClient, new StreamsConfig(config));
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        final TimeoutException exception = assertThrows(
+        final TimeoutException exception = Assertions.assertThrows(
             TimeoutException.class,
             () -> internalTopicManager.setup(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -318,7 +318,7 @@ public class InternalTopicManagerTest {
             )));
         EasyMock.replay(admin);
 
-        assertThrows(StreamsException.class, () -> topicManager.setup(mkMap(
+        Assertions.assertThrows(StreamsException.class, () -> topicManager.setup(mkMap(
             mkEntry(topic1, internalTopicConfig)
         )));
     }
@@ -334,7 +334,7 @@ public class InternalTopicManagerTest {
             .andStubAnswer(() -> new MockCreateTopicsResult(Collections.singletonMap(topic2, new KafkaFutureImpl<>())));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> topicManager.setup(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -356,7 +356,7 @@ public class InternalTopicManagerTest {
             .andStubAnswer(() -> new MockCreateTopicsResult(mkMap(mkEntry(topic1, createTopicFailFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.setup(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -377,7 +377,7 @@ public class InternalTopicManagerTest {
             .andStubAnswer(() -> new MockCreateTopicsResult(mkMap(mkEntry(topic1, createTopicFutureThatNeverCompletes))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.setup(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -400,7 +400,7 @@ public class InternalTopicManagerTest {
             .andAnswer(() -> new MockDeleteTopicsResult(mkMap(mkEntry(topic1, deleteTopicSuccessfulFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             StreamsException.class,
             () -> topicManager.setup(mkMap(
                 mkEntry(topic1, internalTopicConfig1),
@@ -441,7 +441,7 @@ public class InternalTopicManagerTest {
             .andAnswer(() -> new MockDeleteTopicsResult(mkMap(mkEntry(topic1, deleteTopicSuccessfulFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> topicManager.setup(mkMap(
                 mkEntry(topic1, internalTopicConfig1),
@@ -484,7 +484,7 @@ public class InternalTopicManagerTest {
             .andAnswer(() -> new MockDeleteTopicsResult(mkMap(mkEntry(topic1, deleteTopicSuccessfulFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.setup(mkMap(
                 mkEntry(topic1, internalTopicConfig1),
@@ -526,7 +526,7 @@ public class InternalTopicManagerTest {
             .andAnswer(() -> new MockDeleteTopicsResult(mkMap(mkEntry(topic1, deleteTopicSuccessfulFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             StreamsException.class,
             () -> topicManager.setup(mkMap(
                 mkEntry(topic1, internalTopicConfig1),
@@ -552,7 +552,7 @@ public class InternalTopicManagerTest {
             .andStubAnswer(() -> new MockDeleteTopicsResult(mkMap(mkEntry(topic1, deleteTopicFutureThatNeverCompletes))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.setup(mkMap(
                 mkEntry(topic1, internalTopicConfig1),
@@ -575,7 +575,7 @@ public class InternalTopicManagerTest {
             .andStubAnswer(() -> new MockDeleteTopicsResult(mkMap(mkEntry(topic1, deleteTopicFailFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             StreamsException.class,
             () -> topicManager.setup(mkMap(
                 mkEntry(topic1, internalTopicConfig1),
@@ -909,7 +909,7 @@ public class InternalTopicManagerTest {
         final InternalTopicConfig internalTopicConfig = new RepartitionTopicConfig(topic1, Collections.emptyMap());
         internalTopicConfig.setNumberOfPartitions(1);
 
-        final TimeoutException exception = assertThrows(
+        final TimeoutException exception = Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.makeReady(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -940,7 +940,7 @@ public class InternalTopicManagerTest {
         final InternalTopicConfig internalTopicConfig = new RepartitionTopicConfig(topic1, Collections.emptyMap());
         internalTopicConfig.setNumberOfPartitions(1);
 
-        final TimeoutException exception = assertThrows(
+        final TimeoutException exception = Assertions.assertThrows(
             TimeoutException.class,
             () -> internalTopicManager.makeReady(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -1236,7 +1236,7 @@ public class InternalTopicManagerTest {
         setupTopicInMockAdminClient(topic1, repartitionTopicConfig());
         final InternalTopicConfig internalTopicConfig = new RepartitionTopicConfig(topic1, Collections.emptyMap());
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> internalTopicManager.validate(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -1418,7 +1418,7 @@ public class InternalTopicManagerTest {
         EasyMock.replay(admin);
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        assertThrows(Throwable.class, () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig)));
+        Assertions.assertThrows(Throwable.class, () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig)));
     }
 
     @Test
@@ -1437,7 +1437,7 @@ public class InternalTopicManagerTest {
         EasyMock.replay(admin);
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        assertThrows(Throwable.class, () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig)));
+        Assertions.assertThrows(Throwable.class, () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig)));
     }
 
     @Test
@@ -1464,7 +1464,7 @@ public class InternalTopicManagerTest {
         EasyMock.replay(admin);
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -1495,7 +1495,7 @@ public class InternalTopicManagerTest {
         EasyMock.replay(admin);
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -1590,7 +1590,7 @@ public class InternalTopicManagerTest {
             .andStubAnswer(() -> new MockDescribeConfigsResult(mkMap(mkEntry(topicResource1, topicConfigSuccessfulFuture))));
         EasyMock.replay(admin);
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> topicManager.validate(Collections.singletonMap(topic1, streamsSideTopicConfig))
         );
@@ -1622,7 +1622,7 @@ public class InternalTopicManagerTest {
         EasyMock.replay(admin);
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        assertThrows(
+        Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig))
         );
@@ -1653,7 +1653,7 @@ public class InternalTopicManagerTest {
         EasyMock.replay(admin);
         final InternalTopicConfig internalTopicConfig = setupRepartitionTopicConfig(topic1, 1);
 
-        assertThrows(
+        Assertions.assertThrows(
             TimeoutException.class,
             () -> topicManager.validate(Collections.singletonMap(topic1, internalTopicConfig))
         );

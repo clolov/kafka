@@ -19,8 +19,6 @@ package org.apache.kafka.streams.kstream.internals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
-
 public class SessionWindowTest {
 
     private final long start = 50;
@@ -117,6 +115,6 @@ public class SessionWindowTest {
 
     @Test
     public void cannotCompareSessionWindowWithDifferentWindowType() {
-        assertThrows(IllegalArgumentException.class, () -> window.overlap(timeWindow));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> window.overlap(timeWindow));
     }
 }

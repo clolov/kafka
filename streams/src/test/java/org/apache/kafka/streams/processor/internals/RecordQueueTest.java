@@ -57,12 +57,11 @@ import java.util.Optional;
 
 import static org.apache.kafka.streams.processor.internals.ClientUtils.consumerRecordSizeInBytes;
 import static org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl.TOPIC_LEVEL_GROUP;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertThrows;
+
 
 public class RecordQueueTest {
     private final Serializer<Integer> intSerializer = new IntegerSerializer();
@@ -331,7 +330,7 @@ public class RecordQueueTest {
             new ConsumerRecord<>("topic", 1, 1, 0L, TimestampType.CREATE_TIME, 0, 0, key, recordValue,
                 new RecordHeaders(), Optional.empty()));
 
-        final StreamsException exception = assertThrows(
+        final StreamsException exception = Assertions.assertThrows(
             StreamsException.class,
             () -> queue.addRawRecords(records)
         );
@@ -345,7 +344,7 @@ public class RecordQueueTest {
             new ConsumerRecord<>("topic", 1, 1, 0L, TimestampType.CREATE_TIME, 0, 0, recordKey, value,
                 new RecordHeaders(), Optional.empty()));
 
-        final StreamsException exception = assertThrows(
+        final StreamsException exception = Assertions.assertThrows(
             StreamsException.class,
             () -> queue.addRawRecords(records)
         );
@@ -393,7 +392,7 @@ public class RecordQueueTest {
             new InternalMockProcessorContext(),
             new LogContext());
 
-        final StreamsException exception = assertThrows(
+        final StreamsException exception = Assertions.assertThrows(
             StreamsException.class,
             () -> queue.addRawRecords(records)
         );

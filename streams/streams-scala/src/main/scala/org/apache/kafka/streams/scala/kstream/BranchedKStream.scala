@@ -16,12 +16,11 @@
  */
 package org.apache.kafka.streams.scala.kstream
 
-import java.util
-
 import org.apache.kafka.streams.kstream
 import org.apache.kafka.streams.kstream.{BranchedKStream => BranchedKStreamJ}
 import org.apache.kafka.streams.scala.FunctionsCompatConversions.PredicateFromFunction
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

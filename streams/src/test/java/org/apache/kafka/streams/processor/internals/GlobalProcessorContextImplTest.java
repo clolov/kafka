@@ -30,8 +30,9 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.TimestampedWindowStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.hamcrest.core.IsInstanceOf;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
@@ -40,9 +41,9 @@ import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
+
+
+
 
 public class GlobalProcessorContextImplTest {
     private static final String GLOBAL_STORE_NAME = "global-store";
@@ -58,7 +59,7 @@ public class GlobalProcessorContextImplTest {
     private ProcessorNode<Object, Object, Object, Object> child;
     private ProcessorRecordContext recordContext;
 
-    @Before
+    @BeforeEach
     public void setup() {
         final StreamsConfig streamsConfig = mock(StreamsConfig.class);
         expect(streamsConfig.getString(StreamsConfig.APPLICATION_ID_CONFIG)).andReturn("dummy-id");
@@ -97,7 +98,7 @@ public class GlobalProcessorContextImplTest {
     @Test
     public void shouldReturnGlobalOrNullStore() {
         assertThat(globalContext.getStateStore(GLOBAL_STORE_NAME), new IsInstanceOf(StateStore.class));
-        assertNull(globalContext.getStateStore(UNKNOWN_STORE));
+        Assertions.assertNull(globalContext.getStateStore(UNKNOWN_STORE));
     }
 
     @Test
@@ -114,7 +115,7 @@ public class GlobalProcessorContextImplTest {
 
     @Test
     public void shouldFailToForwardUsingToParameter() {
-        assertThrows(IllegalStateException.class, () -> globalContext.forward(null, null, To.all()));
+        Assertions.assertThrows(IllegalStateException.class, () -> globalContext.forward(null, null, To.all()));
     }
 
     @Test
@@ -124,7 +125,7 @@ public class GlobalProcessorContextImplTest {
 
     @Test
     public void shouldNotAllowToSchedulePunctuations() {
-        assertThrows(UnsupportedOperationException.class, () -> globalContext.schedule(null, null, null));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> globalContext.schedule(null, null, null));
     }
 
     @Test
@@ -132,7 +133,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_KEY_VALUE_STORE_NAME);
         try {
             store.init((StateStoreContext) null, null);
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -141,7 +142,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_TIMESTAMPED_KEY_VALUE_STORE_NAME);
         try {
             store.init((StateStoreContext) null, null);
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -150,7 +151,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_WINDOW_STORE_NAME);
         try {
             store.init((StateStoreContext) null, null);
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -159,7 +160,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_TIMESTAMPED_WINDOW_STORE_NAME);
         try {
             store.init((StateStoreContext) null, null);
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -168,7 +169,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_SESSION_STORE_NAME);
         try {
             store.init((StateStoreContext) null, null);
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -177,7 +178,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_KEY_VALUE_STORE_NAME);
         try {
             store.close();
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -186,7 +187,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_TIMESTAMPED_KEY_VALUE_STORE_NAME);
         try {
             store.close();
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -195,7 +196,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_WINDOW_STORE_NAME);
         try {
             store.close();
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -204,7 +205,7 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_TIMESTAMPED_WINDOW_STORE_NAME);
         try {
             store.close();
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
@@ -213,12 +214,12 @@ public class GlobalProcessorContextImplTest {
         final StateStore store = globalContext.getStateStore(GLOBAL_SESSION_STORE_NAME);
         try {
             store.close();
-            fail("Should have thrown UnsupportedOperationException.");
+            Assertions.fail("Should have thrown UnsupportedOperationException.");
         } catch (final UnsupportedOperationException expected) { }
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldThrowOnCurrentStreamTime() {
-        globalContext.currentStreamTimeMs();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> globalContext.currentStreamTimeMs());
     }
 }

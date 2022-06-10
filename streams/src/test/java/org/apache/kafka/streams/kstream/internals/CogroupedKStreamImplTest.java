@@ -16,11 +16,6 @@
  */
 package org.apache.kafka.streams.kstream.internals;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
-
-import java.util.Properties;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.Serdes;
@@ -57,6 +52,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 public class CogroupedKStreamImplTest {
     private final Consumed<String, String> stringConsumed = Consumed.with(Serdes.String(), Serdes.String());
     private static final String TOPIC = "topic";
@@ -91,67 +91,67 @@ public class CogroupedKStreamImplTest {
 
     @Test
     public void shouldThrowNPEInCogroupIfKGroupedStreamIsNull() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.cogroup(null, MockAggregator.TOSTRING_ADDER));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.cogroup(null, MockAggregator.TOSTRING_ADDER));
     }
 
     @Test
     public void shouldNotHaveNullAggregatorOnCogroup() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.cogroup(groupedStream, null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.cogroup(groupedStream, null));
     }
 
     @Test
     public void shouldNotHaveNullInitializerOnAggregate() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null));
     }
 
     @Test
     public void shouldNotHaveNullInitializerOnAggregateWitNamed() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null, Named.as("name")));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null, Named.as("name")));
     }
 
     @Test
     public void shouldNotHaveNullInitializerOnAggregateWitMaterialized() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null, Materialized.as("store")));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null, Materialized.as("store")));
     }
 
     @Test
     public void shouldNotHaveNullInitializerOnAggregateWitNamedAndMaterialized() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null, Named.as("name"), Materialized.as("store")));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(null, Named.as("name"), Materialized.as("store")));
     }
 
     @Test
     public void shouldNotHaveNullNamedOnAggregate() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER, (Named) null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER, (Named) null));
     }
 
     @Test
     public void shouldNotHaveNullMaterializedOnAggregate() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER, (Materialized<String, String, KeyValueStore<Bytes, byte[]>>) null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER, (Materialized<String, String, KeyValueStore<Bytes, byte[]>>) null));
     }
 
     @Test
     public void shouldNotHaveNullNamedOnAggregateWithMateriazlied() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER,  null,  Materialized.as("store")));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER,  null,  Materialized.as("store")));
     }
 
     @Test
     public void shouldNotHaveNullMaterializedOnAggregateWithNames() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER, Named.as("name"), null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.aggregate(STRING_INITIALIZER, Named.as("name"), null));
     }
 
     @Test
     public void shouldNotHaveNullWindowOnWindowedByTime() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.windowedBy((Windows<? extends Window>) null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.windowedBy((Windows<? extends Window>) null));
     }
 
     @Test
     public void shouldNotHaveNullWindowOnWindowedBySession() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.windowedBy((SessionWindows) null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.windowedBy((SessionWindows) null));
     }
 
     @Test
     public void shouldNotHaveNullWindowOnWindowedBySliding() {
-        assertThrows(NullPointerException.class, () -> cogroupedStream.windowedBy((SlidingWindows) null));
+        Assertions.assertThrows(NullPointerException.class, () -> cogroupedStream.windowedBy((SlidingWindows) null));
     }
 
     @Test

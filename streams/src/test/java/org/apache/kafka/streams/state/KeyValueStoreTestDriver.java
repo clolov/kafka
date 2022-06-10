@@ -82,28 +82,28 @@ import static org.mockito.Mockito.when;
  * store.put(2, "two");
  * store.put(4, "four");
  * store.put(5, "five");
- * assertEquals(5, driver.sizeOf(store));
- * assertEquals("zero", store.get(0));
- * assertEquals("one", store.get(1));
- * assertEquals("two", store.get(2));
- * assertEquals("four", store.get(4));
- * assertEquals("five", store.get(5));
- * assertNull(store.get(3));
+ * Assertions.assertEquals(5, driver.sizeOf(store));
+ * Assertions.assertEquals("zero", store.get(0));
+ * Assertions.assertEquals("one", store.get(1));
+ * Assertions.assertEquals("two", store.get(2));
+ * Assertions.assertEquals("four", store.get(4));
+ * Assertions.assertEquals("five", store.get(5));
+ * Assertions.assertNull(store.get(3));
  * store.delete(5);
  *
  * // Flush the store and verify all current entries were properly flushed ...
  * store.flush();
- * assertEquals("zero", driver.flushedEntryStored(0));
- * assertEquals("one", driver.flushedEntryStored(1));
- * assertEquals("two", driver.flushedEntryStored(2));
- * assertEquals("four", driver.flushedEntryStored(4));
- * assertNull(driver.flushedEntryStored(5));
+ * Assertions.assertEquals("zero", driver.flushedEntryStored(0));
+ * Assertions.assertEquals("one", driver.flushedEntryStored(1));
+ * Assertions.assertEquals("two", driver.flushedEntryStored(2));
+ * Assertions.assertEquals("four", driver.flushedEntryStored(4));
+ * Assertions.assertNull(driver.flushedEntryStored(5));
  *
- * assertEquals(false, driver.flushedEntryRemoved(0));
- * assertEquals(false, driver.flushedEntryRemoved(1));
- * assertEquals(false, driver.flushedEntryRemoved(2));
- * assertEquals(false, driver.flushedEntryRemoved(4));
- * assertEquals(true, driver.flushedEntryRemoved(5));
+ * Assertions.assertEquals(false, driver.flushedEntryRemoved(0));
+ * Assertions.assertEquals(false, driver.flushedEntryRemoved(1));
+ * Assertions.assertEquals(false, driver.flushedEntryRemoved(2));
+ * Assertions.assertEquals(false, driver.flushedEntryRemoved(4));
+ * Assertions.assertEquals(true, driver.flushedEntryRemoved(5));
  * </pre>
  *
  *
@@ -133,10 +133,10 @@ import static org.mockito.Mockito.when;
  *                                              .inMemory().build();
  *
  * // Verify that the store's contents were properly restored ...
- * assertEquals(0, driver.checkForRestoredEntries(store));
+ * Assertions.assertEquals(0, driver.checkForRestoredEntries(store));
  *
  * // and there are no other entries ...
- * assertEquals(4, driver.sizeOf(store));
+ * Assertions.assertEquals(4, driver.sizeOf(store));
  * </pre>
  *
  * @param <K> the type of keys placed in the store
@@ -327,10 +327,10 @@ public class KeyValueStoreTestDriver<K, V> {
      * KeyValueStore&lt;Integer, String> store = ...
      *
      * // Verify that the store's contents were properly restored from the log ...
-     * assertEquals(0, driver.checkForRestoredEntries(store));
+     * Assertions.assertEquals(0, driver.checkForRestoredEntries(store));
      *
      * // and there are no other entries ...
-     * assertEquals(3, driver.sizeOf(store));
+     * Assertions.assertEquals(3, driver.sizeOf(store));
      * </pre>
      *
      * @param key   the key for the entry

@@ -17,12 +17,13 @@
 package org.apache.kafka.streams.state.internals;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThrows;
+
 
 public class TimestampedKeyAndJoinSideSerializerTest {
     private static final String TOPIC = "some-topic";
@@ -66,7 +67,7 @@ public class TimestampedKeyAndJoinSideSerializerTest {
 
     @Test
     public void shouldThrowIfSerializeNullData() {
-        assertThrows(NullPointerException.class,
+        Assertions.assertThrows(NullPointerException.class,
             () -> STRING_SERDE.serializer().serialize(TOPIC, TimestampedKeyAndJoinSide.make(true, null, 0)));
     }
 }

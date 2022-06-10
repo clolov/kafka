@@ -75,7 +75,7 @@ import static org.apache.kafka.test.StreamsTestUtils.verifyWindowedKeyValue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class CachingPersistentWindowStoreTest {
 
@@ -164,7 +164,7 @@ public class CachingPersistentWindowStoreTest {
                 @Override
                 public void init(final ProcessorContext processorContext) {
                     this.context = processorContext;
-                    this.store = (WindowStore<String, String>) processorContext.getStateStore("store-name");
+                    this.store = processorContext.getStateStore("store-name");
                     int count = 0;
 
                     try (final KeyValueIterator<Windowed<String>, String> all = store.all()) {
@@ -818,19 +818,19 @@ public class CachingPersistentWindowStoreTest {
     @Test
     public void shouldThrowIfTryingToFetchFromClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.fetch(bytesKey("a"), ofEpochMilli(0), ofEpochMilli(10)));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.fetch(bytesKey("a"), ofEpochMilli(0), ofEpochMilli(10)));
     }
 
     @Test
     public void shouldThrowIfTryingToFetchRangeFromClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.fetch(bytesKey("a"), bytesKey("b"), ofEpochMilli(0), ofEpochMilli(10)));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.fetch(bytesKey("a"), bytesKey("b"), ofEpochMilli(0), ofEpochMilli(10)));
     }
 
     @Test
     public void shouldThrowIfTryingToWriteToClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.put(bytesKey("a"), bytesValue("a"), 0L));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.put(bytesKey("a"), bytesValue("a"), 0L));
     }
 
     @Test
@@ -979,7 +979,7 @@ public class CachingPersistentWindowStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutNullKey() {
-        assertThrows(NullPointerException.class, () -> cachingStore.put(null, bytesValue("anyValue"), 0L));
+        Assertions.assertThrows(NullPointerException.class, () -> cachingStore.put(null, bytesValue("anyValue"), 0L));
     }
 
     @Test
@@ -989,7 +989,7 @@ public class CachingPersistentWindowStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnFetchNullKey() {
-        assertThrows(NullPointerException.class, () -> cachingStore.fetch(null, ofEpochMilli(1L), ofEpochMilli(2L)));
+        Assertions.assertThrows(NullPointerException.class, () -> cachingStore.fetch(null, ofEpochMilli(1L), ofEpochMilli(2L)));
     }
 
     @Test
@@ -1044,7 +1044,7 @@ public class CachingPersistentWindowStoreTest {
         underlyingStore.close();
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, cachingStore::close);
+        Assertions.assertThrows(RuntimeException.class, cachingStore::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -1060,7 +1060,7 @@ public class CachingPersistentWindowStoreTest {
         underlyingStore.close();
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, cachingStore::close);
+        Assertions.assertThrows(RuntimeException.class, cachingStore::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -1076,7 +1076,7 @@ public class CachingPersistentWindowStoreTest {
         EasyMock.expectLastCall().andThrow(new RuntimeException("Simulating an error on close"));
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, cachingStore::close);
+        Assertions.assertThrows(RuntimeException.class, cachingStore::close);
         EasyMock.verify(cache, underlyingStore);
     }
 

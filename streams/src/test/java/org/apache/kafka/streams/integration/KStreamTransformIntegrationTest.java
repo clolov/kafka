@@ -18,11 +18,12 @@ package org.apache.kafka.streams.integration;
 
 import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.TestInputTopic;
-import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.TestInputTopic;
+import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.ForeachAction;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.kstream.TransformerSupplier;
@@ -34,31 +35,26 @@ import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
-import org.apache.kafka.streams.TopologyTestDriver;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.StreamsTestUtils;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 @SuppressWarnings("unchecked")
-@Category({IntegrationTest.class})
+@Timeout(600)
+@Tag("integration")
 public class KStreamTransformIntegrationTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
     private StreamsBuilder builder;
     private final String topic = "stream";
     private final String stateStoreName = "myTransformState";
@@ -66,7 +62,7 @@ public class KStreamTransformIntegrationTest {
     private final ForeachAction<Integer, Integer> accumulateExpected = (key, value) -> results.add(KeyValue.pair(key, value));
     private KStream<Integer, Integer> stream;
 
-    @Before
+    @BeforeEach
     public void before() {
         builder = new StreamsBuilder();
         stream = builder.stream(topic, Consumed.with(Serdes.Integer(), Serdes.Integer()));
@@ -100,7 +96,7 @@ public class KStreamTransformIntegrationTest {
         @SuppressWarnings("unchecked")
         @Override
         public void init(final ProcessorContext context) {
-            state = (KeyValueStore<Integer, Integer>) context.getStateStore(stateStoreName);
+            state = context.getStateStore(stateStoreName);
         }
 
         @Override
@@ -169,7 +165,7 @@ public class KStreamTransformIntegrationTest {
         @SuppressWarnings("unchecked")
         @Override
         public void init(final ProcessorContext context) {
-            state = (KeyValueStore<Integer, Integer>) context.getStateStore(stateStoreName);
+            state = context.getStateStore(stateStoreName);
         }
 
         @Override
@@ -264,7 +260,7 @@ public class KStreamTransformIntegrationTest {
 
         @Override
         public void init(final ProcessorContext context) {
-            state = (KeyValueStore<Integer, Integer>) context.getStateStore(stateStoreName);
+            state = context.getStateStore(stateStoreName);
         }
 
         @Override
@@ -323,7 +319,7 @@ public class KStreamTransformIntegrationTest {
 
         @Override
         public void init(final ProcessorContext context) {
-            state = (KeyValueStore<Integer, Integer>) context.getStateStore(stateStoreName);
+            state = context.getStateStore(stateStoreName);
         }
 
         @Override
@@ -390,7 +386,7 @@ public class KStreamTransformIntegrationTest {
 
         @Override
         public void init(final ProcessorContext context) {
-            state = (KeyValueStore<Integer, Integer>) context.getStateStore(stateStoreName);
+            state = context.getStateStore(stateStoreName);
         }
 
         @Override
@@ -485,7 +481,7 @@ public class KStreamTransformIntegrationTest {
 
         @Override
         public void init(final ProcessorContext context) {
-            state = (KeyValueStore<Integer, Integer>) context.getStateStore(stateStoreName);
+            state = context.getStateStore(stateStoreName);
         }
 
         @Override

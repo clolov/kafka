@@ -44,7 +44,7 @@ import java.util.NoSuchElementException;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.kafka.test.StreamsTestUtils.toList;
-import static org.junit.Assert.assertThrows;
+
 
 public class CompositeReadOnlyKeyValueStoreTest {
 
@@ -99,7 +99,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnGetNullKey() {
-        assertThrows(NullPointerException.class, () -> theStore.get(null));
+        Assertions.assertThrows(NullPointerException.class, () -> theStore.get(null));
     }
 
     @Test
@@ -134,12 +134,12 @@ public class CompositeReadOnlyKeyValueStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnPrefixScanNullPrefix() {
-        assertThrows(NullPointerException.class, () -> theStore.prefixScan(null, new StringSerializer()));
+        Assertions.assertThrows(NullPointerException.class, () -> theStore.prefixScan(null, new StringSerializer()));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnPrefixScanNullPrefixKeySerializer() {
-        assertThrows(NullPointerException.class, () -> theStore.prefixScan("aa", null));
+        Assertions.assertThrows(NullPointerException.class, () -> theStore.prefixScan("aa", null));
     }
 
     @Test
@@ -189,7 +189,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.range("a", "b")) {
             keyValueIterator.next();
-            assertThrows(NoSuchElementException.class, keyValueIterator::next);
+            Assertions.assertThrows(NoSuchElementException.class, keyValueIterator::next);
         }
     }
 
@@ -198,7 +198,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.range("a", "b")) {
             keyValueIterator.next();
-            assertThrows(NoSuchElementException.class, keyValueIterator::peekNextKey);
+            Assertions.assertThrows(NoSuchElementException.class, keyValueIterator::peekNextKey);
         }
     }
 
@@ -207,7 +207,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.prefixScan("a", new StringSerializer())) {
             keyValueIterator.next();
-            assertThrows(NoSuchElementException.class, keyValueIterator::next);
+            Assertions.assertThrows(NoSuchElementException.class, keyValueIterator::next);
         }
     }
 
@@ -216,14 +216,14 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.prefixScan("a", new StringSerializer())) {
             keyValueIterator.next();
-            assertThrows(NoSuchElementException.class, keyValueIterator::peekNextKey);
+            Assertions.assertThrows(NoSuchElementException.class, keyValueIterator::peekNextKey);
         }
     }
 
     @Test
     public void shouldThrowUnsupportedOperationExceptionWhileRemove() {
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.all()) {
-            assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
+            Assertions.assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
         }
     }
 
@@ -232,7 +232,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         stubOneUnderlying.put("b", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.reverseRange("a", "b")) {
-            assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
+            Assertions.assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
         }
     }
 
@@ -241,7 +241,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         stubOneUnderlying.put("b", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.range("a", "b")) {
-            assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
+            Assertions.assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
         }
     }
 
@@ -250,7 +250,7 @@ public class CompositeReadOnlyKeyValueStoreTest {
         stubOneUnderlying.put("a", "1");
         stubOneUnderlying.put("b", "1");
         try (final KeyValueIterator<String, String> keyValueIterator = theStore.prefixScan("a", new StringSerializer())) {
-            assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
+            Assertions.assertThrows(UnsupportedOperationException.class, keyValueIterator::remove);
         }
     }
 
@@ -432,37 +432,37 @@ public class CompositeReadOnlyKeyValueStoreTest {
 
     @Test
     public void shouldThrowInvalidStoreExceptionDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().get("anything"));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().get("anything"));
     }
 
     @Test
     public void shouldThrowInvalidStoreExceptionOnApproximateNumEntriesDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().approximateNumEntries());
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().approximateNumEntries());
     }
 
     @Test
     public void shouldThrowInvalidStoreExceptionOnRangeDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().range("anything", "something"));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().range("anything", "something"));
     }
 
     @Test
     public void shouldThrowInvalidStoreExceptionOnReverseRangeDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().reverseRange("anything", "something"));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().reverseRange("anything", "something"));
     }
 
     @Test
     public void shouldThrowInvalidStoreExceptionOnPrefixScanDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().prefixScan("anything", new StringSerializer()));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().prefixScan("anything", new StringSerializer()));
     }
 
     @Test
     public void shouldThrowInvalidStoreExceptionOnAllDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().all());
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().all());
     }
 
     @Test
     public void shouldThrowInvalidStoreExceptionOnReverseAllDuringRebalance() {
-        assertThrows(InvalidStateStoreException.class, () -> rebalancing().reverseAll());
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> rebalancing().reverseAll());
     }
 
     @Test

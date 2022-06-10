@@ -60,7 +60,7 @@ public class KTableReduce<K, V> implements KTableProcessorSupplier<K, V, K, V> {
         @SuppressWarnings("unchecked")
         @Override
         public void init(final ProcessorContext<K, Change<V>> context) {
-            store = (TimestampedKeyValueStore<K, V>) context.getStateStore(storeName);
+            store = context.getStateStore(storeName);
             tupleForwarder = new TimestampedTupleForwarder<>(
                 store,
                 context,

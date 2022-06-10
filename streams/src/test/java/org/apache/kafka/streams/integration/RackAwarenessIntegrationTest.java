@@ -31,16 +31,15 @@ import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -57,13 +56,10 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.safeUniqueTestName;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-@Category({IntegrationTest.class})
+@Timeout(600)
+@Tag("integration")
 public class RackAwarenessIntegrationTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
     private static final int NUM_BROKERS = 1;
 
     private static final EmbeddedKafkaCluster CLUSTER = new EmbeddedKafkaCluster(NUM_BROKERS);
@@ -78,9 +74,6 @@ public class RackAwarenessIntegrationTest {
     private static final int DEFAULT_NUMBER_OF_STATEFUL_SUB_TOPOLOGIES = 1;
     private static final int DEFAULT_NUMBER_OF_PARTITIONS_OF_SUB_TOPOLOGIES = 2;
 
-    @Rule
-    public TestName testName = new TestName();
-
     private static final String INPUT_TOPIC = "input-topic";
 
     private static final String TAG_ZONE = "zone";
@@ -90,17 +83,17 @@ public class RackAwarenessIntegrationTest {
     private Properties baseConfiguration;
     private Topology topology;
 
-    @BeforeClass
+    @BeforeAll
     public static void createTopics() throws Exception {
         CLUSTER.start();
         CLUSTER.createTopic(INPUT_TOPIC, 6, 1);
     }
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    public void setup(final TestInfo testInfo) {
         kafkaStreamsInstances = new ArrayList<>();
         baseConfiguration = new Properties();
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         final String applicationId = "app-" + safeTestName;
         baseConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
         baseConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, CLUSTER.bootstrapServers());
@@ -109,7 +102,7 @@ public class RackAwarenessIntegrationTest {
         baseConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.Integer().getClass());
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws IOException {
         for (final KafkaStreamsWithConfiguration kafkaStreamsWithConfiguration : kafkaStreamsInstances) {
             kafkaStreamsWithConfiguration.kafkaStreams.close(Duration.ofMillis(IntegrationTestUtils.DEFAULT_TIMEOUT));
@@ -137,25 +130,25 @@ public class RackAwarenessIntegrationTest {
             clientTags2.put(key, "value-2-" + i);
         }
 
-        assertEquals(StreamsConfig.MAX_RACK_AWARE_ASSIGNMENT_TAG_LIST_SIZE, clientTagKeys.size());
+        Assertions.assertEquals(StreamsConfig.MAX_RACK_AWARE_ASSIGNMENT_TAG_LIST_SIZE, clientTagKeys.size());
         Stream.of(clientTags1, clientTags2)
-              .forEach(clientTags -> assertEquals(String.format("clientsTags with content '%s' " +
-                                                                "did not match expected size", clientTags),
-                                                  StreamsConfig.MAX_RACK_AWARE_ASSIGNMENT_TAG_LIST_SIZE,
-                                                  clientTags.size()));
+              .forEach(clientTags -> Assertions.assertEquals(
+                      StreamsConfig.MAX_RACK_AWARE_ASSIGNMENT_TAG_LIST_SIZE,
+                      clientTags.size(),
+                      String.format("clientsTags with content '%s' did not match expected size", clientTags)));
 
         createAndStart(clientTags1, clientTagKeys, numberOfStandbyReplicas);
         createAndStart(clientTags1, clientTagKeys, numberOfStandbyReplicas);
         createAndStart(clientTags2, clientTagKeys, numberOfStandbyReplicas);
 
         waitUntilAllKafkaStreamsClientsAreRunning();
-        assertTrue(isIdealTaskDistributionReachedForTags(clientTagKeys));
+        Assertions.assertTrue(isIdealTaskDistributionReachedForTags(clientTagKeys));
 
         stopKafkaStreamsInstanceWithIndex(0);
 
         waitUntilAllKafkaStreamsClientsAreRunning();
 
-        assertTrue(isIdealTaskDistributionReachedForTags(clientTagKeys));
+        Assertions.assertTrue(isIdealTaskDistributionReachedForTags(clientTagKeys));
     }
 
     @Test
@@ -171,7 +164,7 @@ public class RackAwarenessIntegrationTest {
         createAndStart(buildClientTags(TAG_VALUE_EU_CENTRAL_1B, TAG_VALUE_K8_CLUSTER_1), asList(TAG_ZONE, TAG_CLUSTER), numberOfStandbyReplicas);
 
         waitUntilAllKafkaStreamsClientsAreRunning();
-        assertTrue(isIdealTaskDistributionReachedForTags(singletonList(TAG_ZONE)));
+        Assertions.assertTrue(isIdealTaskDistributionReachedForTags(singletonList(TAG_ZONE)));
     }
 
     @Test
@@ -192,7 +185,7 @@ public class RackAwarenessIntegrationTest {
         createAndStart(buildClientTags(TAG_VALUE_EU_CENTRAL_1C, TAG_VALUE_K8_CLUSTER_3), asList(TAG_ZONE, TAG_CLUSTER), numberOfStandbyReplicas);
 
         waitUntilAllKafkaStreamsClientsAreRunning();
-        assertTrue(isIdealTaskDistributionReachedForTags(asList(TAG_ZONE, TAG_CLUSTER)));
+        Assertions.assertTrue(isIdealTaskDistributionReachedForTags(asList(TAG_ZONE, TAG_CLUSTER)));
     }
 
     @Test
@@ -210,8 +203,8 @@ public class RackAwarenessIntegrationTest {
 
         waitUntilAllKafkaStreamsClientsAreRunning();
 
-        assertTrue(isIdealTaskDistributionReachedForTags(singletonList(TAG_ZONE)));
-        assertTrue(isPartialTaskDistributionReachedForTags(singletonList(TAG_CLUSTER)));
+        Assertions.assertTrue(isIdealTaskDistributionReachedForTags(singletonList(TAG_ZONE)));
+        Assertions.assertTrue(isPartialTaskDistributionReachedForTags(singletonList(TAG_CLUSTER)));
     }
 
     private void stopKafkaStreamsInstanceWithIndex(final int index) {

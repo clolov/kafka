@@ -156,7 +156,7 @@ public class KTableMapValuesTest {
             Assertions.assertEquals(ValueAndTimestamp.make(-2, 20L), getter3.get("B"));
             Assertions.assertEquals(ValueAndTimestamp.make(-1, 30L), getter3.get("C"));
 
-            inputTopic1.pipeInput("A", (String) null, 1L);
+            inputTopic1.pipeInput("A", null, 1L);
 
             Assertions.assertNull(getter2.get("A"));
             Assertions.assertEquals(ValueAndTimestamp.make(2, 20L), getter2.get("B"));
@@ -233,7 +233,7 @@ public class KTableMapValuesTest {
             inputTopic1.pipeInput("A", "03", 20L);
             proc.checkAndClearProcessResult(new KeyValueTimestamp<>("A", new Change<>(3, null), 20));
 
-            inputTopic1.pipeInput("A", (String) null, 30L);
+            inputTopic1.pipeInput("A", null, 30L);
             proc.checkAndClearProcessResult(new KeyValueTimestamp<>("A", new Change<>(null, null), 30));
         }
     }
@@ -311,7 +311,7 @@ public class KTableMapValuesTest {
                 new KeyValueTimestamp<>("A", new Change<>(3, 2), 20)
             );
 
-            inputTopic1.pipeInput("A", (String) null, 30L);
+            inputTopic1.pipeInput("A", null, 30L);
             proc.checkAndClearProcessResult(
                 new KeyValueTimestamp<>("A", new Change<>(null, 3), 30)
             );

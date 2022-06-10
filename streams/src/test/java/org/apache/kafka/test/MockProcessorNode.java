@@ -16,13 +16,14 @@
  */
 package org.apache.kafka.test;
 
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.processor.internals.InternalProcessorContext;
 import org.apache.kafka.streams.processor.internals.ProcessorAdapter;
 import org.apache.kafka.streams.processor.internals.ProcessorNode;
+
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MockProcessorNode<KIn, VIn, KOut, VOut> extends ProcessorNode<KIn, VIn, KOut, VOut> {
 
@@ -48,7 +49,7 @@ public class MockProcessorNode<KIn, VIn, KOut, VOut> extends ProcessorNode<KIn, 
 
     @SuppressWarnings("unchecked")
     private MockProcessorNode(final MockProcessor<KIn, VIn> mockProcessor) {
-        super(NAME + INDEX.getAndIncrement(), ProcessorAdapter.adapt(mockProcessor), Collections.<String>emptySet());
+        super(NAME + INDEX.getAndIncrement(), ProcessorAdapter.adapt(mockProcessor), Collections.emptySet());
 
         this.mockProcessor = mockProcessor;
     }

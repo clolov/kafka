@@ -41,18 +41,17 @@ import org.apache.kafka.streams.state.QueryableStoreTypes;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -66,23 +65,20 @@ import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.sa
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.waitForApplicationState;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertNotNull;
 
-@Category({IntegrationTest.class})
+@Timeout(600)
+@Tag("integration")
 public class GlobalKTableIntegrationTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     private static final int NUM_BROKERS = 1;
 
     public static final EmbeddedKafkaCluster CLUSTER = new EmbeddedKafkaCluster(NUM_BROKERS);
 
-    @BeforeClass
+    @BeforeAll
     public static void startCluster() throws IOException {
         CLUSTER.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void closeCluster() {
         CLUSTER.stop();
     }
@@ -101,15 +97,12 @@ public class GlobalKTableIntegrationTest {
     private KStream<String, Long> stream;
     private MockApiProcessorSupplier<String, String, Void, Void> supplier;
 
-    @Rule
-    public TestName testName = new TestName();
-
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    public void before(final TestInfo testInfo) throws Exception {
         builder = new StreamsBuilder();
-        createTopics();
+        createTopics(testInfo);
         streamsConfiguration = new Properties();
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "app-" + safeTestName);
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, CLUSTER.bootstrapServers());
         streamsConfiguration.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -125,7 +118,7 @@ public class GlobalKTableIntegrationTest {
         supplier = new MockApiProcessorSupplier<>();
     }
 
-    @After
+    @AfterEach
     public void whenShuttingDown() throws Exception {
         if (kafkaStreams != null) {
             kafkaStreams.close();
@@ -167,7 +160,7 @@ public class GlobalKTableIntegrationTest {
 
         final ReadOnlyKeyValueStore<Long, String> replicatedStore = IntegrationTestUtils
             .getStore(globalStore, kafkaStreams, QueryableStoreTypes.keyValueStore());
-        assertNotNull(replicatedStore);
+        Assertions.assertNotNull(replicatedStore);
 
         final Map<Long, String> expectedState = new HashMap<>();
         expectedState.put(1L, "F");
@@ -192,7 +185,7 @@ public class GlobalKTableIntegrationTest {
 
         final ReadOnlyKeyValueStore<Long, ValueAndTimestamp<String>> replicatedStoreWithTimestamp = IntegrationTestUtils
             .getStore(globalStore, kafkaStreams, QueryableStoreTypes.timestampedKeyValueStore());
-        assertNotNull(replicatedStoreWithTimestamp);
+        Assertions.assertNotNull(replicatedStoreWithTimestamp);
         assertThat(replicatedStoreWithTimestamp.get(5L), equalTo(ValueAndTimestamp.make("J", firstTimestamp + 4L)));
 
         firstTimestamp = mockTime.milliseconds();
@@ -252,7 +245,7 @@ public class GlobalKTableIntegrationTest {
 
         final ReadOnlyKeyValueStore<Long, String> replicatedStore = IntegrationTestUtils
             .getStore(globalStore, kafkaStreams, QueryableStoreTypes.keyValueStore());
-        assertNotNull(replicatedStore);
+        Assertions.assertNotNull(replicatedStore);
 
         final Map<Long, String> expectedState = new HashMap<>();
         expectedState.put(1L, "F");
@@ -277,7 +270,7 @@ public class GlobalKTableIntegrationTest {
 
         final ReadOnlyKeyValueStore<Long, ValueAndTimestamp<String>> replicatedStoreWithTimestamp = IntegrationTestUtils
             .getStore(globalStore, kafkaStreams, QueryableStoreTypes.timestampedKeyValueStore());
-        assertNotNull(replicatedStoreWithTimestamp);
+        Assertions.assertNotNull(replicatedStoreWithTimestamp);
         assertThat(replicatedStoreWithTimestamp.get(5L), equalTo(ValueAndTimestamp.make("J", firstTimestamp + 4L)));
 
         firstTimestamp = mockTime.milliseconds();
@@ -316,13 +309,13 @@ public class GlobalKTableIntegrationTest {
         startStreams();
         ReadOnlyKeyValueStore<Long, String> store = IntegrationTestUtils
             .getStore(globalStore, kafkaStreams, QueryableStoreTypes.keyValueStore());
-        assertNotNull(store);
+        Assertions.assertNotNull(store);
 
         assertThat(store.approximateNumEntries(), equalTo(4L));
 
         ReadOnlyKeyValueStore<Long, ValueAndTimestamp<String>> timestampedStore = IntegrationTestUtils
             .getStore(globalStore, kafkaStreams, QueryableStoreTypes.timestampedKeyValueStore());
-        assertNotNull(timestampedStore);
+        Assertions.assertNotNull(timestampedStore);
 
         assertThat(timestampedStore.approximateNumEntries(), equalTo(4L));
         kafkaStreams.close();
@@ -348,8 +341,8 @@ public class GlobalKTableIntegrationTest {
         kafkaStreams.close();
     }
 
-    private void createTopics() throws Exception {
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+    private void createTopics(final TestInfo testInfo) throws Exception {
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         streamTopic = "stream-" + safeTestName;
         globalTableTopic = "globalTable-" + safeTestName;
         CLUSTER.createTopics(streamTopic);

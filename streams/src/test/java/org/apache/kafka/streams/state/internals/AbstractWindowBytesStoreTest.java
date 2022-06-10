@@ -68,7 +68,7 @@ import static org.apache.kafka.test.StreamsTestUtils.valuesToSet;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public abstract class AbstractWindowBytesStoreTest {
 
@@ -896,12 +896,12 @@ public abstract class AbstractWindowBytesStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutNullKey() {
-        assertThrows(NullPointerException.class, () -> windowStore.put(null, "anyValue", 0L));
+        Assertions.assertThrows(NullPointerException.class, () -> windowStore.put(null, "anyValue", 0L));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnGetNullKey() {
-        assertThrows(NullPointerException.class, () -> windowStore.fetch(null, ofEpochMilli(1L), ofEpochMilli(2L)));
+        Assertions.assertThrows(NullPointerException.class, () -> windowStore.fetch(null, ofEpochMilli(1L), ofEpochMilli(2L)));
     }
 
     @Test

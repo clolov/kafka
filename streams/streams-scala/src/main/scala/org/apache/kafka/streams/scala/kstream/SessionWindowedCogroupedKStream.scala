@@ -17,7 +17,7 @@
 package org.apache.kafka.streams.scala
 package kstream
 
-import org.apache.kafka.streams.kstream.{SessionWindowedCogroupedKStream => SessionWindowedCogroupedKStreamJ, Windowed}
+import org.apache.kafka.streams.kstream.{Windowed, SessionWindowedCogroupedKStream => SessionWindowedCogroupedKStreamJ}
 import org.apache.kafka.streams.scala.FunctionsCompatConversions.{InitializerFromFunction, MergerFromFunction}
 
 /**

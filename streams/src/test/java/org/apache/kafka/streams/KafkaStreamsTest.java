@@ -55,8 +55,8 @@ import org.apache.kafka.streams.processor.internals.ProcessorTopology;
 import org.apache.kafka.streams.processor.internals.StateDirectory;
 import org.apache.kafka.streams.processor.internals.StreamThread;
 import org.apache.kafka.streams.processor.internals.StreamsMetadataState;
-import org.apache.kafka.streams.processor.internals.TopologyMetadata;
 import org.apache.kafka.streams.processor.internals.ThreadMetadataImpl;
+import org.apache.kafka.streams.processor.internals.TopologyMetadata;
 import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.streams.processor.internals.testutil.LogCaptureAppender;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -69,10 +69,11 @@ import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.junit.Rule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.rules.TestName;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
@@ -91,19 +92,18 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.apache.kafka.streams.state.QueryableStoreTypes.keyValueStore;
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.safeUniqueTestName;
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.waitForApplicationState;
-
+import static org.apache.kafka.streams.state.QueryableStoreTypes.keyValueStore;
 import static org.apache.kafka.test.TestUtils.waitForCondition;
 import static org.easymock.EasyMock.anyInt;
 import static org.easymock.EasyMock.anyLong;
@@ -115,7 +115,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({KafkaStreams.class, StreamThread.class, ClientMetrics.class, StreamsConfigUtils.class})
@@ -725,7 +725,7 @@ public class KafkaStreamsTest {
     public void shouldThrowExceptionSettingUncaughtExceptionHandlerNotInCreateState() {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             streams.start();
-            assertThrows(IllegalStateException.class, () -> streams.setUncaughtExceptionHandler((StreamsUncaughtExceptionHandler) null));
+            Assertions.assertThrows(IllegalStateException.class, () -> streams.setUncaughtExceptionHandler((StreamsUncaughtExceptionHandler) null));
         }
     }
 
@@ -733,14 +733,14 @@ public class KafkaStreamsTest {
     public void shouldThrowExceptionSettingStreamsUncaughtExceptionHandlerNotInCreateState() {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             streams.start();
-            assertThrows(IllegalStateException.class, () -> streams.setUncaughtExceptionHandler((StreamsUncaughtExceptionHandler) null));
+            Assertions.assertThrows(IllegalStateException.class, () -> streams.setUncaughtExceptionHandler((StreamsUncaughtExceptionHandler) null));
         }
 
     }
     @Test
     public void shouldThrowNullPointerExceptionSettingStreamsUncaughtExceptionHandlerIfNull() {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(NullPointerException.class, () -> streams.setUncaughtExceptionHandler((StreamsUncaughtExceptionHandler) null));
+            Assertions.assertThrows(NullPointerException.class, () -> streams.setUncaughtExceptionHandler((StreamsUncaughtExceptionHandler) null));
         }
     }
 
@@ -796,7 +796,7 @@ public class KafkaStreamsTest {
 
         streams.close(Duration.ZERO);
         assertThat(streams.state() == State.PENDING_SHUTDOWN, equalTo(true));
-        assertThrows(IllegalStateException.class, streams::cleanUp);
+        Assertions.assertThrows(IllegalStateException.class, streams::cleanUp);
         assertThat(streams.state() == State.PENDING_SHUTDOWN, equalTo(true));
     }
 
@@ -845,7 +845,7 @@ public class KafkaStreamsTest {
 
         streams.close(closeOptions);
         assertThat(streams.state() == State.PENDING_SHUTDOWN, equalTo(true));
-        assertThrows(IllegalStateException.class, streams::cleanUp);
+        Assertions.assertThrows(IllegalStateException.class, streams::cleanUp);
         assertThat(streams.state() == State.PENDING_SHUTDOWN, equalTo(true));
     }
 
@@ -862,43 +862,43 @@ public class KafkaStreamsTest {
 
         streams.close(closeOptions);
         assertThat(streams.state() == State.PENDING_SHUTDOWN, equalTo(true));
-        assertThrows(IllegalStateException.class, streams::cleanUp);
+        Assertions.assertThrows(IllegalStateException.class, streams::cleanUp);
         assertThat(streams.state() == State.PENDING_SHUTDOWN, equalTo(true));
     }
 
     @Test
     public void shouldNotGetAllTasksWhenNotRunning() throws InterruptedException {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(StreamsNotStartedException.class, streams::metadataForAllStreamsClients);
+            Assertions.assertThrows(StreamsNotStartedException.class, streams::metadataForAllStreamsClients);
             streams.start();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.RUNNING, DEFAULT_DURATION);
             streams.close();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.NOT_RUNNING, DEFAULT_DURATION);
-            assertThrows(IllegalStateException.class, streams::metadataForAllStreamsClients);
+            Assertions.assertThrows(IllegalStateException.class, streams::metadataForAllStreamsClients);
         }
     }
 
     @Test
     public void shouldNotGetAllTasksWithStoreWhenNotRunning() throws InterruptedException {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(StreamsNotStartedException.class, () -> streams.streamsMetadataForStore("store"));
+            Assertions.assertThrows(StreamsNotStartedException.class, () -> streams.streamsMetadataForStore("store"));
             streams.start();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.RUNNING, DEFAULT_DURATION);
             streams.close();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.NOT_RUNNING, DEFAULT_DURATION);
-            assertThrows(IllegalStateException.class, () -> streams.streamsMetadataForStore("store"));
+            Assertions.assertThrows(IllegalStateException.class, () -> streams.streamsMetadataForStore("store"));
         }
     }
 
     @Test
     public void shouldNotGetQueryMetadataWithSerializerWhenNotRunningOrRebalancing() throws InterruptedException {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(StreamsNotStartedException.class, () -> streams.queryMetadataForKey("store", "key", Serdes.String().serializer()));
+            Assertions.assertThrows(StreamsNotStartedException.class, () -> streams.queryMetadataForKey("store", "key", Serdes.String().serializer()));
             streams.start();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.RUNNING, DEFAULT_DURATION);
             streams.close();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.NOT_RUNNING, DEFAULT_DURATION);
-            assertThrows(IllegalStateException.class, () -> streams.queryMetadataForKey("store", "key", Serdes.String().serializer()));
+            Assertions.assertThrows(IllegalStateException.class, () -> streams.queryMetadataForKey("store", "key", Serdes.String().serializer()));
         }
     }
 
@@ -913,12 +913,12 @@ public class KafkaStreamsTest {
     @Test
     public void shouldNotGetQueryMetadataWithPartitionerWhenNotRunningOrRebalancing() throws InterruptedException {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(StreamsNotStartedException.class, () -> streams.queryMetadataForKey("store", "key", (topic, key, value, numPartitions) -> 0));
+            Assertions.assertThrows(StreamsNotStartedException.class, () -> streams.queryMetadataForKey("store", "key", (topic, key, value, numPartitions) -> 0));
             streams.start();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.RUNNING, DEFAULT_DURATION);
             streams.close();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.NOT_RUNNING, DEFAULT_DURATION);
-            assertThrows(IllegalStateException.class, () -> streams.queryMetadataForKey("store", "key", (topic, key, value, numPartitions) -> 0));
+            Assertions.assertThrows(IllegalStateException.class, () -> streams.queryMetadataForKey("store", "key", (topic, key, value, numPartitions) -> 0));
         }
     }
 
@@ -927,19 +927,19 @@ public class KafkaStreamsTest {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
             streams.start();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.RUNNING, DEFAULT_DURATION);
-            assertThrows(UnknownStateStoreException.class, () -> streams.store(StoreQueryParameters.fromNameAndType("unknown-store", keyValueStore())));
+            Assertions.assertThrows(UnknownStateStoreException.class, () -> streams.store(StoreQueryParameters.fromNameAndType("unknown-store", keyValueStore())));
         }
     }
 
     @Test
     public void shouldNotGetStoreWhenWhenNotRunningOrRebalancing() throws InterruptedException {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(StreamsNotStartedException.class, () -> streams.store(StoreQueryParameters.fromNameAndType("store", keyValueStore())));
+            Assertions.assertThrows(StreamsNotStartedException.class, () -> streams.store(StoreQueryParameters.fromNameAndType("store", keyValueStore())));
             streams.start();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.RUNNING, DEFAULT_DURATION);
             streams.close();
             waitForApplicationState(Collections.singletonList(streams), KafkaStreams.State.NOT_RUNNING, DEFAULT_DURATION);
-            assertThrows(IllegalStateException.class, () -> streams.store(StoreQueryParameters.fromNameAndType("store", keyValueStore())));
+            Assertions.assertThrows(IllegalStateException.class, () -> streams.store(StoreQueryParameters.fromNameAndType("store", keyValueStore())));
         }
     }
 
@@ -976,7 +976,7 @@ public class KafkaStreamsTest {
     @Test
     public void shouldThrowOnNegativeTimeoutForClose() {
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(IllegalArgumentException.class, () -> streams.close(Duration.ofMillis(-1L)));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> streams.close(Duration.ofMillis(-1L)));
         }
     }
 
@@ -1002,7 +1002,7 @@ public class KafkaStreamsTest {
         final KafkaStreams.CloseOptions closeOptions = new KafkaStreams.CloseOptions();
         closeOptions.timeout(Duration.ofMillis(-1L));
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, supplier, time)) {
-            assertThrows(IllegalArgumentException.class, () -> streams.close(closeOptions));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> streams.close(closeOptions));
         }
     }
 
@@ -1076,7 +1076,7 @@ public class KafkaStreamsTest {
         closeOptions.timeout(Duration.ofMillis(-1L));
         closeOptions.leaveGroup(true);
         try (final KafkaStreams streams = new KafkaStreams(getBuilderWithSource().build(), props, mockClientSupplier, time)) {
-            assertThrows(IllegalArgumentException.class, () -> streams.close(closeOptions));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> streams.close(closeOptions));
         }
     }
 
@@ -1213,8 +1213,8 @@ public class KafkaStreamsTest {
     }
 
     @Test
-    public void statelessTopologyShouldNotCreateStateDirectory() throws Exception {
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+    public void statelessTopologyShouldNotCreateStateDirectory(final TestInfo testInfo) throws Exception {
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         final String inputTopic = safeTestName + "-input";
         final String outputTopic = safeTestName + "-output";
         final Topology topology = new Topology();
@@ -1239,8 +1239,8 @@ public class KafkaStreamsTest {
     }
 
     @Test
-    public void inMemoryStatefulTopologyShouldNotCreateStateDirectory() throws Exception {
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+    public void inMemoryStatefulTopologyShouldNotCreateStateDirectory(final TestInfo testInfo) throws Exception {
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         final String inputTopic = safeTestName + "-input";
         final String outputTopic = safeTestName + "-output";
         final String globalTopicName = safeTestName + "-global";
@@ -1251,8 +1251,8 @@ public class KafkaStreamsTest {
     }
 
     @Test
-    public void statefulTopologyShouldCreateStateDirectory() throws Exception {
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+    public void statefulTopologyShouldCreateStateDirectory(final TestInfo testInfo) throws Exception {
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         final String inputTopic = safeTestName + "-input";
         final String outputTopic = safeTestName + "-output";
         final String globalTopicName = safeTestName + "-global";

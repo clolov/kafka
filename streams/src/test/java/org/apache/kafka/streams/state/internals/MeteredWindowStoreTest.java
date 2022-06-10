@@ -66,7 +66,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThrows;
+
 
 public class MeteredWindowStoreTest {
 
@@ -450,24 +450,24 @@ public class MeteredWindowStoreTest {
 
         // There's always a "count" metric registered
         assertThat(storeMetrics(), not(empty()));
-        assertThrows(RuntimeException.class, store::close);
+        Assertions.assertThrows(RuntimeException.class, store::close);
         assertThat(storeMetrics(), empty());
         verify(innerStoreMock);
     }
 
     @Test
     public void shouldThrowNullPointerOnPutIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.put(null, "a", 1L));
+        Assertions.assertThrows(NullPointerException.class, () -> store.put(null, "a", 1L));
     }
 
     @Test
     public void shouldThrowNullPointerOnFetchIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.fetch(null, 0L, 1L));
+        Assertions.assertThrows(NullPointerException.class, () -> store.fetch(null, 0L, 1L));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFetchIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFetch(null, 0L, 1L));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFetch(null, 0L, 1L));
     }
 
     private KafkaMetric metric(final String name) {

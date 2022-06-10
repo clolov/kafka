@@ -83,8 +83,6 @@ import org.apache.kafka.test.MockStateRestoreListener;
 import org.apache.kafka.test.MockTimestampExtractor;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.apache.kafka.test.TestUtils;
-
-import java.util.function.BiConsumer;
 import org.easymock.EasyMock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,6 +107,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyMap;
@@ -121,8 +120,8 @@ import static org.apache.kafka.common.utils.Utils.mkProperties;
 import static org.apache.kafka.common.utils.Utils.mkSet;
 import static org.apache.kafka.streams.processor.internals.ClientUtils.getSharedAdminClientId;
 import static org.apache.kafka.streams.processor.internals.StateManagerUtil.CHECKPOINT_FILE_NAME;
-import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyInt;
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.mock;
@@ -135,7 +134,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertThrows;
+
 
 public class StreamThreadTest {
 
@@ -1199,7 +1198,7 @@ public class StreamThreadTest {
             defaultMaxBufferSizeInBytes
         ).updateThreadMetadata(getSharedAdminClientId(CLIENT_ID));
 
-        final StreamsException thrown = assertThrows(StreamsException.class, thread::run);
+        final StreamsException thrown = Assertions.assertThrows(StreamsException.class, thread::run);
 
         verify(taskManager);
 
@@ -1372,7 +1371,7 @@ public class StreamThreadTest {
         thread.runOnce();
 
         clientSupplier.producers.get(0).commitTransactionException = new ProducerFencedException("Producer is fenced");
-        assertThrows(TaskMigratedException.class, () -> thread.rebalanceListener().onPartitionsRevoked(assignedPartitions));
+        Assertions.assertThrows(TaskMigratedException.class, () -> thread.rebalanceListener().onPartitionsRevoked(assignedPartitions));
         Assertions.assertFalse(clientSupplier.producers.get(0).transactionCommitted());
         Assertions.assertFalse(clientSupplier.producers.get(0).closed());
         Assertions.assertEquals(1, thread.activeTasks().size());
@@ -1449,7 +1448,7 @@ public class StreamThreadTest {
         // the third actually polls, processes the record, and throws the corruption exception
         addRecord(mockConsumer, 0L);
         shouldThrow.set(true);
-        final TaskCorruptedException taskCorruptedException = assertThrows(TaskCorruptedException.class, thread::runOnce);
+        final TaskCorruptedException taskCorruptedException = Assertions.assertThrows(TaskCorruptedException.class, thread::runOnce);
 
         // Now, we can handle the corruption
         thread.taskManager().handleCorruption(taskCorruptedException.corruptedTasks());
@@ -2149,7 +2148,7 @@ public class StreamThreadTest {
         });
 
         thread.setState(StreamThread.State.STARTING);
-        assertThrows(TaskMigratedException.class, thread::runOnce);
+        Assertions.assertThrows(TaskMigratedException.class, thread::runOnce);
     }
 
     @Test
@@ -2182,7 +2181,7 @@ public class StreamThreadTest {
         });
 
         thread.setState(StreamThread.State.STARTING);
-        assertThrows(TaskMigratedException.class, thread::runOnce);
+        Assertions.assertThrows(TaskMigratedException.class, thread::runOnce);
     }
 
     @Test

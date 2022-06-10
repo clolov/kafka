@@ -43,7 +43,7 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 public class CompositeReadOnlyWindowStoreTest {
 
@@ -181,7 +181,7 @@ public class CompositeReadOnlyWindowStoreTest {
             "foo"
         );
 
-        assertThrows(InvalidStateStoreException.class, () -> store.fetch("key", ofEpochMilli(1), ofEpochMilli(10)));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> store.fetch("key", ofEpochMilli(1), ofEpochMilli(10)));
     }
 
     @Test
@@ -196,7 +196,7 @@ public class CompositeReadOnlyWindowStoreTest {
             QueryableStoreTypes.windowStore(),
             "foo"
         );
-        assertThrows(InvalidStateStoreException.class, () -> store.backwardFetch("key", ofEpochMilli(1), ofEpochMilli(10)));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> store.backwardFetch("key", ofEpochMilli(1), ofEpochMilli(10)));
     }
 
     @Test
@@ -283,7 +283,7 @@ public class CompositeReadOnlyWindowStoreTest {
             "foo"
         );
         try (final WindowStoreIterator<Object> windowStoreIterator = store.backwardFetch("key", ofEpochMilli(1), ofEpochMilli(10))) {
-            assertThrows(NoSuchElementException.class, windowStoreIterator::peekNextKey);
+            Assertions.assertThrows(NoSuchElementException.class, windowStoreIterator::peekNextKey);
         }
     }
 
@@ -301,7 +301,7 @@ public class CompositeReadOnlyWindowStoreTest {
         );
         try (final WindowStoreIterator<Object> windowStoreIterator =
                  store.fetch("key", ofEpochMilli(1), ofEpochMilli(10))) {
-            assertThrows(NoSuchElementException.class, windowStoreIterator::peekNextKey);
+            Assertions.assertThrows(NoSuchElementException.class, windowStoreIterator::peekNextKey);
         }
     }
 
@@ -318,7 +318,7 @@ public class CompositeReadOnlyWindowStoreTest {
         );
         try (final WindowStoreIterator<Object> windowStoreIterator =
                  store.fetch("key", ofEpochMilli(1), ofEpochMilli(10))) {
-            assertThrows(NoSuchElementException.class, windowStoreIterator::next);
+            Assertions.assertThrows(NoSuchElementException.class, windowStoreIterator::next);
         }
     }
 
@@ -335,7 +335,7 @@ public class CompositeReadOnlyWindowStoreTest {
         );
         try (final WindowStoreIterator<Object> windowStoreIterator =
                  store.backwardFetch("key", ofEpochMilli(1), ofEpochMilli(10))) {
-            assertThrows(NoSuchElementException.class, windowStoreIterator::next);
+            Assertions.assertThrows(NoSuchElementException.class, windowStoreIterator::next);
         }
     }
 
@@ -524,6 +524,6 @@ public class CompositeReadOnlyWindowStoreTest {
 
     @Test
     public void shouldThrowNPEIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> windowStore.fetch(null, ofEpochMilli(0), ofEpochMilli(0)));
+        Assertions.assertThrows(NullPointerException.class, () -> windowStore.fetch(null, ofEpochMilli(0), ofEpochMilli(0)));
     }
 }

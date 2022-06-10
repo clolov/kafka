@@ -40,8 +40,10 @@ import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.test.MockStateRestoreListener;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
 import java.util.Collections;
@@ -56,10 +58,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+
+
+
 
 public class GlobalStreamThreadTest {
     private final InternalTopologyBuilder builder = new InternalTopologyBuilder();
@@ -74,7 +76,7 @@ public class GlobalStreamThreadTest {
     private final static String GLOBAL_STORE_NAME = "bar";
     private final TopicPartition topicPartition = new TopicPartition(GLOBAL_STORE_TOPIC_NAME, 0);
 
-    @Before
+    @BeforeEach
     public void before() {
         final MaterializedInternal<Object, Object, KeyValueStore<Bytes, byte[]>> materialized =
             new MaterializedInternal<>(Materialized.with(null, null),
@@ -138,13 +140,13 @@ public class GlobalStreamThreadTest {
         final StateStore globalStore = builder.globalStateStores().get(GLOBAL_STORE_NAME);
         try {
             globalStreamThread.start();
-            fail("Should have thrown StreamsException if start up failed");
+            Assertions.fail("Should have thrown StreamsException if start up failed");
         } catch (final StreamsException e) {
             // ok
         }
         globalStreamThread.join();
         assertThat(globalStore.isOpen(), is(false));
-        assertFalse(globalStreamThread.stillRunning());
+        Assertions.assertFalse(globalStreamThread.stillRunning());
     }
 
     @Test
@@ -171,33 +173,34 @@ public class GlobalStreamThreadTest {
 
         try {
             globalStreamThread.start();
-            fail("Should have thrown StreamsException if start up failed");
+            Assertions.fail("Should have thrown StreamsException if start up failed");
         } catch (final StreamsException e) {
             assertThat(e.getCause(), instanceOf(RuntimeException.class));
             assertThat(e.getCause().getMessage(), equalTo("KABOOM!"));
         }
         globalStreamThread.join();
         assertThat(globalStore.isOpen(), is(false));
-        assertFalse(globalStreamThread.stillRunning());
+        Assertions.assertFalse(globalStreamThread.stillRunning());
     }
 
     @Test
     public void shouldBeRunningAfterSuccessfulStart() throws Exception {
         initializeConsumer();
         startAndSwallowError();
-        assertTrue(globalStreamThread.stillRunning());
+        Assertions.assertTrue(globalStreamThread.stillRunning());
 
         globalStreamThread.shutdown();
         globalStreamThread.join();
     }
 
-    @Test(timeout = 30000)
+    @Timeout(30)
+    @Test
     public void shouldStopRunningWhenClosedByUser() throws Exception {
         initializeConsumer();
         startAndSwallowError();
         globalStreamThread.shutdown();
         globalStreamThread.join();
-        assertEquals(GlobalStreamThread.State.DEAD, globalStreamThread.state());
+        Assertions.assertEquals(GlobalStreamThread.State.DEAD, globalStreamThread.state());
     }
 
     @Test
@@ -205,10 +208,10 @@ public class GlobalStreamThreadTest {
         initializeConsumer();
         startAndSwallowError();
         final StateStore globalStore = builder.globalStateStores().get(GLOBAL_STORE_NAME);
-        assertTrue(globalStore.isOpen());
+        Assertions.assertTrue(globalStore.isOpen());
         globalStreamThread.shutdown();
         globalStreamThread.join();
-        assertFalse(globalStore.isOpen());
+        Assertions.assertFalse(globalStore.isOpen());
     }
 
     @Test
@@ -219,7 +222,7 @@ public class GlobalStreamThreadTest {
         globalStreamThread.join();
         globalStreamThread.shutdown();
 
-        assertEquals(GlobalStreamThread.State.DEAD, globalStreamThread.state());
+        Assertions.assertEquals(GlobalStreamThread.State.DEAD, globalStreamThread.state());
     }
 
     @Test
@@ -256,7 +259,7 @@ public class GlobalStreamThreadTest {
         globalStreamThread.join();
 
         assertThat(globalStore.isOpen(), is(false));
-        assertFalse(new File(baseDirectoryName + File.separator + "testAppId" + File.separator + "global").exists());
+        Assertions.assertFalse(new File(baseDirectoryName + File.separator + "testAppId" + File.separator + "global").exists());
     }
 
     @Test
@@ -293,7 +296,7 @@ public class GlobalStreamThreadTest {
         globalStreamThread.join();
 
         assertThat(globalStore.isOpen(), is(false));
-        assertFalse(new File(baseDirectoryName + File.separator + "testAppId" + File.separator + "global").exists());
+        Assertions.assertFalse(new File(baseDirectoryName + File.separator + "testAppId" + File.separator + "global").exists());
     }
 
     private void initializeConsumer() {

@@ -38,7 +38,7 @@ import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class NamedCacheTest {
 
@@ -180,7 +180,7 @@ public class NamedCacheTest {
     @Test
     public void shouldThrowIllegalStateExceptionWhenTryingToOverwriteDirtyEntryWithCleanEntry() {
         cache.put(Bytes.wrap(new byte[]{0}), new LRUCacheEntry(new byte[]{10}, headers, true, 0, 0, 0, ""));
-        assertThrows(IllegalStateException.class, () -> cache.put(Bytes.wrap(new byte[]{0}),
+        Assertions.assertThrows(IllegalStateException.class, () -> cache.put(Bytes.wrap(new byte[]{0}),
             new LRUCacheEntry(new byte[]{10}, new RecordHeaders(), false, 0, 0, 0, "")));
     }
 

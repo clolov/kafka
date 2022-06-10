@@ -16,10 +16,6 @@
  */
 package org.apache.kafka.streams.scala
 
-import java.time.Duration
-import java.util
-import java.util.{Locale, Properties}
-import java.util.regex.Pattern
 import org.apache.kafka.common.serialization.{Serdes => SerdesJ}
 import org.apache.kafka.streams.kstream.{
   Aggregator,
@@ -36,16 +32,20 @@ import org.apache.kafka.streams.kstream.{
   Materialized => MaterializedJ,
   StreamJoined => StreamJoinedJ
 }
-import org.apache.kafka.streams.processor.{api, ProcessorContext}
 import org.apache.kafka.streams.processor.api.{Processor, ProcessorSupplier}
+import org.apache.kafka.streams.processor.{api, ProcessorContext}
 import org.apache.kafka.streams.scala.ImplicitConversions._
-import org.apache.kafka.streams.scala.serialization.{Serdes => NewSerdes}
-import org.apache.kafka.streams.scala.serialization.Serdes._
 import org.apache.kafka.streams.scala.kstream._
+import org.apache.kafka.streams.scala.serialization.Serdes._
+import org.apache.kafka.streams.scala.serialization.{Serdes => NewSerdes}
 import org.apache.kafka.streams.{KeyValue, StreamsConfig, TopologyDescription, StreamsBuilder => StreamsBuilderJ}
 import org.junit.jupiter.api.Assertions._
 import org.junit.jupiter.api._
 
+import java.time.Duration
+import java.util
+import java.util.regex.Pattern
+import java.util.{Locale, Properties}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 

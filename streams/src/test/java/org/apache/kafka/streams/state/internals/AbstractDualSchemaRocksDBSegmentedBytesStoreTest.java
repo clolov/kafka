@@ -89,7 +89,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class AbstractDualSchemaRocksDBSegmentedBytesStoreTest<S extends Segment> {
 
@@ -829,7 +828,7 @@ public abstract class AbstractDualSchemaRocksDBSegmentedBytesStoreTest<S extends
         final String keyA = "a";
         final String keyB = "b";
         if (getIndexSchema() == null) {
-            assertThrows(
+            Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> bytesStore.putIndex(Bytes.wrap(keyA.getBytes()), new byte[0])
             );

@@ -19,8 +19,6 @@ package org.apache.kafka.streams.kstream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
-
 public class WindowTest {
 
     static class TestWindow extends Window {
@@ -49,12 +47,12 @@ public class WindowTest {
 
     @Test
     public void shouldThrowIfStartIsNegative() {
-        assertThrows(IllegalArgumentException.class, () -> new TestWindow(-1, 0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new TestWindow(-1, 0));
     }
 
     @Test
     public void shouldThrowIfEndIsSmallerThanStart() {
-        assertThrows(IllegalArgumentException.class, () -> new TestWindow(1, 0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new TestWindow(1, 0));
     }
 
     @Test

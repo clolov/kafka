@@ -17,7 +17,6 @@
 package org.apache.kafka.streams.processor.internals;
 
 import org.apache.kafka.common.Cluster;
-import org.apache.kafka.common.Node;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Serdes;
@@ -38,8 +37,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,7 +49,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.kafka.common.utils.Utils.mkSet;
-import static org.junit.Assert.assertThrows;
+
 
 public class StreamsMetadataStateTest {
 
@@ -123,7 +122,7 @@ public class StreamsMetadataStateTest {
                 new PartitionInfo("topic-three", 0, null, null, null),
                 new PartitionInfo("topic-four", 0, null, null, null));
 
-        cluster = new Cluster(null, Collections.<Node>emptyList(), partitionInfos, Collections.<String>emptySet(), Collections.<String>emptySet());
+        cluster = new Cluster(null, Collections.emptyList(), partitionInfos, Collections.emptySet(), Collections.emptySet());
         final TopologyMetadata topologyMetadata = new TopologyMetadata(TopologyWrapper.getInternalTopologyBuilder(builder.build()), new DummyStreamsConfig());
         topologyMetadata.buildAndRewriteTopology();
         metadataState = new StreamsMetadataState(topologyMetadata, hostOne, logContext);
@@ -208,7 +207,7 @@ public class StreamsMetadataStateTest {
 
     @Test
     public void shouldThrowIfStoreNameIsNullOnGetAllInstancesWithStore() {
-        assertThrows(NullPointerException.class, () -> metadataState.getAllMetadataForStore(null));
+        Assertions.assertThrows(NullPointerException.class, () -> metadataState.getAllMetadataForStore(null));
     }
 
     @Test
@@ -282,23 +281,23 @@ public class StreamsMetadataStateTest {
 
     @Test
     public void shouldThrowWhenKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey("table-three", null, Serdes.String().serializer()));
+        Assertions.assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey("table-three", null, Serdes.String().serializer()));
     }
 
     @Test
     public void shouldThrowWhenSerializerIsNull() {
-        assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey("table-three", "key", (Serializer<Object>) null));
+        Assertions.assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey("table-three", "key", (Serializer<Object>) null));
     }
 
     @Test
     public void shouldThrowIfStoreNameIsNull() {
-        assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey(null, "key", Serdes.String().serializer()));
+        Assertions.assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey(null, "key", Serdes.String().serializer()));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowIfStreamPartitionerIsNull() {
-        assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey(null, "key", (StreamPartitioner) null));
+        Assertions.assertThrows(NullPointerException.class, () -> metadataState.getKeyQueryMetadataForKey(null, "key", (StreamPartitioner) null));
     }
 
     @Test

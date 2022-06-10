@@ -50,10 +50,9 @@ import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -67,15 +66,10 @@ import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 @SuppressWarnings("deprecation")
+@Timeout(600)
 public class TopologyTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     private final StoreBuilder<MockKeyValueStore> storeBuilder = EasyMock.createNiceMock(StoreBuilder.class);
     private final KeyValueStoreBuilder<?, ?> globalStoreBuilder = EasyMock.createNiceMock(KeyValueStoreBuilder.class);
     private final Topology topology = new Topology();
@@ -83,73 +77,73 @@ public class TopologyTest {
 
     @Test
     public void shouldNotAllowNullNameWhenAddingSourceWithTopic() {
-        assertThrows(NullPointerException.class, () -> topology.addSource((String) null, "topic"));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSource((String) null, "topic"));
     }
 
     @Test
     public void shouldNotAllowNullNameWhenAddingSourceWithPattern() {
-        assertThrows(NullPointerException.class, () -> topology.addSource(null, Pattern.compile(".*")));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSource(null, Pattern.compile(".*")));
     }
 
     @Test
     public void shouldNotAllowNullTopicsWhenAddingSourceWithTopic() {
-        assertThrows(NullPointerException.class, () -> topology.addSource("source", (String[]) null));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSource("source", (String[]) null));
     }
 
     @Test
     public void shouldNotAllowNullTopicsWhenAddingSourceWithPattern() {
-        assertThrows(NullPointerException.class, () -> topology.addSource("source", (Pattern) null));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSource("source", (Pattern) null));
     }
 
     @Test
     public void shouldNotAllowZeroTopicsWhenAddingSource() {
-        assertThrows(TopologyException.class, () -> topology.addSource("source"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.addSource("source"));
     }
 
     @Test
     public void shouldNotAllowNullNameWhenAddingProcessor() {
-        assertThrows(NullPointerException.class, () -> topology.addProcessor(null, () -> new MockApiProcessorSupplier<>().get()));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addProcessor(null, () -> new MockApiProcessorSupplier<>().get()));
     }
 
     @Test
     public void shouldNotAllowNullProcessorSupplierWhenAddingProcessor() {
-        assertThrows(NullPointerException.class, () -> topology.addProcessor("name",
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addProcessor("name",
             (ProcessorSupplier<Object, Object, Object, Object>) null));
     }
 
     @Test
     public void shouldNotAllowNullNameWhenAddingSink() {
-        assertThrows(NullPointerException.class, () -> topology.addSink(null, "topic"));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSink(null, "topic"));
     }
 
     @Test
     public void shouldNotAllowNullTopicWhenAddingSink() {
-        assertThrows(NullPointerException.class, () -> topology.addSink("name", (String) null));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSink("name", (String) null));
     }
 
     @Test
     public void shouldNotAllowNullTopicChooserWhenAddingSink() {
-        assertThrows(NullPointerException.class, () -> topology.addSink("name", (TopicNameExtractor<Object, Object>) null));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addSink("name", (TopicNameExtractor<Object, Object>) null));
     }
 
     @Test
     public void shouldNotAllowNullProcessorNameWhenConnectingProcessorAndStateStores() {
-        assertThrows(NullPointerException.class, () -> topology.connectProcessorAndStateStores(null, "store"));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.connectProcessorAndStateStores(null, "store"));
     }
 
     @Test
     public void shouldNotAllowNullStoreNameWhenConnectingProcessorAndStateStores() {
-        assertThrows(NullPointerException.class, () -> topology.connectProcessorAndStateStores("processor", (String[]) null));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.connectProcessorAndStateStores("processor", (String[]) null));
     }
 
     @Test
     public void shouldNotAllowZeroStoreNameWhenConnectingProcessorAndStateStores() {
-        assertThrows(TopologyException.class, () -> topology.connectProcessorAndStateStores("processor"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.connectProcessorAndStateStores("processor"));
     }
 
     @Test
     public void shouldNotAddNullStateStoreSupplier() {
-        assertThrows(NullPointerException.class, () -> topology.addStateStore(null));
+        Assertions.assertThrows(NullPointerException.class, () -> topology.addStateStore(null));
     }
 
     @Test
@@ -157,7 +151,7 @@ public class TopologyTest {
         topology.addSource("source", "topic-1");
         try {
             topology.addSource("source", "topic-2");
-            fail("Should throw TopologyException for duplicate source name");
+            Assertions.fail("Should throw TopologyException for duplicate source name");
         } catch (final TopologyException expected) { }
     }
 
@@ -166,7 +160,7 @@ public class TopologyTest {
         topology.addSource("source", "topic-1");
         try {
             topology.addSource("source-2", "topic-1");
-            fail("Should throw TopologyException for already used topic");
+            Assertions.fail("Should throw TopologyException for already used topic");
         } catch (final TopologyException expected) { }
     }
 
@@ -175,7 +169,7 @@ public class TopologyTest {
         topology.addSource("source-1", "foo");
         try {
             topology.addSource("source-2", Pattern.compile("f.*"));
-            fail("Should have thrown TopologyException for overlapping pattern with already registered topic");
+            Assertions.fail("Should have thrown TopologyException for overlapping pattern with already registered topic");
         } catch (final TopologyException expected) { }
     }
 
@@ -184,7 +178,7 @@ public class TopologyTest {
         topology.addSource("source-1", Pattern.compile("f.*"));
         try {
             topology.addSource("source-2", "foo");
-            fail("Should have thrown TopologyException for overlapping topic with already registered pattern");
+            Assertions.fail("Should have thrown TopologyException for overlapping topic with already registered pattern");
         } catch (final TopologyException expected) { }
     }
 
@@ -194,7 +188,7 @@ public class TopologyTest {
         topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "source");
         try {
             topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "source");
-            fail("Should throw TopologyException for duplicate processor name");
+            Assertions.fail("Should throw TopologyException for duplicate processor name");
         } catch (final TopologyException expected) { }
     }
 
@@ -203,7 +197,7 @@ public class TopologyTest {
         topology.addSource("source", "topic-1");
         try {
             topology.addProcessor("processor", new MockApiProcessorSupplier<>());
-            fail("Should throw TopologyException for processor without at least one parent node");
+            Assertions.fail("Should throw TopologyException for processor without at least one parent node");
         } catch (final TopologyException expected) { }
     }
 
@@ -212,18 +206,18 @@ public class TopologyTest {
         topology.addSource("source", "topic-1");
         try {
             topology.addProcessor("processor", new MockApiProcessorSupplier<>(), (String) null);
-            fail("Should throw NullPointerException for processor when null parent names are provided");
+            Assertions.fail("Should throw NullPointerException for processor when null parent names are provided");
         } catch (final NullPointerException expected) { }
     }
 
     @Test
     public void shouldFailOnUnknownSource() {
-        assertThrows(TopologyException.class, () -> topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "source"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "source"));
     }
 
     @Test
     public void shouldFailIfNodeIsItsOwnParent() {
-        assertThrows(TopologyException.class, () -> topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "processor"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "processor"));
     }
 
     @Test
@@ -232,7 +226,7 @@ public class TopologyTest {
         topology.addSink("sink", "topic-2", "source");
         try {
             topology.addSink("sink", "topic-3", "source");
-            fail("Should throw TopologyException for duplicate sink name");
+            Assertions.fail("Should throw TopologyException for duplicate sink name");
         } catch (final TopologyException expected) { }
     }
 
@@ -242,7 +236,7 @@ public class TopologyTest {
         topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "source");
         try {
             topology.addSink("sink", "topic-2");
-            fail("Should throw TopologyException for sink without at least one parent node");
+            Assertions.fail("Should throw TopologyException for sink without at least one parent node");
         } catch (final TopologyException expected) { }
     }
 
@@ -252,18 +246,18 @@ public class TopologyTest {
         topology.addProcessor("processor", new MockApiProcessorSupplier<>(), "source");
         try {
             topology.addSink("sink", "topic-2", (String) null);
-            fail("Should throw NullPointerException for sink when null parent names are provided");
+            Assertions.fail("Should throw NullPointerException for sink when null parent names are provided");
         } catch (final NullPointerException expected) { }
     }
 
     @Test
     public void shouldFailWithUnknownParent() {
-        assertThrows(TopologyException.class, () -> topology.addSink("sink", "topic-2", "source"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.addSink("sink", "topic-2", "source"));
     }
 
     @Test
     public void shouldFailIfSinkIsItsOwnParent() {
-        assertThrows(TopologyException.class, () -> topology.addSink("sink", "topic-2", "sink"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.addSink("sink", "topic-2", "sink"));
     }
 
     @Test
@@ -272,7 +266,7 @@ public class TopologyTest {
         topology.addSink("sink-1", "topic-2", "source");
         try {
             topology.addSink("sink-2", "topic-3", "sink-1");
-            fail("Should throw TopologyException for using sink as parent");
+            Assertions.fail("Should throw TopologyException for using sink as parent");
         } catch (final TopologyException expected) { }
     }
 
@@ -280,7 +274,7 @@ public class TopologyTest {
     public void shouldNotAllowToAddStateStoreToNonExistingProcessor() {
         mockStoreBuilder();
         EasyMock.replay(storeBuilder);
-        assertThrows(TopologyException.class, () -> topology.addStateStore(storeBuilder, "no-such-processor"));
+        Assertions.assertThrows(TopologyException.class, () -> topology.addStateStore(storeBuilder, "no-such-processor"));
     }
 
     @Test
@@ -290,7 +284,7 @@ public class TopologyTest {
         topology.addSource("source-1", "topic-1");
         try {
             topology.addStateStore(storeBuilder, "source-1");
-            fail("Should have thrown TopologyException for adding store to source node");
+            Assertions.fail("Should have thrown TopologyException for adding store to source node");
         } catch (final TopologyException expected) { }
     }
 
@@ -302,7 +296,7 @@ public class TopologyTest {
         topology.addSink("sink-1", "topic-1", "source-1");
         try {
             topology.addStateStore(storeBuilder, "sink-1");
-            fail("Should have thrown TopologyException for adding store to sink node");
+            Assertions.fail("Should have thrown TopologyException for adding store to sink node");
         } catch (final TopologyException expected) { }
     }
 
@@ -325,7 +319,7 @@ public class TopologyTest {
         EasyMock.replay(otherStoreBuilder);
         try {
             topology.addStateStore(otherStoreBuilder);
-            fail("Should have thrown TopologyException for same store name with different StoreBuilder");
+            Assertions.fail("Should have thrown TopologyException for same store name with different StoreBuilder");
         } catch (final TopologyException expected) { }
     }
 
@@ -375,10 +369,10 @@ public class TopologyTest {
         config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.ByteArraySerde.class);
         try {
             new TopologyTestDriver(topology, config);
-            fail("Should have thrown StreamsException");
+            Assertions.fail("Should have thrown StreamsException");
         } catch (final StreamsException e) {
             final String error = e.toString();
-            final String expectedMessage = "org.apache.kafka.streams.errors.StreamsException: failed to initialize processor " + badNodeName;
+            final String expectedMessage = "org.apache.kafka.streams.errors.StreamsException: Assertions.failed to initialize processor " + badNodeName;
 
             assertThat(error, equalTo(expectedMessage));
         }
@@ -406,7 +400,7 @@ public class TopologyTest {
     public void shouldNotAllowToAddGlobalStoreWithSourceNameEqualsProcessorName() {
         EasyMock.expect(globalStoreBuilder.name()).andReturn("anyName").anyTimes();
         EasyMock.replay(globalStoreBuilder);
-        assertThrows(TopologyException.class, () -> topology.addGlobalStore(
+        Assertions.assertThrows(TopologyException.class, () -> topology.addGlobalStore(
             globalStoreBuilder,
             "sameName",
             null,
@@ -729,7 +723,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -772,7 +766,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -826,7 +820,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -868,7 +862,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -911,7 +905,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -965,7 +959,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -1007,7 +1001,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -1050,7 +1044,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -1104,7 +1098,7 @@ public class TopologyTest {
 
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic1])\n" +
@@ -1147,7 +1141,7 @@ public class TopologyTest {
         builder.stream("input-topic").to(topicNameExtractor);
         final TopologyDescription describe = builder.build().describe();
 
-        assertEquals(
+        Assertions.assertEquals(
                 "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1166,7 +1160,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
 
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1189,7 +1183,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1213,7 +1207,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.ROCKS_DB));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1235,7 +1229,7 @@ public class TopologyTest {
             .count(Materialized.as(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1259,7 +1253,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
 
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1282,7 +1276,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1305,7 +1299,7 @@ public class TopologyTest {
             .count(Materialized.<Object, Long, WindowStore<Bytes, byte[]>>as("count-store").withStoreType(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1329,7 +1323,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.ROCKS_DB));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1352,7 +1346,7 @@ public class TopologyTest {
             .count(Materialized.as(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1376,7 +1370,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1399,7 +1393,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1422,7 +1416,7 @@ public class TopologyTest {
             .count(Materialized.<Object, Long, WindowStore<Bytes, byte[]>>as("count-store").withStoreType(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1446,7 +1440,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1471,7 +1465,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1500,7 +1494,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1529,7 +1523,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1557,7 +1551,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1586,7 +1580,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1614,7 +1608,7 @@ public class TopologyTest {
             .aggregate(() -> "");
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1642,7 +1636,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1671,7 +1665,7 @@ public class TopologyTest {
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
 
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1699,7 +1693,7 @@ public class TopologyTest {
             .aggregate(() -> "", (aggKey, aggOne, aggTwo) -> "");
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1725,7 +1719,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1749,7 +1743,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1773,7 +1767,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.ROCKS_DB));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1796,7 +1790,7 @@ public class TopologyTest {
             .count(Materialized.as(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1820,7 +1814,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000000 (topics: [input-topic])\n" +
@@ -1842,7 +1836,7 @@ public class TopologyTest {
             .count();
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -1884,7 +1878,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -1927,7 +1921,7 @@ public class TopologyTest {
             .count(Materialized.as(Materialized.StoreType.ROCKS_DB));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topology: my-topology:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -1969,7 +1963,7 @@ public class TopologyTest {
                 .withStoreType(Materialized.StoreType.ROCKS_DB));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2010,7 +2004,7 @@ public class TopologyTest {
             .count(Materialized.as(Materialized.StoreType.IN_MEMORY));
         final Topology topology = builder.build();
         final TopologyDescription describe = topology.describe();
-        assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2049,7 +2043,7 @@ public class TopologyTest {
         final KTable<Object, Object> table = builder.table("input-topic");
         table.mapValues((readOnlyKey, value) -> null);
         final TopologyDescription describe = builder.build().describe();
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2072,7 +2066,7 @@ public class TopologyTest {
             Materialized.<Object, Object, KeyValueStore<Bytes, byte[]>>with(null, null)
                 .withStoreType(Materialized.StoreType.IN_MEMORY));
         final TopologyDescription describe = builder.build().describe();
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2098,7 +2092,7 @@ public class TopologyTest {
             (readOnlyKey, value) -> null,
             Materialized.<Object, Object, KeyValueStore<Bytes, byte[]>>as("store-name").withKeySerde(null).withValueSerde(null));
         final TopologyDescription describe = builder.build().describe();
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2119,7 +2113,7 @@ public class TopologyTest {
         final KTable<Object, Object> table = builder.table("input-topic");
         table.filter((key, value) -> false);
         final TopologyDescription describe = builder.build().describe();
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2139,7 +2133,7 @@ public class TopologyTest {
         final KTable<Object, Object> table = builder.table("input-topic");
         table.filter((key, value) -> false, Materialized.with(null, null));
         final TopologyDescription describe = builder.build().describe();
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +
@@ -2164,7 +2158,7 @@ public class TopologyTest {
         table.filter((key, value) -> false, Materialized.as("store-name"));
         final TopologyDescription describe = builder.build().describe();
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "Topologies:\n" +
                 "   Sub-topology: 0\n" +
                 "    Source: KSTREAM-SOURCE-0000000001 (topics: [input-topic])\n" +

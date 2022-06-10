@@ -16,7 +16,6 @@
  */
 package org.apache.kafka.streams.processor.internals;
 
-import java.util.List;
 import org.apache.kafka.common.utils.LogContext;
 import org.apache.kafka.common.utils.Utils;
 import org.apache.kafka.streams.errors.LockException;
@@ -29,8 +28,9 @@ import org.apache.kafka.test.TestUtils;
 import org.easymock.IMocksControl;
 import org.easymock.Mock;
 import org.easymock.MockType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -39,14 +39,13 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.easymock.EasyMock.createStrictControl;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.powermock.api.easymock.PowerMock.mockStatic;
 import static org.powermock.api.easymock.PowerMock.replayAll;
 
@@ -68,11 +67,11 @@ public class StateManagerUtilTest {
 
     private IMocksControl ctrl;
 
-    private Logger logger = new LogContext("test").logger(AbstractTask.class);
+    private final Logger logger = new LogContext("test").logger(AbstractTask.class);
 
     private final TaskId taskId = new TaskId(0, 0);
 
-    @Before
+    @BeforeEach
     public void setup() {
         ctrl = createStrictControl();
         topology = ctrl.createMock(ProcessorTopology.class);
@@ -106,11 +105,11 @@ public class StateManagerUtilTest {
         ctrl.checkOrder(true);
         ctrl.replay();
 
-        final LockException thrown = assertThrows(LockException.class,
+        final LockException thrown = Assertions.assertThrows(LockException.class,
             () -> StateManagerUtil.registerStateStores(logger, "logPrefix:",
                 topology, stateManager, stateDirectory, processorContext));
 
-        assertEquals("logPrefix:Failed to lock the state directory for task 0_0", thrown.getMessage());
+        Assertions.assertEquals("logPrefix:Failed to lock the state directory for task 0_0", thrown.getMessage());
 
         ctrl.verify();
     }
@@ -180,12 +179,12 @@ public class StateManagerUtilTest {
         ctrl.checkOrder(true);
         ctrl.replay();
 
-        final ProcessorStateException thrown = assertThrows(
+        final ProcessorStateException thrown = Assertions.assertThrows(
             ProcessorStateException.class, () -> StateManagerUtil.closeStateManager(logger,
                 "logPrefix:", true, false, stateManager, stateDirectory, TaskType.ACTIVE));
 
         // Thrown stateMgr exception will not be wrapped.
-        assertEquals("state manager failed to close", thrown.getMessage());
+        Assertions.assertEquals("state manager failed to close", thrown.getMessage());
 
         ctrl.verify();
     }
@@ -204,7 +203,7 @@ public class StateManagerUtilTest {
         ctrl.checkOrder(true);
         ctrl.replay();
 
-        assertThrows(
+        Assertions.assertThrows(
             ProcessorStateException.class,
             () -> StateManagerUtil.closeStateManager(
                 logger, "logPrefix:", false, false, stateManager, stateDirectory, TaskType.ACTIVE));
@@ -258,7 +257,7 @@ public class StateManagerUtilTest {
 
         replayAll();
 
-        assertThrows(ProcessorStateException.class, () ->
+        Assertions.assertThrows(ProcessorStateException.class, () ->
             StateManagerUtil.closeStateManager(logger, "logPrefix:", false, true, stateManager, stateDirectory, TaskType.ACTIVE));
 
         ctrl.verify();
@@ -288,11 +287,11 @@ public class StateManagerUtilTest {
 
         replayAll();
 
-        final ProcessorStateException thrown = assertThrows(
+        final ProcessorStateException thrown = Assertions.assertThrows(
             ProcessorStateException.class, () -> StateManagerUtil.closeStateManager(logger,
                 "logPrefix:", false, true, stateManager, stateDirectory, TaskType.ACTIVE));
 
-        assertEquals(IOException.class, thrown.getCause().getClass());
+        Assertions.assertEquals(IOException.class, thrown.getCause().getClass());
 
         ctrl.verify();
     }

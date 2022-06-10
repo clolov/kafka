@@ -30,7 +30,6 @@ import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThrows;
 
 public class TimeWindowedDeserializerTest {
     private final long windowSize = 5000000;
@@ -59,32 +58,32 @@ public class TimeWindowedDeserializerTest {
     @Test
     public void shouldThrowErrorIfWindowSizeSetInConfigsAndConstructor() {
         props.put(StreamsConfig.WINDOW_SIZE_MS_CONFIG, "500");
-        assertThrows(IllegalArgumentException.class, () -> timeWindowedDeserializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> timeWindowedDeserializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowErrorIfWindowSizeIsNotSet() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, Serdes.ByteArraySerde.class.getName());
         final TimeWindowedDeserializer<?> deserializer = new TimeWindowedDeserializer<>();
-        assertThrows(IllegalArgumentException.class, () -> deserializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> deserializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowErrorIfWindowedInnerClassDeserialiserIsNotSet() {
         props.put(StreamsConfig.WINDOW_SIZE_MS_CONFIG, "500");
         final TimeWindowedDeserializer<?> deserializer = new TimeWindowedDeserializer<>();
-        assertThrows(IllegalArgumentException.class, () -> deserializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> deserializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowErrorIfWindowedInnerClassDeserialisersConflictInConstructorAndConfig() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, Serdes.ByteArraySerde.class.getName());
-        assertThrows(IllegalArgumentException.class, () -> timeWindowedDeserializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> timeWindowedDeserializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowConfigExceptionWhenInvalidWindowedInnerClassDeserialiserSupplied() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, "some.non.existent.class");
-        assertThrows(ConfigException.class, () -> timeWindowedDeserializer.configure(props, false));
+        Assertions.assertThrows(ConfigException.class, () -> timeWindowedDeserializer.configure(props, false));
     }
 }

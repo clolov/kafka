@@ -46,7 +46,7 @@ import static org.apache.kafka.streams.processor.internals.assignment.Assignment
 import static org.apache.kafka.streams.processor.internals.assignment.StreamsAssignmentProtocolVersions.LATEST_SUPPORTED_VERSION;
 import static org.apache.kafka.streams.processor.internals.assignment.StreamsAssignmentProtocolVersions.MIN_NAMED_TOPOLOGY_VERSION;
 import static org.apache.kafka.streams.processor.internals.assignment.StreamsAssignmentProtocolVersions.UNKNOWN;
-import static org.junit.Assert.assertThrows;
+
 
 public class AssignmentInfoTest {
     private final List<TaskId> activeTasks = Arrays.asList(
@@ -105,13 +105,13 @@ public class AssignmentInfoTest {
 
     @Test
     public void shouldThrowForUnknownVersion1() {
-        assertThrows(IllegalArgumentException.class, () -> new AssignmentInfo(0, activeTasks, standbyTasks,
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new AssignmentInfo(0, activeTasks, standbyTasks,
             activeAssignment, Collections.emptyMap(), 0));
     }
 
     @Test
     public void shouldThrowForUnknownVersion2() {
-        assertThrows(IllegalArgumentException.class, () -> new AssignmentInfo(LATEST_SUPPORTED_VERSION + 1,
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new AssignmentInfo(LATEST_SUPPORTED_VERSION + 1,
             activeTasks, standbyTasks, activeAssignment, Collections.emptyMap(), 0));
     }
 
@@ -208,7 +208,7 @@ public class AssignmentInfoTest {
     public void shouldNotEncodeAndDecodeNamedTopologiesWithOlderVersion() {
         final AssignmentInfo info =
             new AssignmentInfo(MIN_NAMED_TOPOLOGY_VERSION - 1, LATEST_SUPPORTED_VERSION, NAMED_ACTIVE_TASKS, NAMED_STANDBY_TASKS, activeAssignment, standbyAssignment, 2);
-        assertThrows(TaskAssignmentException.class, () -> AssignmentInfo.decode(info.encode()));
+        Assertions.assertThrows(TaskAssignmentException.class, () -> AssignmentInfo.decode(info.encode()));
     }
 
     @Test

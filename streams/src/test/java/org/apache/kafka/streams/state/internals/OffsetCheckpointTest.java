@@ -16,6 +16,11 @@
  */
 package org.apache.kafka.streams.state.internals;
 
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.test.TestUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,18 +31,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.test.TestUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import static org.apache.kafka.streams.state.internals.OffsetCheckpoint.writeEntry;
 import static org.apache.kafka.streams.state.internals.OffsetCheckpoint.writeIntLine;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.assertThrows;
+
 
 public class OffsetCheckpointTest {
 
@@ -147,7 +147,7 @@ public class OffsetCheckpointTest {
             offsets.put(new TopicPartition(topic, 1), -1L); // invalid
             offsets.put(new TopicPartition(topic, 2), 2L);
 
-            assertThrows(IllegalStateException.class, () -> checkpoint.write(offsets));
+            Assertions.assertThrows(IllegalStateException.class, () -> checkpoint.write(offsets));
         } finally {
             checkpoint.delete();
         }
@@ -160,7 +160,7 @@ public class OffsetCheckpointTest {
         final File notExistedFile = new File("/not_existed_dir/not_existed_file");
         final OffsetCheckpoint checkpoint = new OffsetCheckpoint(notExistedFile);
         
-        final IOException e = assertThrows(IOException.class, () -> checkpoint.write(offsetsToWrite));
+        final IOException e = Assertions.assertThrows(IOException.class, () -> checkpoint.write(offsetsToWrite));
         assertThat(e.getMessage(), containsString("No such file or directory"));
     }
 

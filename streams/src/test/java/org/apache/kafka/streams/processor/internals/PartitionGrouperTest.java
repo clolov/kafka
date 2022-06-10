@@ -22,7 +22,6 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.TopologyMetadata.Subtopology;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +36,7 @@ import static org.apache.kafka.common.utils.Utils.mkSet;
 import static org.apache.kafka.streams.processor.internals.assignment.AssignmentTestUtils.SUBTOPOLOGY_0;
 import static org.apache.kafka.streams.processor.internals.assignment.AssignmentTestUtils.SUBTOPOLOGY_1;
 
-import static org.junit.Assert.assertThrows;
+
 
 public class PartitionGrouperTest {
 
@@ -53,8 +52,8 @@ public class PartitionGrouperTest {
         "cluster",
         Collections.singletonList(Node.noNode()),
         infos,
-        Collections.<String>emptySet(),
-        Collections.<String>emptySet());
+        Collections.emptySet(),
+        Collections.emptySet());
 
     @Test
     public void shouldComputeGroupingForTwoGroups() {
@@ -100,6 +99,6 @@ public class PartitionGrouperTest {
         final Map<Subtopology, Set<String>> topicGroups = new HashMap<>();
     
         topicGroups.put(SUBTOPOLOGY_0, mkSet("topic1", "unknownTopic", "topic2"));
-        assertThrows(RuntimeException.class, () -> grouper.partitionGroups(topicGroups, metadata));
+        Assertions.assertThrows(RuntimeException.class, () -> grouper.partitionGroups(topicGroups, metadata));
     }
 }

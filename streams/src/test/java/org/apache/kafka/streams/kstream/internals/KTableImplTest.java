@@ -64,7 +64,6 @@ import static java.util.Arrays.asList;
 import static org.easymock.EasyMock.mock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
 
 @SuppressWarnings("unchecked")
 public class KTableImplTest {
@@ -471,37 +470,37 @@ public class KTableImplTest {
 
     @Test
     public void shouldNotAllowNullSelectorOnToStream() {
-        assertThrows(NullPointerException.class, () -> table.toStream((KeyValueMapper) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.toStream((KeyValueMapper) null));
     }
 
     @Test
     public void shouldNotAllowNullPredicateOnFilter() {
-        assertThrows(NullPointerException.class, () -> table.filter(null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.filter(null));
     }
 
     @Test
     public void shouldNotAllowNullPredicateOnFilterNot() {
-        assertThrows(NullPointerException.class, () -> table.filterNot(null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.filterNot(null));
     }
 
     @Test
     public void shouldNotAllowNullMapperOnMapValues() {
-        assertThrows(NullPointerException.class, () -> table.mapValues((ValueMapper) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.mapValues((ValueMapper) null));
     }
 
     @Test
     public void shouldNotAllowNullMapperOnMapValueWithKey() {
-        assertThrows(NullPointerException.class, () -> table.mapValues((ValueMapperWithKey) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.mapValues((ValueMapperWithKey) null));
     }
 
     @Test
     public void shouldNotAllowNullSelectorOnGroupBy() {
-        assertThrows(NullPointerException.class, () -> table.groupBy(null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.groupBy(null));
     }
 
     @Test
     public void shouldNotAllowNullOtherTableOnJoin() {
-        assertThrows(NullPointerException.class, () -> table.join(null, MockValueJoiner.TOSTRING_JOINER));
+        Assertions.assertThrows(NullPointerException.class, () -> table.join(null, MockValueJoiner.TOSTRING_JOINER));
     }
 
     @Test
@@ -511,57 +510,57 @@ public class KTableImplTest {
 
     @Test
     public void shouldNotAllowNullJoinerJoin() {
-        assertThrows(NullPointerException.class, () -> table.join(table, null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.join(table, null));
     }
 
     @Test
     public void shouldNotAllowNullOtherTableOnOuterJoin() {
-        assertThrows(NullPointerException.class, () -> table.outerJoin(null, MockValueJoiner.TOSTRING_JOINER));
+        Assertions.assertThrows(NullPointerException.class, () -> table.outerJoin(null, MockValueJoiner.TOSTRING_JOINER));
     }
 
     @Test
     public void shouldNotAllowNullJoinerOnOuterJoin() {
-        assertThrows(NullPointerException.class, () -> table.outerJoin(table, null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.outerJoin(table, null));
     }
 
     @Test
     public void shouldNotAllowNullJoinerOnLeftJoin() {
-        assertThrows(NullPointerException.class, () -> table.leftJoin(table, null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.leftJoin(table, null));
     }
 
     @Test
     public void shouldNotAllowNullOtherTableOnLeftJoin() {
-        assertThrows(NullPointerException.class, () -> table.leftJoin(null, MockValueJoiner.TOSTRING_JOINER));
+        Assertions.assertThrows(NullPointerException.class, () -> table.leftJoin(null, MockValueJoiner.TOSTRING_JOINER));
     }
 
     @Test
     public void shouldThrowNullPointerOnFilterWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> table.filter((key, value) -> false, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.filter((key, value) -> false, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnFilterNotWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> table.filterNot((key, value) -> false, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.filterNot((key, value) -> false, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnJoinWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> table.join(table, MockValueJoiner.TOSTRING_JOINER, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.join(table, MockValueJoiner.TOSTRING_JOINER, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnLeftJoinWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> table.leftJoin(table, MockValueJoiner.TOSTRING_JOINER, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.leftJoin(table, MockValueJoiner.TOSTRING_JOINER, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnOuterJoinWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> table.outerJoin(table, MockValueJoiner.TOSTRING_JOINER, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.outerJoin(table, MockValueJoiner.TOSTRING_JOINER, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnTransformValuesWithKeyWhenTransformerSupplierIsNull() {
-        assertThrows(NullPointerException.class, () -> table.transformValues(null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.transformValues(null));
     }
 
     @SuppressWarnings("unchecked")
@@ -569,13 +568,13 @@ public class KTableImplTest {
     public void shouldThrowNullPointerOnTransformValuesWithKeyWhenMaterializedIsNull() {
         final ValueTransformerWithKeySupplier<String, String, ?> valueTransformerSupplier =
             mock(ValueTransformerWithKeySupplier.class);
-        assertThrows(NullPointerException.class, () -> table.transformValues(valueTransformerSupplier, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.transformValues(valueTransformerSupplier, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnTransformValuesWithKeyWhenStoreNamesNull() {
         final ValueTransformerWithKeySupplier<String, String, ?> valueTransformerSupplier =
             mock(ValueTransformerWithKeySupplier.class);
-        assertThrows(NullPointerException.class, () -> table.transformValues(valueTransformerSupplier, (String[]) null));
+        Assertions.assertThrows(NullPointerException.class, () -> table.transformValues(valueTransformerSupplier, (String[]) null));
     }
 }

@@ -23,6 +23,7 @@ import org.apache.kafka.streams.errors.TaskAssignmentException;
 import org.apache.kafka.streams.processor.internals.StreamThread.State;
 import org.apache.kafka.streams.processor.internals.assignment.AssignorError;
 import org.easymock.EasyMock;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class StreamsRebalanceListenerTest {
 
@@ -68,7 +69,7 @@ public class StreamsRebalanceListenerTest {
         replay(taskManager, streamThread);
         assignmentErrorCode.set(AssignorError.INCOMPLETE_SOURCE_TOPIC_METADATA.code());
 
-        final MissingSourceTopicException exception = assertThrows(
+        final MissingSourceTopicException exception = Assertions.assertThrows(
             MissingSourceTopicException.class,
             () -> streamsRebalanceListener.onPartitionsAssigned(Collections.emptyList())
         );
@@ -106,7 +107,7 @@ public class StreamsRebalanceListenerTest {
         replay(taskManager, streamThread);
         assignmentErrorCode.set(AssignorError.ASSIGNMENT_ERROR.code());
 
-        final TaskAssignmentException exception = assertThrows(
+        final TaskAssignmentException exception = Assertions.assertThrows(
             TaskAssignmentException.class,
             () -> streamsRebalanceListener.onPartitionsAssigned(Collections.emptyList())
         );
@@ -119,7 +120,7 @@ public class StreamsRebalanceListenerTest {
         replay(taskManager, streamThread);
         assignmentErrorCode.set(Integer.MAX_VALUE);
 
-        final TaskAssignmentException exception = assertThrows(
+        final TaskAssignmentException exception = Assertions.assertThrows(
             TaskAssignmentException.class,
             () -> streamsRebalanceListener.onPartitionsAssigned(Collections.emptyList())
         );

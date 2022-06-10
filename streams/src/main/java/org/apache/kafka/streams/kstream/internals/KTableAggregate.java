@@ -66,7 +66,7 @@ public class KTableAggregate<KIn, VIn, VAgg> implements
         @SuppressWarnings("unchecked")
         @Override
         public void init(final ProcessorContext<KIn, Change<VAgg>> context) {
-            store = (TimestampedKeyValueStore<KIn, VAgg>) context.getStateStore(storeName);
+            store = context.getStateStore(storeName);
             tupleForwarder = new TimestampedTupleForwarder<>(
                 store,
                 context,

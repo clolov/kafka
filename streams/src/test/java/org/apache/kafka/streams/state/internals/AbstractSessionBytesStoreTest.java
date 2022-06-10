@@ -61,7 +61,7 @@ import static org.apache.kafka.test.StreamsTestUtils.valuesToSet;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 
 public abstract class AbstractSessionBytesStoreTest {
@@ -767,22 +767,22 @@ public abstract class AbstractSessionBytesStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionOnFindSessionsNullKey() {
-        assertThrows(NullPointerException.class, () -> sessionStore.findSessions(null, 1L, 2L));
+        Assertions.assertThrows(NullPointerException.class, () -> sessionStore.findSessions(null, 1L, 2L));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnFetchNullKey() {
-        assertThrows(NullPointerException.class, () -> sessionStore.fetch(null));
+        Assertions.assertThrows(NullPointerException.class, () -> sessionStore.fetch(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnRemoveNullKey() {
-        assertThrows(NullPointerException.class, () -> sessionStore.remove(null));
+        Assertions.assertThrows(NullPointerException.class, () -> sessionStore.remove(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutNullKey() {
-        assertThrows(NullPointerException.class, () -> sessionStore.put(null, 1L));
+        Assertions.assertThrows(NullPointerException.class, () -> sessionStore.put(null, 1L));
     }
 
     @Test

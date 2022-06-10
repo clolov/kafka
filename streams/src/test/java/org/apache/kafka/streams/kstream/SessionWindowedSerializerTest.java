@@ -28,8 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThrows;
-
 public class SessionWindowedSerializerTest {
     private final SessionWindowedSerializer<?> sessionWindowedSerializer = new SessionWindowedSerializer<>(Serdes.String().serializer());
     private final Map<String, String> props = new HashMap<>();
@@ -53,18 +51,18 @@ public class SessionWindowedSerializerTest {
     @Test
     public void shouldThrowErrorIfWindowInnerClassSerialiserIsNotSet() {
         final SessionWindowedSerializer<?> serializer = new SessionWindowedSerializer<>();
-        assertThrows(IllegalArgumentException.class, () -> serializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> serializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowErrorIfSerialisersConflictInConstructorAndConfig() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, Serdes.ByteArraySerde.class.getName());
-        assertThrows(IllegalArgumentException.class, () -> sessionWindowedSerializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> sessionWindowedSerializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowConfigExceptionWhenInvalidWindowInnerClassSerialiserSupplied() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, "some.non.existent.class");
-        assertThrows(ConfigException.class, () -> sessionWindowedSerializer.configure(props, false));
+        Assertions.assertThrows(ConfigException.class, () -> sessionWindowedSerializer.configure(props, false));
     }
 }

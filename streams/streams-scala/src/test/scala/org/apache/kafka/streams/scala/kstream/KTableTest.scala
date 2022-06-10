@@ -19,8 +19,8 @@ package org.apache.kafka.streams.scala.kstream
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig
 import org.apache.kafka.streams.kstream.{
   Named,
-  SlidingWindows,
   SessionWindows,
+  SlidingWindows,
   TimeWindows,
   Windowed,
   Suppressed => JSuppressed
@@ -31,9 +31,9 @@ import org.apache.kafka.streams.scala.utils.TestDriver
 import org.apache.kafka.streams.scala.{ByteArrayKeyValueStore, StreamsBuilder}
 import org.junit.jupiter.api.Assertions.{assertEquals, assertNull, assertTrue}
 import org.junit.jupiter.api.Test
+
 import java.time.Duration
 import java.time.Duration.ofMillis
-
 import scala.jdk.CollectionConverters._
 
 //noinspection ScalaDeprecation

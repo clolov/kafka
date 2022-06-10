@@ -25,8 +25,6 @@ import org.apache.kafka.streams.state.WindowBytesStoreSupplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
-
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
@@ -42,7 +40,7 @@ public class MaterializedTest {
     @Test
     public void shouldNotAllowInvalidTopicNames() {
         final String invalidName = "not:valid";
-        final TopologyException e = assertThrows(TopologyException.class,
+        final TopologyException e = Assertions.assertThrows(TopologyException.class,
             () -> Materialized.as(invalidName));
 
         Assertions.assertEquals(e.getMessage(), "Invalid topology: Name \"" + invalidName +
@@ -51,7 +49,7 @@ public class MaterializedTest {
 
     @Test
     public void shouldThrowNullPointerIfWindowBytesStoreSupplierIsNull() {
-        final NullPointerException e = assertThrows(NullPointerException.class,
+        final NullPointerException e = Assertions.assertThrows(NullPointerException.class,
             () -> Materialized.as((WindowBytesStoreSupplier) null));
 
         Assertions.assertEquals(e.getMessage(), "supplier can't be null");
@@ -59,7 +57,7 @@ public class MaterializedTest {
 
     @Test
     public void shouldThrowNullPointerIfKeyValueBytesStoreSupplierIsNull() {
-        final NullPointerException e = assertThrows(NullPointerException.class,
+        final NullPointerException e = Assertions.assertThrows(NullPointerException.class,
             () -> Materialized.as((KeyValueBytesStoreSupplier) null));
 
         Assertions.assertEquals(e.getMessage(), "supplier can't be null");
@@ -67,7 +65,7 @@ public class MaterializedTest {
 
     @Test
     public void shouldThrowNullPointerIfStoreTypeIsNull() {
-        final NullPointerException e = assertThrows(NullPointerException.class,
+        final NullPointerException e = Assertions.assertThrows(NullPointerException.class,
             () -> Materialized.as((Materialized.StoreType) null));
 
         Assertions.assertEquals(e.getMessage(), "store type can't be null");
@@ -75,7 +73,7 @@ public class MaterializedTest {
 
     @Test
     public void shouldThrowNullPointerIfSessionBytesStoreSupplierIsNull() {
-        final NullPointerException e = assertThrows(NullPointerException.class,
+        final NullPointerException e = Assertions.assertThrows(NullPointerException.class,
             () -> Materialized.as((SessionBytesStoreSupplier) null));
 
         Assertions.assertEquals(e.getMessage(), "supplier can't be null");
@@ -83,7 +81,7 @@ public class MaterializedTest {
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfRetentionIsNegative() {
-        final IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        final IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
             () -> Materialized.as("valid-name").withRetention(Duration.of(-1, ChronoUnit.DAYS)));
 
         Assertions.assertEquals(e.getMessage(), "Retention must not be negative.");
@@ -91,7 +89,7 @@ public class MaterializedTest {
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfStoreSupplierAndStoreTypeBothSet() {
-        final IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        final IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> Materialized.as(Stores.persistentKeyValueStore("test")).withStoreType(Materialized.StoreType.ROCKS_DB));
 
         Assertions.assertEquals(e.getMessage(), "Cannot set store type when store supplier is pre-configured.");
@@ -108,7 +106,7 @@ public class MaterializedTest {
 
         final String invalidStoreName = invalidStoreNameBuffer.toString();
 
-        final TopologyException e = assertThrows(TopologyException.class,
+        final TopologyException e = Assertions.assertThrows(TopologyException.class,
             () -> Materialized.as(invalidStoreName));
         Assertions.assertEquals(e.getMessage(), "Invalid topology: Name is illegal, it can't be longer than " + maxNameLength +
                 " characters, name: " + invalidStoreName);

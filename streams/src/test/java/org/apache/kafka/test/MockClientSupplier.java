@@ -27,6 +27,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.streams.KafkaClientSupplier;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +35,6 @@ import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
 
 public class MockClientSupplier implements KafkaClientSupplier {
     private static final ByteArraySerializer BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
@@ -66,7 +66,7 @@ public class MockClientSupplier implements KafkaClientSupplier {
         if (applicationId != null) {
             assertThat((String) config.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG), startsWith(applicationId + "-"));
         } else {
-            assertFalse(config.containsKey(ProducerConfig.TRANSACTIONAL_ID_CONFIG));
+            Assertions.assertFalse(config.containsKey(ProducerConfig.TRANSACTIONAL_ID_CONFIG));
         }
         final MockProducer<byte[], byte[]> producer = new MockProducer<>(cluster, true, BYTE_ARRAY_SERIALIZER, BYTE_ARRAY_SERIALIZER);
         producers.add(producer);

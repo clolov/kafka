@@ -17,25 +17,20 @@
 
 package org.apache.kafka.streams.tests;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-
+@Timeout(600)
 public class SystemTestUtilTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     private final Map<String, String> expectedParsedMap = new TreeMap<>();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         expectedParsedMap.put("foo", "foo1");
         expectedParsedMap.put("bar", "bar1");
@@ -47,24 +42,24 @@ public class SystemTestUtilTest {
         final String formattedConfigs = "foo=foo1,bar=bar1,baz=baz1";
         final Map<String, String> parsedMap = SystemTestUtil.parseConfigs(formattedConfigs);
         final TreeMap<String, String> sortedParsedMap = new TreeMap<>(parsedMap);
-        assertEquals(sortedParsedMap, expectedParsedMap);
+        Assertions.assertEquals(sortedParsedMap, expectedParsedMap);
     }
 
     @Test
     public void shouldThrowExceptionOnNull() {
-        assertThrows(NullPointerException.class, () -> SystemTestUtil.parseConfigs(null));
+        Assertions.assertThrows(NullPointerException.class, () -> SystemTestUtil.parseConfigs(null));
     }
 
     @Test
     public void shouldThrowExceptionIfNotCorrectKeyValueSeparator() {
         final String badString = "foo:bar,baz:boo";
-        assertThrows(IllegalStateException.class, () -> SystemTestUtil.parseConfigs(badString));
+        Assertions.assertThrows(IllegalStateException.class, () -> SystemTestUtil.parseConfigs(badString));
     }
 
     @Test
     public void shouldThrowExceptionIfNotCorrectKeyValuePairSeparator() {
         final String badString = "foo=bar;baz=boo";
-        assertThrows(IllegalStateException.class, () -> SystemTestUtil.parseConfigs(badString));
+        Assertions.assertThrows(IllegalStateException.class, () -> SystemTestUtil.parseConfigs(badString));
     }
 
     @Test
@@ -73,7 +68,7 @@ public class SystemTestUtilTest {
         expectedSinglePairMap.put("foo", "bar");
         final String singleValueString = "foo=bar";
         final Map<String, String> parsedMap = SystemTestUtil.parseConfigs(singleValueString);
-        assertEquals(expectedSinglePairMap, parsedMap);
+        Assertions.assertEquals(expectedSinglePairMap, parsedMap);
     }
 
 

@@ -34,7 +34,8 @@ import org.easymock.Capture;
 import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -65,6 +66,7 @@ import static org.apache.kafka.streams.processor.internals.metrics.StreamsMetric
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.capture;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.newCapture;
@@ -72,7 +74,6 @@ import static org.easymock.EasyMock.niceMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.resetToDefault;
 import static org.easymock.EasyMock.verify;
-import static org.easymock.EasyMock.eq;
 import static org.hamcrest.CoreMatchers.equalToObject;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -81,9 +82,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.powermock.api.easymock.PowerMock.createMock;
 
 @RunWith(PowerMockRunner.class)
@@ -730,12 +728,12 @@ public class StreamsMetricsImplTest {
 
     @Test
     public void testNullMetrics() {
-        assertThrows(NullPointerException.class, () -> new StreamsMetricsImpl(null, "", VERSION, time));
+        Assertions.assertThrows(NullPointerException.class, () -> new StreamsMetricsImpl(null, "", VERSION, time));
     }
 
     @Test
     public void testRemoveNullSensor() {
-        assertThrows(NullPointerException.class, () -> streamsMetrics.removeSensor(null));
+        Assertions.assertThrows(NullPointerException.class, () -> streamsMetrics.removeSensor(null));
     }
 
     @Test
@@ -757,7 +755,7 @@ public class StreamsMetricsImplTest {
         final Sensor sensor3 = streamsMetrics.addRateTotalSensor(scope, entity, operation, RecordingLevel.DEBUG);
         streamsMetrics.removeSensor(sensor3);
 
-        assertEquals(Collections.emptyMap(), streamsMetrics.parentSensors());
+        Assertions.assertEquals(Collections.emptyMap(), streamsMetrics.parentSensors());
     }
 
     @Test
@@ -840,10 +838,10 @@ public class StreamsMetricsImplTest {
         final int meterMetricsCount = 2; // Each Meter is a combination of a Rate and a Total
         final int otherMetricsCount = 2; // Latency-max and Latency-avg
         // 2 meters and 2 non-meter metrics plus a common metric that keeps track of total registered metrics in Metrics() constructor
-        assertEquals(defaultMetrics + meterMetricsCount + otherMetricsCount, streamsMetrics.metrics().size());
+        Assertions.assertEquals(defaultMetrics + meterMetricsCount + otherMetricsCount, streamsMetrics.metrics().size());
 
         streamsMetrics.removeSensor(sensor1);
-        assertEquals(defaultMetrics, streamsMetrics.metrics().size());
+        Assertions.assertEquals(defaultMetrics, streamsMetrics.metrics().size());
     }
 
     @Test
@@ -858,10 +856,10 @@ public class StreamsMetricsImplTest {
 
         final int meterMetricsCount = 2; // Each Meter is a combination of a Rate and a Total
         // 2 meter metrics plus a common metric that keeps track of total registered metrics in Metrics() constructor
-        assertEquals(defaultMetrics + meterMetricsCount, streamsMetrics.metrics().size());
+        Assertions.assertEquals(defaultMetrics + meterMetricsCount, streamsMetrics.metrics().size());
 
         streamsMetrics.removeSensor(sensor1);
-        assertEquals(defaultMetrics, streamsMetrics.metrics().size());
+        Assertions.assertEquals(defaultMetrics, streamsMetrics.metrics().size());
     }
 
     @Test
@@ -896,7 +894,7 @@ public class StreamsMetricsImplTest {
         final KafkaMetric totalMetric = metrics.metric(totalMetricName);
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(i, Math.round(totalMetric.measurable().measure(config, time.milliseconds())));
+            Assertions.assertEquals(i, Math.round(totalMetric.measurable().measure(config, time.milliseconds())));
             sensor.record(latency, time.milliseconds());
         }
     }
@@ -985,13 +983,13 @@ public class StreamsMetricsImplTest {
                                                final List<String> metricsNames,
                                                final Map<String, String> tags) {
         final String group = "stream-" + SCOPE_NAME + "-metrics";
-        assertTrue(sensor.hasMetrics());
+        Assertions.assertTrue(sensor.hasMetrics());
         assertThat(
             sensor.name(),
             is("external." + Thread.currentThread().getName() + ".entity." + ENTITY_NAME + ".s." + OPERATION_NAME)
         );
         for (final String name : metricsNames) {
-            assertTrue(StreamsTestUtils.containsMetric(metrics, name, group, tags));
+            Assertions.assertTrue(StreamsTestUtils.containsMetric(metrics, name, group, tags));
         }
     }
 
@@ -1014,7 +1012,7 @@ public class StreamsMetricsImplTest {
 
     @Test
     public void shouldThrowIfLatencyRateTotalSensorIsAddedWithOddTags() {
-        final IllegalArgumentException exception = assertThrows(
+        final IllegalArgumentException exception = Assertions.assertThrows(
             IllegalArgumentException.class,
             () -> streamsMetrics.addLatencyRateTotalSensor(
                 SCOPE_NAME,
@@ -1028,7 +1026,7 @@ public class StreamsMetricsImplTest {
 
     @Test
     public void shouldThrowIfRateTotalSensorIsAddedWithOddTags() {
-        final IllegalArgumentException exception = assertThrows(
+        final IllegalArgumentException exception = Assertions.assertThrows(
             IllegalArgumentException.class,
             () -> streamsMetrics.addRateTotalSensor(
                 SCOPE_NAME,

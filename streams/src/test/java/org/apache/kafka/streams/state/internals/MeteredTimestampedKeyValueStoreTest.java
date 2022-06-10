@@ -47,10 +47,11 @@ import org.apache.kafka.test.KeyValueIteratorStub;
 import org.easymock.EasyMockRule;
 import org.easymock.Mock;
 import org.easymock.MockType;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
- 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -68,10 +69,6 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class MeteredTimestampedKeyValueStoreTest {
 
@@ -108,7 +105,7 @@ public class MeteredTimestampedKeyValueStoreTest {
     private final Metrics metrics = new Metrics();
     private Map<String, String> tags;
 
-    @Before
+    @BeforeEach
     public void before() {
         final Time mockTime = new MockTime();
         metered = new MeteredTimestampedKeyValueStore<>(
@@ -232,12 +229,12 @@ public class MeteredTimestampedKeyValueStoreTest {
         reporter.contextChange(metricsContext);
 
         metrics.addReporter(reporter);
-        assertTrue(reporter.containsMbean(String.format(
+        Assertions.assertTrue(reporter.containsMbean(String.format(
             "kafka.streams:type=%s,%s=%s,task-id=%s,%s-state-id=%s",
             STORE_LEVEL_GROUP,
             THREAD_ID_TAG_KEY,
             threadId,
-            taskId.toString(),
+                taskId,
             STORE_TYPE,
             STORE_NAME
         )));
@@ -251,7 +248,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         metered.put(KEY, VALUE_AND_TIMESTAMP);
 
         final KafkaMetric metric = metric("put-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -264,8 +261,8 @@ public class MeteredTimestampedKeyValueStoreTest {
         init();
 
         final RawAndDeserializedValue<String> valueWithBinary = metered.getWithBinary(KEY);
-        assertEquals(valueWithBinary.value, VALUE_AND_TIMESTAMP);
-        assertEquals(valueWithBinary.serializedValue, VALUE_AND_TIMESTAMP_BYTES);
+        Assertions.assertEquals(valueWithBinary.value, VALUE_AND_TIMESTAMP);
+        Assertions.assertEquals(valueWithBinary.serializedValue, VALUE_AND_TIMESTAMP_BYTES);
     }
 
     @SuppressWarnings("resource")
@@ -278,7 +275,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         final byte[] encodedOldValue = stringSerde.serializer().serialize("TOPIC", VALUE_AND_TIMESTAMP);
 
         final ValueAndTimestamp<String> newValueAndTimestamp = ValueAndTimestamp.make("value", 98L);
-        assertFalse(metered.putIfDifferentValues(KEY, newValueAndTimestamp, encodedOldValue));
+        Assertions.assertFalse(metered.putIfDifferentValues(KEY, newValueAndTimestamp, encodedOldValue));
         verify(inner);
     }
 
@@ -295,7 +292,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         final byte[] encodedOldValue = stringSerde.serializer().serialize("TOPIC", VALUE_AND_TIMESTAMP);
 
         final ValueAndTimestamp<String> outOfOrderValueAndTimestamp = ValueAndTimestamp.make("value", 95L);
-        assertTrue(metered.putIfDifferentValues(KEY, outOfOrderValueAndTimestamp, encodedOldValue));
+        Assertions.assertTrue(metered.putIfDifferentValues(KEY, outOfOrderValueAndTimestamp, encodedOldValue));
         verify(inner);
     }
 
@@ -307,7 +304,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         assertThat(metered.get(KEY), equalTo(VALUE_AND_TIMESTAMP));
 
         final KafkaMetric metric = metric("get-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -319,7 +316,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         metered.putIfAbsent(KEY, VALUE_AND_TIMESTAMP);
 
         final KafkaMetric metric = metric("put-if-absent-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -337,7 +334,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         metered.putAll(Collections.singletonList(KeyValue.pair(KEY, VALUE_AND_TIMESTAMP)));
 
         final KafkaMetric metric = metric("put-all-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -349,7 +346,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         metered.delete(KEY);
 
         final KafkaMetric metric = metric("delete-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -361,11 +358,11 @@ public class MeteredTimestampedKeyValueStoreTest {
 
         final KeyValueIterator<String, ValueAndTimestamp<String>> iterator = metered.range(KEY, KEY);
         assertThat(iterator.next().value, equalTo(VALUE_AND_TIMESTAMP));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         final KafkaMetric metric = metric("range-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -377,11 +374,11 @@ public class MeteredTimestampedKeyValueStoreTest {
 
         final KeyValueIterator<String, ValueAndTimestamp<String>> iterator = metered.all();
         assertThat(iterator.next().value, equalTo(VALUE_AND_TIMESTAMP));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         final KafkaMetric metric = metric(new MetricName("all-rate", STORE_LEVEL_GROUP, "", tags));
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -394,7 +391,7 @@ public class MeteredTimestampedKeyValueStoreTest {
         metered.flush();
 
         final KafkaMetric metric = metric("flush-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -414,14 +411,14 @@ public class MeteredTimestampedKeyValueStoreTest {
             new MockTime(),
             Serdes.String(),
             new ValueAndTimestampSerde<>(Serdes.String()));
-        assertTrue(metered.setFlushListener(null, false));
+        Assertions.assertTrue(metered.setFlushListener(null, false));
 
         verify(cachedKeyValueStore);
     }
 
     @Test
     public void shouldNotSetFlushListenerOnWrappedNoneCachingStore() {
-        assertFalse(metered.setFlushListener(null, false));
+        Assertions.assertFalse(metered.setFlushListener(null, false));
     }
 
     private KafkaMetric metric(final MetricName metricName) {
@@ -473,7 +470,7 @@ public class MeteredTimestampedKeyValueStoreTest {
             store.put("key", ValueAndTimestamp.make(42L, 60000));
         } catch (final StreamsException exception) {
             if (exception.getCause() instanceof ClassCastException) {
-                fail("Serdes are not correctly set from constructor parameters.");
+                Assertions.fail("Serdes are not correctly set from constructor parameters.");
             }
             throw exception;
         }

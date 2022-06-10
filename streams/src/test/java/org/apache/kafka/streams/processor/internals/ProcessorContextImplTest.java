@@ -71,7 +71,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertThrows;
+
 
 public class ProcessorContextImplTest {
     private ProcessorContextImpl context;
@@ -453,7 +453,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnLogChange() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.logChange("Store", Bytes.wrap("k".getBytes()), null, 0L, Position.emptyPosition())
         );
@@ -462,7 +462,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnGetStateStore() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.getStateStore("store")
         );
@@ -471,7 +471,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnForward() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.forward("key", "value")
         );
@@ -480,7 +480,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnForwardWithTo() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.forward("key", "value", To.child("child-name"))
         );
@@ -489,7 +489,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnCommit() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.commit()
         );
@@ -498,7 +498,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnSchedule() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.schedule(Duration.ofMillis(100L), PunctuationType.STREAM_TIME, t -> { })
         );
@@ -507,7 +507,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnTopic() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.topic()
         );
@@ -515,7 +515,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnPartition() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.partition()
         );
@@ -524,7 +524,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnOffset() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.offset()
         );
@@ -533,7 +533,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnTimestamp() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.timestamp()
         );
@@ -542,7 +542,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnCurrentNode() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.currentNode()
         );
@@ -551,7 +551,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnSetRecordContext() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.setRecordContext(mock(ProcessorRecordContext.class))
         );
@@ -560,7 +560,7 @@ public class ProcessorContextImplTest {
     @Test
     public void shouldThrowUnsupportedOperationExceptionOnRecordContext() {
         context = getStandbyContext();
-        assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> context.recordContext()
         );
@@ -598,7 +598,7 @@ public class ProcessorContextImplTest {
         Assertions.assertEquals(10L, context.processorMetadataForKey("key1").longValue());
         Assertions.assertEquals(100L, context.processorMetadataForKey("key2").longValue());
 
-        assertThrows(NullPointerException.class, () -> context.setProcessorMetadata(null));
+        Assertions.assertThrows(NullPointerException.class, () -> context.setProcessorMetadata(null));
     }
 
     @SuppressWarnings("unchecked")

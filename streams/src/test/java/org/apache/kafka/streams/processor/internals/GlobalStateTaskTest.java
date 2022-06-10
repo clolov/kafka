@@ -68,7 +68,7 @@ public class GlobalStateTaskTest {
     private final MockProcessorNode<?, ?, ?, ?> processorTwo = new MockProcessorNode<>();
 
     private final Map<TopicPartition, Long> offsets = new HashMap<>();
-    private File testDirectory = TestUtils.tempDirectory("global-store");
+    private final File testDirectory = TestUtils.tempDirectory("global-store");
     private final NoOpProcessorContext context = new NoOpProcessorContext();
 
     private ProcessorTopology topology;

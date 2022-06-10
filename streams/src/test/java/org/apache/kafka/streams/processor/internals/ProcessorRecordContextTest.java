@@ -21,7 +21,7 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
+
 
 public class ProcessorRecordContextTest {
     // timestamp + offset + partition: 8 + 8 + 4
@@ -29,7 +29,7 @@ public class ProcessorRecordContextTest {
 
     @Test
     public void shouldNotAllowNullHeaders() {
-        assertThrows(
+        Assertions.assertThrows(
             NullPointerException.class,
             () -> new ProcessorRecordContext(
                 42L,

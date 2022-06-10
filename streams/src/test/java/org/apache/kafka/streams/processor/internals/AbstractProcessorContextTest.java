@@ -52,7 +52,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyIterable;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
+
 
 public class AbstractProcessorContextTest {
 
@@ -85,7 +85,7 @@ public class AbstractProcessorContextTest {
 
     @Test
     public void shouldThrowNullPointerOnRegisterIfStateStoreIsNull() {
-        assertThrows(NullPointerException.class, () -> context.register(null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> context.register(null, null));
     }
 
     @Test
@@ -180,8 +180,8 @@ public class AbstractProcessorContextTest {
         config.put(StreamsConfig.ROCKSDB_CONFIG_SETTER_CLASS_CONFIG, RocksDBConfigSetter.class.getName());
         config.put("user.supplied.config", "user-supplied-value");
         final TestProcessorContext pc = new TestProcessorContext(metrics, config);
-        assertThrows(ConfigException.class, pc::keySerde);
-        assertThrows(ConfigException.class, pc::valueSerde);
+        Assertions.assertThrows(ConfigException.class, pc::keySerde);
+        Assertions.assertThrows(ConfigException.class, pc::valueSerde);
     }
 
     private static class TestProcessorContext extends AbstractProcessorContext<Object, Object> {

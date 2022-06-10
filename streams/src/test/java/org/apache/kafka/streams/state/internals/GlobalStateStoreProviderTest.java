@@ -54,7 +54,7 @@ import static org.easymock.EasyMock.replay;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThrows;
+
 
 
 public class GlobalStateStoreProviderTest {
@@ -149,7 +149,7 @@ public class GlobalStateStoreProviderTest {
         store.close();
         final GlobalStateStoreProvider provider =
             new GlobalStateStoreProvider(Collections.singletonMap("global", store));
-        assertThrows(InvalidStateStoreException.class, () -> provider.stores("global",
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> provider.stores("global",
             QueryableStoreTypes.keyValueStore()));
     }
 

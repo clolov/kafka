@@ -18,7 +18,6 @@ package org.apache.kafka.streams.scala
 package kstream
 
 import org.apache.kafka.streams.kstream.internals.KTableImpl
-import org.apache.kafka.streams.scala.serialization.Serdes
 import org.apache.kafka.streams.kstream.{
   SessionWindows,
   SlidingWindows,
@@ -33,6 +32,7 @@ import org.apache.kafka.streams.scala.FunctionsCompatConversions.{
   ReducerFromFunction,
   ValueMapperFromFunction
 }
+import org.apache.kafka.streams.scala.serialization.Serdes
 
 /**
  * Wraps the Java class KGroupedStream and delegates method calls to the underlying Java object.

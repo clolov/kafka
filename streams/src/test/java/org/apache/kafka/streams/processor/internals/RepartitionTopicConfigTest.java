@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.assertThrows;
+
 
 public class RepartitionTopicConfigTest {
 
@@ -34,7 +34,7 @@ public class RepartitionTopicConfigTest {
                                                                                          10,
                                                                                          true);
 
-        final UnsupportedOperationException ex = assertThrows(
+        final UnsupportedOperationException ex = Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> repartitionTopicConfig.setNumberOfPartitions(2)
         );

@@ -40,16 +40,15 @@ import org.apache.kafka.streams.processor.internals.namedtopology.NamedTopologyS
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.QueryableStoreType;
 import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.TestCondition;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,20 +71,16 @@ import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.st
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.waitForApplicationState;
 import static org.apache.kafka.streams.state.QueryableStoreTypes.keyValueStore;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.anyOf;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
-@Category({IntegrationTest.class})
+@Timeout(600)
+@Tag("integration")
 public class StoreQueryIntegrationTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     private static final Logger LOG = LoggerFactory.getLogger(StoreQueryIntegrationTest.class);
 
     private static final int NUM_BROKERS = 1;
@@ -95,19 +90,16 @@ public class StoreQueryIntegrationTest {
 
     public final EmbeddedKafkaCluster cluster = new EmbeddedKafkaCluster(NUM_BROKERS);
 
-    @Rule
-    public TestName testName = new TestName();
-
     private final List<KafkaStreams> streamsToCleanup = new ArrayList<>();
     private final MockTime mockTime = cluster.time;
 
-    @Before
+    @BeforeEach
     public void before() throws InterruptedException, IOException {
         cluster.start();
         cluster.createTopic(INPUT_TOPIC_NAME, 2, 1);
     }
 
-    @After
+    @AfterEach
     public void after() {
         for (final KafkaStreams kafkaStreams : streamsToCleanup) {
             kafkaStreams.close();
@@ -116,7 +108,7 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQueryOnlyActivePartitionStoresByDefault() throws Exception {
+    public void shouldQueryOnlyActivePartitionStoresByDefault(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final Semaphore semaphore = new Semaphore(0);
@@ -124,8 +116,8 @@ public class StoreQueryIntegrationTest {
         final StreamsBuilder builder = new StreamsBuilder();
         getStreamsBuilderWithTopology(builder, semaphore);
 
-        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration());
-        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration());
+        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration(testInfo));
+        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration(testInfo));
         final List<KafkaStreams> kafkaStreamsList = Arrays.asList(kafkaStreams1, kafkaStreams2);
 
         startApplicationAndWaitUntilRunning(kafkaStreamsList, Duration.ofSeconds(60));
@@ -162,7 +154,7 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQuerySpecificActivePartitionStores() throws Exception {
+    public void shouldQuerySpecificActivePartitionStores(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final Semaphore semaphore = new Semaphore(0);
@@ -170,8 +162,8 @@ public class StoreQueryIntegrationTest {
         final StreamsBuilder builder = new StreamsBuilder();
         getStreamsBuilderWithTopology(builder, semaphore);
 
-        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration());
-        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration());
+        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration(testInfo));
+        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration(testInfo));
         final List<KafkaStreams> kafkaStreamsList = Arrays.asList(kafkaStreams1, kafkaStreams2);
 
         startApplicationAndWaitUntilRunning(kafkaStreamsList, Duration.ofSeconds(60));
@@ -221,7 +213,7 @@ public class StoreQueryIntegrationTest {
                     assertThat(store1.get(key), is(notNullValue()));
                     assertThat(getStore(kafkaStreams2, storeQueryParam2).get(key), is(nullValue()));
                     final InvalidStateStoreException exception =
-                        assertThrows(InvalidStateStoreException.class, () -> getStore(kafkaStreams1, storeQueryParam2).get(key));
+                        Assertions.assertThrows(InvalidStateStoreException.class, () -> getStore(kafkaStreams1, storeQueryParam2).get(key));
                     assertThat(
                         exception.getMessage(),
                         containsString("The specified partition 1 for store source-table does not exist.")
@@ -230,7 +222,7 @@ public class StoreQueryIntegrationTest {
                     assertThat(store2.get(key), is(notNullValue()));
                     assertThat(getStore(kafkaStreams1, storeQueryParam2).get(key), is(nullValue()));
                     final InvalidStateStoreException exception =
-                        assertThrows(InvalidStateStoreException.class, () -> getStore(kafkaStreams2, storeQueryParam2).get(key));
+                        Assertions.assertThrows(InvalidStateStoreException.class, () -> getStore(kafkaStreams2, storeQueryParam2).get(key));
                     assertThat(
                         exception.getMessage(),
                         containsString("The specified partition 1 for store source-table does not exist.")
@@ -246,7 +238,7 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQueryAllStalePartitionStores() throws Exception {
+    public void shouldQueryAllStalePartitionStores(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final Semaphore semaphore = new Semaphore(0);
@@ -254,8 +246,8 @@ public class StoreQueryIntegrationTest {
         final StreamsBuilder builder = new StreamsBuilder();
         getStreamsBuilderWithTopology(builder, semaphore);
 
-        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration());
-        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration());
+        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration(testInfo));
+        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration(testInfo));
         final List<KafkaStreams> kafkaStreamsList = Arrays.asList(kafkaStreams1, kafkaStreams2);
 
         startApplicationAndWaitUntilRunning(kafkaStreamsList, Duration.ofSeconds(60));
@@ -279,7 +271,7 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQuerySpecificStalePartitionStores() throws Exception {
+    public void shouldQuerySpecificStalePartitionStores(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final Semaphore semaphore = new Semaphore(0);
@@ -287,8 +279,8 @@ public class StoreQueryIntegrationTest {
         final StreamsBuilder builder = new StreamsBuilder();
         getStreamsBuilderWithTopology(builder, semaphore);
 
-        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration());
-        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration());
+        final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration(testInfo));
+        final KafkaStreams kafkaStreams2 = createKafkaStreams(builder, streamsConfiguration(testInfo));
         final List<KafkaStreams> kafkaStreamsList = Arrays.asList(kafkaStreams1, kafkaStreams2);
 
         startApplicationAndWaitUntilRunning(kafkaStreamsList, Duration.ofSeconds(60));
@@ -333,7 +325,7 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQuerySpecificStalePartitionStoresMultiStreamThreads() throws Exception {
+    public void shouldQuerySpecificStalePartitionStoresMultiStreamThreads(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final Semaphore semaphore = new Semaphore(0);
@@ -342,10 +334,10 @@ public class StoreQueryIntegrationTest {
         final StreamsBuilder builder = new StreamsBuilder();
         getStreamsBuilderWithTopology(builder, semaphore);
 
-        final Properties streamsConfiguration1 = streamsConfiguration();
+        final Properties streamsConfiguration1 = streamsConfiguration(testInfo);
         streamsConfiguration1.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, numStreamThreads);
 
-        final Properties streamsConfiguration2 = streamsConfiguration();
+        final Properties streamsConfiguration2 = streamsConfiguration(testInfo);
         streamsConfiguration2.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, numStreamThreads);
 
         final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration1);
@@ -354,8 +346,8 @@ public class StoreQueryIntegrationTest {
 
         startApplicationAndWaitUntilRunning(kafkaStreamsList, Duration.ofSeconds(60));
 
-        assertTrue(kafkaStreams1.metadataForLocalThreads().size() > 1);
-        assertTrue(kafkaStreams2.metadataForLocalThreads().size() > 1);
+        Assertions.assertTrue(kafkaStreams1.metadataForLocalThreads().size() > 1);
+        Assertions.assertTrue(kafkaStreams2.metadataForLocalThreads().size() > 1);
 
         produceValueRange(key, 0, batch1NumMessages);
 
@@ -397,16 +389,16 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQuerySpecificStalePartitionStoresMultiStreamThreadsNamedTopology() throws Exception {
+    public void shouldQuerySpecificStalePartitionStoresMultiStreamThreadsNamedTopology(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final Semaphore semaphore = new Semaphore(0);
         final int numStreamThreads = 2;
 
-        final Properties streamsConfiguration1 = streamsConfiguration();
+        final Properties streamsConfiguration1 = streamsConfiguration(testInfo);
         streamsConfiguration1.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, numStreamThreads);
 
-        final Properties streamsConfiguration2 = streamsConfiguration();
+        final Properties streamsConfiguration2 = streamsConfiguration(testInfo);
         streamsConfiguration2.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, numStreamThreads);
 
         final String topologyA = "topology-A";
@@ -425,8 +417,8 @@ public class StoreQueryIntegrationTest {
         kafkaStreams2.start(builder2A.build());
         waitForApplicationState(kafkaStreamsList, State.RUNNING, Duration.ofSeconds(60));
 
-        assertTrue(kafkaStreams1.metadataForLocalThreads().size() > 1);
-        assertTrue(kafkaStreams2.metadataForLocalThreads().size() > 1);
+        Assertions.assertTrue(kafkaStreams1.metadataForLocalThreads().size() > 1);
+        Assertions.assertTrue(kafkaStreams2.metadataForLocalThreads().size() > 1);
 
         produceValueRange(key, 0, batch1NumMessages);
 
@@ -468,7 +460,7 @@ public class StoreQueryIntegrationTest {
     }
 
     @Test
-    public void shouldQueryStoresAfterAddingAndRemovingStreamThread() throws Exception {
+    public void shouldQueryStoresAfterAddingAndRemovingStreamThread(final TestInfo testInfo) throws Exception {
         final int batch1NumMessages = 100;
         final int key = 1;
         final int key2 = 2;
@@ -478,7 +470,7 @@ public class StoreQueryIntegrationTest {
         final StreamsBuilder builder = new StreamsBuilder();
         getStreamsBuilderWithTopology(builder, semaphore);
 
-        final Properties streamsConfiguration1 = streamsConfiguration();
+        final Properties streamsConfiguration1 = streamsConfiguration(testInfo);
         streamsConfiguration1.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 1);
 
         final KafkaStreams kafkaStreams1 = createKafkaStreams(builder, streamsConfiguration1);
@@ -598,8 +590,8 @@ public class StoreQueryIntegrationTest {
             mockTime);
     }
 
-    private Properties streamsConfiguration() {
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+    private Properties streamsConfiguration(final TestInfo testInfo) {
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         final Properties config = new Properties();
         config.put(StreamsConfig.TOPOLOGY_OPTIMIZATION_CONFIG, StreamsConfig.OPTIMIZE);
         config.put(StreamsConfig.APPLICATION_ID_CONFIG, "app-" + safeTestName);

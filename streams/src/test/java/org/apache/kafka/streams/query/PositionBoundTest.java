@@ -27,7 +27,7 @@ import static org.apache.kafka.common.utils.Utils.mkSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 public class PositionBoundTest {
 
@@ -82,13 +82,13 @@ public class PositionBoundTest {
     @Test
     public void shouldNotHash() {
         final PositionBound bound = PositionBound.at(Position.emptyPosition());
-        assertThrows(UnsupportedOperationException.class, bound::hashCode);
+        Assertions.assertThrows(UnsupportedOperationException.class, bound::hashCode);
 
         // going overboard...
         final HashSet<PositionBound> set = new HashSet<>();
-        assertThrows(UnsupportedOperationException.class, () -> set.add(bound));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> set.add(bound));
 
         final HashMap<PositionBound, Integer> map = new HashMap<>();
-        assertThrows(UnsupportedOperationException.class, () -> map.put(bound, 5));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> map.put(bound, 5));
     }
 }

@@ -18,14 +18,14 @@ package org.apache.kafka.streams.scala
 package kstream
 
 import org.apache.kafka.streams.kstream.internals.KTableImpl
-import org.apache.kafka.streams.scala.serialization.Serdes
-import org.apache.kafka.streams.kstream.{KTable => KTableJ, TimeWindowedKStream => TimeWindowedKStreamJ, Windowed}
+import org.apache.kafka.streams.kstream.{Windowed, KTable => KTableJ, TimeWindowedKStream => TimeWindowedKStreamJ}
 import org.apache.kafka.streams.scala.FunctionsCompatConversions.{
   AggregatorFromFunction,
   InitializerFromFunction,
   ReducerFromFunction,
   ValueMapperFromFunction
 }
+import org.apache.kafka.streams.scala.serialization.Serdes
 
 /**
  * Wraps the Java class TimeWindowedKStream and delegates method calls to the underlying Java object.

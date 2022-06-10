@@ -43,25 +43,24 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
-import java.util.Collections;
-import java.util.Optional;
 
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkSet;
 import static org.apache.kafka.streams.processor.internals.ClientUtils.consumerRecordSizeInBytes;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThrows;
+
 
 public class PartitionGroupTest {
 
@@ -381,7 +380,7 @@ public class PartitionGroupTest {
     public void shouldThrowIllegalStateExceptionUponAddRecordsIfPartitionUnknown() {
         final PartitionGroup group = getBasicGroup();
 
-        final IllegalStateException exception = assertThrows(
+        final IllegalStateException exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> group.addRawRecords(unknownPartition, null));
         assertThat(errMessage, equalTo(exception.getMessage()));
@@ -391,7 +390,7 @@ public class PartitionGroupTest {
     public void shouldThrowIllegalStateExceptionUponNumBufferedIfPartitionUnknown() {
         final PartitionGroup group = getBasicGroup();
 
-        final IllegalStateException exception = assertThrows(
+        final IllegalStateException exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> group.numBuffered(unknownPartition));
         assertThat(errMessage, equalTo(exception.getMessage()));
@@ -401,7 +400,7 @@ public class PartitionGroupTest {
     public void shouldThrowIllegalStateExceptionUponSetPartitionTimestampIfPartitionUnknown() {
         final PartitionGroup group = getBasicGroup();
 
-        final IllegalStateException exception = assertThrows(
+        final IllegalStateException exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> group.setPartitionTime(unknownPartition, 0L));
         assertThat(errMessage, equalTo(exception.getMessage()));
@@ -411,7 +410,7 @@ public class PartitionGroupTest {
     public void shouldThrowIllegalStateExceptionUponGetPartitionTimestampIfPartitionUnknown() {
         final PartitionGroup group = getBasicGroup();
 
-        final IllegalStateException exception = assertThrows(
+        final IllegalStateException exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> group.partitionTimestamp(unknownPartition));
         assertThat(errMessage, equalTo(exception.getMessage()));
@@ -421,7 +420,7 @@ public class PartitionGroupTest {
     public void shouldThrowIllegalStateExceptionUponGetHeadRecordOffsetIfPartitionUnknown() {
         final PartitionGroup group = getBasicGroup();
 
-        final IllegalStateException exception = assertThrows(
+        final IllegalStateException exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> group.headRecordOffset(unknownPartition));
         assertThat(errMessage, equalTo(exception.getMessage()));
@@ -475,7 +474,7 @@ public class PartitionGroupTest {
         Assertions.assertTrue(group.allPartitionsBufferedLocally());  // because didn't add any new partitions
         Assertions.assertEquals(list2.size(), group.numBuffered());
         Assertions.assertEquals(1, group.streamTime());
-        assertThrows(IllegalStateException.class, () -> group.partitionTimestamp(partition1));
+        Assertions.assertThrows(IllegalStateException.class, () -> group.partitionTimestamp(partition1));
         assertThat(group.nextRecord(new PartitionGroup.RecordInfo(), time.milliseconds()), notNullValue());  // can access buffered records
         assertThat(group.partitionTimestamp(partition2), equalTo(2L));
     }
@@ -542,7 +541,7 @@ public class PartitionGroupTest {
         Assertions.assertFalse(group.allPartitionsBufferedLocally());  // because added new partition
         Assertions.assertEquals(0, group.numBuffered());
         Assertions.assertEquals(1, group.streamTime());
-        assertThrows(IllegalStateException.class, () -> group.partitionTimestamp(partition1));
+        Assertions.assertThrows(IllegalStateException.class, () -> group.partitionTimestamp(partition1));
         assertThat(group.partitionTimestamp(partition2), equalTo(RecordQueue.UNKNOWN));
         assertThat(group.nextRecord(new PartitionGroup.RecordInfo(), time.milliseconds()), nullValue());  // all available records removed
     }

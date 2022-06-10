@@ -39,10 +39,10 @@ import org.apache.kafka.test.MockMapper;
 import org.apache.kafka.test.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import java.util.Properties;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Properties;
 
 import static java.util.Arrays.asList;
 import static org.apache.kafka.common.utils.Utils.mkEntry;
@@ -144,7 +144,7 @@ public class KTableAggregateTest {
                 driver.createInputTopic(topic1, new StringSerializer(), new StringSerializer(), Instant.ofEpochMilli(0L), Duration.ZERO);
 
             inputTopic.pipeInput("A", "1", 10L);
-            inputTopic.pipeInput("A", (String) null, 15L);
+            inputTopic.pipeInput("A", null, 15L);
             inputTopic.pipeInput("A", "1", 12L);
             inputTopic.pipeInput("B", "2", 20L);
             inputTopic.pipeInput("null", "3", 25L);
@@ -256,7 +256,7 @@ public class KTableAggregateTest {
 
             inputTopic.pipeInput("11", "A", 10L);
             inputTopic.pipeInput("12", "B", 8L);
-            inputTopic.pipeInput("11", (String) null, 12L);
+            inputTopic.pipeInput("11", null, 12L);
             inputTopic.pipeInput("12", "C", 6L);
 
             Assertions.assertEquals(

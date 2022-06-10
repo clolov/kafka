@@ -16,13 +16,6 @@
  */
 package org.apache.kafka.streams.integration;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -37,47 +30,45 @@ import org.apache.kafka.streams.integration.utils.EmbeddedKafkaCluster;
 import org.apache.kafka.streams.integration.utils.IntegrationTestUtils;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.state.KeyValueStore;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.TestUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.Timeout;
 
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
-import org.junit.rules.Timeout;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkProperties;
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.safeUniqueTestName;
-import static org.junit.Assert.assertTrue;
 
-@Category(IntegrationTest.class)
+@Timeout(600)
+@Tag("integration")
 public class StateDirectoryIntegrationTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     public static final EmbeddedKafkaCluster CLUSTER = new EmbeddedKafkaCluster(3);
 
-    @BeforeClass
+    @BeforeAll
     public static void startCluster() throws IOException {
         CLUSTER.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void closeCluster() {
         CLUSTER.stop();
     }
 
-    @Rule
-    public TestName testName = new TestName();
-
     @Test
-    public void testCleanUpStateDirIfEmpty() throws InterruptedException {
-        final String uniqueTestName = safeUniqueTestName(getClass(), testName);
+    public void testCleanUpStateDirIfEmpty(final TestInfo testInfo) throws InterruptedException {
+        final String uniqueTestName = safeUniqueTestName(getClass(), testInfo);
 
         // Create Topic
         final String input = uniqueTestName + "-input";
@@ -148,8 +139,8 @@ public class StateDirectoryIntegrationTest {
                 throw new RuntimeException("Streams didn't start in time.", e);
             }
 
-            assertTrue((new File(stateDir)).exists());  // State directory exists
-            assertTrue(appDir.exists());    // Application state directory Exists
+            Assertions.assertTrue((new File(stateDir)).exists());  // State directory exists
+            Assertions.assertTrue(appDir.exists());    // Application state directory Exists
 
             // Validate StateStore directory is deleted.
             streams.close();
@@ -161,12 +152,12 @@ public class StateDirectoryIntegrationTest {
 
             streams.cleanUp();
 
-            assertTrue((new File(stateDir)).exists());  // Root state store exists
+            Assertions.assertTrue((new File(stateDir)).exists());  // Root state store exists
 
             // case 1: the state directory is cleaned up without any problems.
             // case 2: The state directory is not cleaned up, for it does not include any checkpoint file.
             // case 3: The state directory is not cleaned up, for it includes a checkpoint file but it is empty.
-            assertTrue(appDir.exists()
+            Assertions.assertTrue(appDir.exists()
                 || Arrays.stream(appDir.listFiles())
                     .filter(
                         (File f) -> f.isDirectory() && f.listFiles().length > 0 && !(new File(f, ".checkpoint")).exists()
@@ -182,8 +173,8 @@ public class StateDirectoryIntegrationTest {
     }
 
     @Test
-    public void testNotCleanUpStateDirIfNotEmpty() throws InterruptedException {
-        final String uniqueTestName = safeUniqueTestName(getClass(), testName);
+    public void testNotCleanUpStateDirIfNotEmpty(final TestInfo testInfo) throws InterruptedException {
+        final String uniqueTestName = safeUniqueTestName(getClass(), testInfo);
 
         // Create Topic
         final String input = uniqueTestName + "-input";
@@ -254,11 +245,11 @@ public class StateDirectoryIntegrationTest {
                 throw new RuntimeException("Streams didn't start in time.", e);
             }
 
-            assertTrue((new File(stateDir)).exists());  // State directory exists
-            assertTrue(appDir.exists());    // Application state directory Exists
+            Assertions.assertTrue((new File(stateDir)).exists());  // State directory exists
+            Assertions.assertTrue(appDir.exists());    // Application state directory Exists
 
             try {
-                assertTrue((new File(appDir, "dummy")).createNewFile());
+                Assertions.assertTrue((new File(appDir, "dummy")).createNewFile());
             } catch (final IOException e) {
                 throw new RuntimeException("Failed to create dummy file.", e);
             }
@@ -273,8 +264,8 @@ public class StateDirectoryIntegrationTest {
 
             streams.cleanUp();
 
-            assertTrue((new File(stateDir)).exists());  // Root state store exists
-            assertTrue(appDir.exists());    // Application state store exists
+            Assertions.assertTrue((new File(stateDir)).exists());  // Root state store exists
+            Assertions.assertTrue(appDir.exists());    // Application state store exists
         } finally {
             CLUSTER.deleteAllTopicsAndWait(0L);
         }

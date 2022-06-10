@@ -65,7 +65,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThrows;
+
 
 public class StreamsProducerTest {
     private static final double BUFFER_POOL_WAIT_TIME = 1;
@@ -262,7 +262,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailIfStreamsConfigIsNull() {
-        final NullPointerException thrown = assertThrows(
+        final NullPointerException thrown = Assertions.assertThrows(
             NullPointerException.class,
             () -> new StreamsProducer(
                 null,
@@ -279,7 +279,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailIfThreadIdIsNull() {
-        final NullPointerException thrown = assertThrows(
+        final NullPointerException thrown = Assertions.assertThrows(
             NullPointerException.class,
             () -> new StreamsProducer(
                 nonEosConfig,
@@ -296,7 +296,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailIfClientSupplierIsNull() {
-        final NullPointerException thrown = assertThrows(
+        final NullPointerException thrown = Assertions.assertThrows(
             NullPointerException.class,
             () -> new StreamsProducer(
                 nonEosConfig,
@@ -313,7 +313,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailIfLogContextIsNull() {
-        final NullPointerException thrown = assertThrows(
+        final NullPointerException thrown = Assertions.assertThrows(
             NullPointerException.class,
             () -> new StreamsProducer(
                 nonEosConfig,
@@ -330,7 +330,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailOnResetProducerForAtLeastOnce() {
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             () -> nonEosStreamsProducer.resetProducer()
         );
@@ -340,7 +340,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailOnResetProducerForExactlyOnceAlpha() {
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             () -> eosAlphaStreamsProducer.resetProducer()
         );
@@ -398,7 +398,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailOnInitTxIfEosDisabled() {
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             nonEosStreamsProducer::initTransaction
         );
@@ -410,7 +410,7 @@ public class StreamsProducerTest {
     public void shouldThrowStreamsExceptionOnSendError() {
         nonEosMockProducer.sendException  = new KafkaException("KABOOM!");
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             () -> nonEosStreamsProducer.send(record, null)
         );
@@ -423,7 +423,7 @@ public class StreamsProducerTest {
     public void shouldFailOnSendFatal() {
         nonEosMockProducer.sendException = new RuntimeException("KABOOM!");
 
-        final RuntimeException thrown = assertThrows(
+        final RuntimeException thrown = Assertions.assertThrows(
             RuntimeException.class,
             () -> nonEosStreamsProducer.send(record, null)
         );
@@ -433,7 +433,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailOnCommitIfEosDisabled() {
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             () -> nonEosStreamsProducer.commitTransaction(null, new ConsumerGroupMetadata("appId"))
         );
@@ -443,7 +443,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailOnAbortIfEosDisabled() {
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             nonEosStreamsProducer::abortTransaction
         );
@@ -684,7 +684,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailIfTaskIdIsNullForEosAlpha() {
-        final NullPointerException thrown = assertThrows(
+        final NullPointerException thrown = Assertions.assertThrows(
             NullPointerException.class,
             () -> new StreamsProducer(
                 eosAlphaConfig,
@@ -701,7 +701,7 @@ public class StreamsProducerTest {
 
     @Test
     public void shouldFailIfProcessIdNullForEosBeta() {
-        final NullPointerException thrown = assertThrows(
+        final NullPointerException thrown = Assertions.assertThrows(
             NullPointerException.class,
             () -> new StreamsProducer(
                 eosBetaConfig,
@@ -737,7 +737,7 @@ public class StreamsProducerTest {
             mockTime
         );
 
-        final TimeoutException thrown = assertThrows(
+        final TimeoutException thrown = Assertions.assertThrows(
             TimeoutException.class,
             streamsProducer::initTransaction
         );
@@ -758,7 +758,7 @@ public class StreamsProducerTest {
                 mockTime
             );
 
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             () -> streamsProducer.send(record, null)
         );
@@ -779,7 +779,7 @@ public class StreamsProducerTest {
                 mockTime
             );
 
-        final IllegalStateException thrown = assertThrows(
+        final IllegalStateException thrown = Assertions.assertThrows(
             IllegalStateException.class,
             () -> streamsProducer.send(record, null)
         );
@@ -808,7 +808,7 @@ public class StreamsProducerTest {
             mockTime
         );
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             streamsProducer::initTransaction
         );
@@ -838,7 +838,7 @@ public class StreamsProducerTest {
             mockTime
         );
 
-        final RuntimeException thrown = assertThrows(
+        final RuntimeException thrown = Assertions.assertThrows(
             RuntimeException.class,
             streamsProducer::initTransaction
         );
@@ -850,7 +850,7 @@ public class StreamsProducerTest {
     public void shouldThrowTaskMigrateExceptionOnEosBeginTxnFenced() {
         eosAlphaMockProducer.fenceProducer();
 
-        final TaskMigratedException thrown = assertThrows(
+        final TaskMigratedException thrown = Assertions.assertThrows(
             TaskMigratedException.class,
             () -> eosAlphaStreamsProducer.send(null, null)
         );
@@ -867,7 +867,7 @@ public class StreamsProducerTest {
         eosAlphaMockProducer.beginTransactionException = new KafkaException("KABOOM!");
 
         // calling `send()` implicitly starts a new transaction
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             () -> eosAlphaStreamsProducer.send(null, null));
 
@@ -883,7 +883,7 @@ public class StreamsProducerTest {
         eosAlphaMockProducer.beginTransactionException = new RuntimeException("KABOOM!");
 
         // calling `send()` implicitly starts a new transaction
-        final RuntimeException thrown = assertThrows(
+        final RuntimeException thrown = Assertions.assertThrows(
             RuntimeException.class,
             () -> eosAlphaStreamsProducer.send(null, null));
 
@@ -905,7 +905,7 @@ public class StreamsProducerTest {
         // cannot use `eosMockProducer.fenceProducer()` because this would already trigger in `beginTransaction()`
         eosAlphaMockProducer.sendException = new KafkaException(exception);
 
-        final TaskMigratedException thrown = assertThrows(
+        final TaskMigratedException thrown = Assertions.assertThrows(
             TaskMigratedException.class,
             () -> eosAlphaStreamsProducer.send(record, null)
         );
@@ -924,7 +924,7 @@ public class StreamsProducerTest {
         // we need to mimic that `send()` always wraps error in a KafkaException
         eosAlphaMockProducer.sendException = new KafkaException(exception);
 
-        final TaskMigratedException thrown = assertThrows(
+        final TaskMigratedException thrown = Assertions.assertThrows(
             TaskMigratedException.class,
             () -> eosAlphaStreamsProducer.send(record, null)
         );
@@ -953,7 +953,7 @@ public class StreamsProducerTest {
         // cannot use `eosMockProducer.fenceProducer()` because this would already trigger in `beginTransaction()`
         eosAlphaMockProducer.sendOffsetsToTransactionException = exception;
 
-        final TaskMigratedException thrown = assertThrows(
+        final TaskMigratedException thrown = Assertions.assertThrows(
             TaskMigratedException.class,
             // we pass in `null` to verify that `sendOffsetsToTransaction()` fails instead of `commitTransaction()`
             // `sendOffsetsToTransaction()` would throw an NPE on `null` offsets
@@ -972,7 +972,7 @@ public class StreamsProducerTest {
     public void shouldThrowStreamsExceptionOnEosSendOffsetError() {
         eosAlphaMockProducer.sendOffsetsToTransactionException = new KafkaException("KABOOM!");
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             // we pass in `null` to verify that `sendOffsetsToTransaction()` fails instead of `commitTransaction()`
             // `sendOffsetsToTransaction()` would throw an NPE on `null` offsets
@@ -990,7 +990,7 @@ public class StreamsProducerTest {
     public void shouldFailOnEosSendOffsetFatal() {
         eosAlphaMockProducer.sendOffsetsToTransactionException = new RuntimeException("KABOOM!");
 
-        final RuntimeException thrown = assertThrows(
+        final RuntimeException thrown = Assertions.assertThrows(
             RuntimeException.class,
             // we pass in `null` to verify that `sendOffsetsToTransaction()` fails instead of `commitTransaction()`
             // `sendOffsetsToTransaction()` would throw an NPE on `null` offsets
@@ -1014,7 +1014,7 @@ public class StreamsProducerTest {
         // cannot use `eosMockProducer.fenceProducer()` because this would already trigger in `beginTransaction()`
         eosAlphaMockProducer.commitTransactionException = exception;
 
-        final TaskMigratedException thrown = assertThrows(
+        final TaskMigratedException thrown = Assertions.assertThrows(
             TaskMigratedException.class,
             () -> eosAlphaStreamsProducer.commitTransaction(offsetsAndMetadata, new ConsumerGroupMetadata("appId"))
         );
@@ -1032,7 +1032,7 @@ public class StreamsProducerTest {
     public void shouldThrowStreamsExceptionOnEosCommitTxError() {
         eosAlphaMockProducer.commitTransactionException = new KafkaException("KABOOM!");
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             () -> eosAlphaStreamsProducer.commitTransaction(offsetsAndMetadata, new ConsumerGroupMetadata("appId"))
         );
@@ -1049,7 +1049,7 @@ public class StreamsProducerTest {
     public void shouldFailOnEosCommitTxFatal() {
         eosAlphaMockProducer.commitTransactionException = new RuntimeException("KABOOM!");
 
-        final RuntimeException thrown = assertThrows(
+        final RuntimeException thrown = Assertions.assertThrows(
             RuntimeException.class,
             () -> eosAlphaStreamsProducer.commitTransaction(offsetsAndMetadata, new ConsumerGroupMetadata("appId"))
         );
@@ -1091,7 +1091,7 @@ public class StreamsProducerTest {
         // call `send()` to start a transaction
         eosAlphaStreamsProducer.send(record, null);
 
-        final StreamsException thrown = assertThrows(StreamsException.class, eosAlphaStreamsProducer::abortTransaction);
+        final StreamsException thrown = Assertions.assertThrows(StreamsException.class, eosAlphaStreamsProducer::abortTransaction);
 
         assertThat(thrown.getCause(), is(eosAlphaMockProducer.abortTransactionException));
         assertThat(
@@ -1106,7 +1106,7 @@ public class StreamsProducerTest {
         // call `send()` to start a transaction
         eosAlphaStreamsProducer.send(record, null);
 
-        final RuntimeException thrown = assertThrows(RuntimeException.class, eosAlphaStreamsProducer::abortTransaction);
+        final RuntimeException thrown = Assertions.assertThrows(RuntimeException.class, eosAlphaStreamsProducer::abortTransaction);
 
         assertThat(thrown.getMessage(), is("KABOOM!"));
     }

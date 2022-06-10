@@ -18,7 +18,7 @@ package org.apache.kafka.streams.processor;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.streams.errors.StreamsException;
-import static org.junit.Assert.assertThrows;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class FailOnInvalidTimestampTest extends TimestampExtractorTest {
@@ -31,7 +31,7 @@ public class FailOnInvalidTimestampTest extends TimestampExtractorTest {
     @Test
     public void failOnInvalidTimestamp() {
         final TimestampExtractor extractor = new FailOnInvalidTimestamp();
-        assertThrows(StreamsException.class, () -> extractor.extract(new ConsumerRecord<>("anyTopic",
+        Assertions.assertThrows(StreamsException.class, () -> extractor.extract(new ConsumerRecord<>("anyTopic",
                 0, 0, null, null), 42));
     }
 

@@ -32,7 +32,7 @@ import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 public class QueryableStoreProviderTest {
 
@@ -59,13 +59,13 @@ public class QueryableStoreProviderTest {
 
     @Test
     public void shouldThrowExceptionIfKVStoreDoesntExist() {
-        assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(
             StoreQueryParameters.fromNameAndType("not-a-store", QueryableStoreTypes.keyValueStore())).get("1"));
     }
 
     @Test
     public void shouldThrowExceptionIfWindowStoreDoesntExist() {
-        assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(
             StoreQueryParameters.fromNameAndType("not-a-store", QueryableStoreTypes.windowStore())).fetch("1", System.currentTimeMillis()));
     }
 
@@ -81,13 +81,13 @@ public class QueryableStoreProviderTest {
 
     @Test
     public void shouldThrowExceptionWhenLookingForWindowStoreWithDifferentType() {
-        assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(StoreQueryParameters.fromNameAndType(windowStore,
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(StoreQueryParameters.fromNameAndType(windowStore,
             QueryableStoreTypes.keyValueStore())).get("1"));
     }
 
     @Test
     public void shouldThrowExceptionWhenLookingForKVStoreWithDifferentType() {
-        assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(StoreQueryParameters.fromNameAndType(keyValueStore,
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> storeProvider.getStore(StoreQueryParameters.fromNameAndType(keyValueStore,
             QueryableStoreTypes.windowStore())).fetch("1", System.currentTimeMillis()));
     }
 
@@ -105,7 +105,7 @@ public class QueryableStoreProviderTest {
     @Test
     public void shouldThrowExceptionWhenKVStoreWithPartitionDoesntExists() {
         final int partition = numStateStorePartitions + 1;
-        final InvalidStateStoreException thrown = assertThrows(InvalidStateStoreException.class, () ->
+        final InvalidStateStoreException thrown = Assertions.assertThrows(InvalidStateStoreException.class, () ->
                 storeProvider.getStore(
                         StoreQueryParameters
                                 .fromNameAndType(keyValueStore, QueryableStoreTypes.keyValueStore())
@@ -122,7 +122,7 @@ public class QueryableStoreProviderTest {
     @Test
     public void shouldThrowExceptionWhenWindowStoreWithPartitionDoesntExists() {
         final int partition = numStateStorePartitions + 1;
-        final InvalidStateStoreException thrown = assertThrows(InvalidStateStoreException.class, () ->
+        final InvalidStateStoreException thrown = Assertions.assertThrows(InvalidStateStoreException.class, () ->
                 storeProvider.getStore(
                         StoreQueryParameters
                                 .fromNameAndType(windowStore, QueryableStoreTypes.windowStore())

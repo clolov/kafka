@@ -21,10 +21,10 @@ import org.apache.kafka.streams.StoreQueryParameters;
 import org.apache.kafka.streams.errors.InvalidStateStoreException;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.internals.SessionWindow;
-import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.QueryableStoreType;
 import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlySessionStore;
 import org.apache.kafka.test.ReadOnlySessionStoreStub;
 import org.apache.kafka.test.StateStoreProviderStub;
 import org.apache.kafka.test.StreamsTestUtils;
@@ -39,7 +39,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.kafka.test.StreamsTestUtils.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 public class CompositeReadOnlySessionStoreTest {
 
@@ -119,7 +119,7 @@ public class CompositeReadOnlySessionStoreTest {
                 "whateva"
             );
 
-        assertThrows(InvalidStateStoreException.class, () -> store.fetch("a"));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> store.fetch("a"));
     }
 
     @Test
@@ -133,7 +133,7 @@ public class CompositeReadOnlySessionStoreTest {
 
     @Test
     public void shouldThrowNullPointerExceptionIfFetchingNullKey() {
-        assertThrows(NullPointerException.class, () -> sessionStore.fetch(null));
+        Assertions.assertThrows(NullPointerException.class, () -> sessionStore.fetch(null));
     }
 
     @Test
@@ -190,6 +190,6 @@ public class CompositeReadOnlySessionStoreTest {
 
     @Test
     public void shouldThrowNPEIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> underlyingSessionStore.fetch(null));
+        Assertions.assertThrows(NullPointerException.class, () -> underlyingSessionStore.fetch(null));
     }
 }

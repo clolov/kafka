@@ -37,103 +37,102 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThrows;
 
 public class StoresTest {
 
     @Test
     public void shouldThrowIfPersistentKeyValueStoreStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.persistentKeyValueStore(null));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.persistentKeyValueStore(null));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfPersistentTimestampedKeyValueStoreStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.persistentTimestampedKeyValueStore(null));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.persistentTimestampedKeyValueStore(null));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIMemoryKeyValueStoreStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.inMemoryKeyValueStore(null));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.inMemoryKeyValueStore(null));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfILruMapStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.lruMap(null, 0));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.lruMap(null, 0));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfILruMapStoreCapacityIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> Stores.lruMap("anyName", -1));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> Stores.lruMap("anyName", -1));
         Assertions.assertEquals("maxCacheSize cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentWindowStoreStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.persistentWindowStore(null, ZERO, ZERO, false));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.persistentWindowStore(null, ZERO, ZERO, false));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentTimestampedWindowStoreStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.persistentTimestampedWindowStore(null, ZERO, ZERO, false));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.persistentTimestampedWindowStore(null, ZERO, ZERO, false));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentWindowStoreRetentionPeriodIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> Stores.persistentWindowStore("anyName", ofMillis(-1L), ZERO, false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> Stores.persistentWindowStore("anyName", ofMillis(-1L), ZERO, false));
         Assertions.assertEquals("retentionPeriod cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentTimestampedWindowStoreRetentionPeriodIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> Stores.persistentTimestampedWindowStore("anyName", ofMillis(-1L), ZERO, false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> Stores.persistentTimestampedWindowStore("anyName", ofMillis(-1L), ZERO, false));
         Assertions.assertEquals("retentionPeriod cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentWindowStoreIfWindowSizeIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> Stores.persistentWindowStore("anyName", ofMillis(0L), ofMillis(-1L), false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> Stores.persistentWindowStore("anyName", ofMillis(0L), ofMillis(-1L), false));
         Assertions.assertEquals("windowSize cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentTimestampedWindowStoreIfWindowSizeIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> Stores.persistentTimestampedWindowStore("anyName", ofMillis(0L), ofMillis(-1L), false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> Stores.persistentTimestampedWindowStore("anyName", ofMillis(0L), ofMillis(-1L), false));
         Assertions.assertEquals("windowSize cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentSessionStoreStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.persistentSessionStore(null, ofMillis(0)));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.persistentSessionStore(null, ofMillis(0)));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfIPersistentSessionStoreRetentionPeriodIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> Stores.persistentSessionStore("anyName", ofMillis(-1)));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> Stores.persistentSessionStore("anyName", ofMillis(-1)));
         Assertions.assertEquals("retentionPeriod cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfSupplierIsNullForWindowStoreBuilder() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.windowStoreBuilder(null, Serdes.ByteArray(), Serdes.ByteArray()));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.windowStoreBuilder(null, Serdes.ByteArray(), Serdes.ByteArray()));
         Assertions.assertEquals("supplier cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfSupplierIsNullForKeyValueStoreBuilder() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.keyValueStoreBuilder(null, Serdes.ByteArray(), Serdes.ByteArray()));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.keyValueStoreBuilder(null, Serdes.ByteArray(), Serdes.ByteArray()));
         Assertions.assertEquals("supplier cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfSupplierIsNullForSessionStoreBuilder() {
-        final Exception e = assertThrows(NullPointerException.class, () -> Stores.sessionStoreBuilder(null, Serdes.ByteArray(), Serdes.ByteArray()));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> Stores.sessionStoreBuilder(null, Serdes.ByteArray(), Serdes.ByteArray()));
         Assertions.assertEquals("supplier cannot be null", e.getMessage());
     }
 

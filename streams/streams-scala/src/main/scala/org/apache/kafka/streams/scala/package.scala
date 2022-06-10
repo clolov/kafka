@@ -16,8 +16,8 @@
  */
 package org.apache.kafka.streams
 
-import org.apache.kafka.streams.state.{KeyValueStore, SessionStore, WindowStore}
 import org.apache.kafka.common.utils.Bytes
+import org.apache.kafka.streams.state.{KeyValueStore, SessionStore, WindowStore}
 
 package object scala {
   type ByteArrayKeyValueStore = KeyValueStore[Bytes, Array[Byte]]

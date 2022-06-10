@@ -28,60 +28,68 @@ import org.apache.kafka.streams.integration.utils.EmbeddedKafkaCluster;
 import org.apache.kafka.streams.integration.utils.IntegrationTestUtils;
 import org.apache.kafka.streams.processor.internals.namedtopology.KafkaStreamsNamedTopologyWrapper;
 import org.apache.kafka.streams.processor.internals.namedtopology.NamedTopologyBuilder;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.apache.kafka.test.TestUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TestName;
 
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkObjectProperties;
 import static org.apache.kafka.streams.integration.utils.IntegrationTestUtils.safeUniqueTestName;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Category(IntegrationTest.class)
+@Timeout(600)
+@Tag("integration")
 public class ErrorHandlingIntegrationTest {
 
-    private static final EmbeddedKafkaCluster CLUSTER = new EmbeddedKafkaCluster(1);
+    private final String testId;
+    private final String appId;
 
-    @BeforeClass
+    // Task 0
+    private final String inputTopic;
+    private final String outputTopic;
+    // Task 1
+    private final String errorInputTopic;
+    private final String errorOutputTopic;
+
+    ErrorHandlingIntegrationTest(final TestInfo testInfo) {
+        testId = safeUniqueTestName(getClass(), testInfo);
+        appId = "appId_" + testId;
+
+        // Task 0
+        inputTopic = "input" + testId;
+        outputTopic = "output" + testId;
+        // Task 1
+        errorInputTopic = "error-input" + testId;
+        errorOutputTopic = "error-output" + testId;
+    }
+
+    private static final EmbeddedKafkaCluster CLUSTER = new EmbeddedKafkaCluster(1);
+    private final Properties properties = props();
+
+    @BeforeAll
     public static void startCluster() throws IOException {
         CLUSTER.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void closeCluster() {
         CLUSTER.stop();
     }
 
-    @Rule
-    public TestName testName = new TestName();
-
-    private final String testId = safeUniqueTestName(getClass(), testName);
-    private final String appId = "appId_" + testId;
-    private final Properties properties = props();
-
-    // Task 0
-    private final String inputTopic = "input" + testId;
-    private final String outputTopic = "output" + testId;
-    // Task 1
-    private final String errorInputTopic = "error-input" + testId;
-    private final String errorOutputTopic = "error-output" + testId;
-
-    @Before
+    @BeforeEach
     public void setup() {
         IntegrationTestUtils.cleanStateBeforeTest(CLUSTER, errorInputTopic, errorOutputTopic, inputTopic, outputTopic);
     }

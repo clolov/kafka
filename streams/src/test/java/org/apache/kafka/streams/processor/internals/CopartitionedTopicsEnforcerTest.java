@@ -34,7 +34,7 @@ import java.util.TreeMap;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class CopartitionedTopicsEnforcerTest {
 
@@ -60,14 +60,14 @@ public class CopartitionedTopicsEnforcerTest {
 
     @Test
     public void shouldThrowTopologyBuilderExceptionIfNoPartitionsFoundForCoPartitionedTopic() {
-        assertThrows(IllegalStateException.class, () -> validator.enforce(Collections.singleton("topic"),
+        Assertions.assertThrows(IllegalStateException.class, () -> validator.enforce(Collections.singleton("topic"),
             Collections.emptyMap(), cluster));
     }
 
     @Test
     public void shouldThrowTopologyBuilderExceptionIfPartitionCountsForCoPartitionedTopicsDontMatch() {
         partitions.remove(new TopicPartition("second", 0));
-        assertThrows(TopologyException.class, () -> validator.enforce(Utils.mkSet("first", "second"),
+        Assertions.assertThrows(TopologyException.class, () -> validator.enforce(Utils.mkSet("first", "second"),
                           Collections.emptyMap(),
                           cluster.withPartitions(partitions)));
     }
@@ -113,7 +113,7 @@ public class CopartitionedTopicsEnforcerTest {
         final InternalTopicConfig topic1 = createRepartitionTopicConfigWithEnforcedNumberOfPartitions("repartitioned-1", 10);
         final InternalTopicConfig topic2 = createRepartitionTopicConfigWithEnforcedNumberOfPartitions("repartitioned-2", 5);
 
-        final TopologyException ex = assertThrows(
+        final TopologyException ex = Assertions.assertThrows(
             TopologyException.class,
             () -> validator.enforce(Utils.mkSet(topic1.name(), topic2.name()),
                                     Utils.mkMap(Utils.mkEntry(topic1.name(), topic1),
@@ -149,7 +149,7 @@ public class CopartitionedTopicsEnforcerTest {
     public void shouldThrowAnExceptionWhenNumberOfPartitionsOfNonRepartitionTopicAndRepartitionTopicWithEnforcedNumOfPartitionsDoNotMatch() {
         final InternalTopicConfig topic1 = createRepartitionTopicConfigWithEnforcedNumberOfPartitions("repartitioned-1", 10);
 
-        final TopologyException ex = assertThrows(
+        final TopologyException ex = Assertions.assertThrows(
             TopologyException.class,
             () -> validator.enforce(Utils.mkSet(topic1.name(), "second"),
                                     Utils.mkMap(Utils.mkEntry(topic1.name(), topic1)),

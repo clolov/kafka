@@ -16,8 +16,6 @@
  */
 package org.apache.kafka.streams.integration;
 
-import java.io.IOException;
-import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreamsWrapper;
@@ -28,28 +26,27 @@ import org.apache.kafka.streams.integration.utils.IntegrationTestUtils;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.ValueJoiner;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.rules.TemporaryFolder;
-import org.junit.rules.Timeout;
 
-import static org.junit.Assert.assertTrue;
+import java.io.IOException;
+import java.util.Properties;
 
-@Category({IntegrationTest.class})
+@Timeout(600)
+@Tag("integration")
 public class JoinWithIncompleteMetadataIntegrationTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     public static final EmbeddedKafkaCluster CLUSTER = new EmbeddedKafkaCluster(1);
 
-    @BeforeClass
+    @BeforeAll
     public static void startCluster() throws IOException {
         CLUSTER.start();
         STREAMS_CONFIG.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -59,7 +56,7 @@ public class JoinWithIncompleteMetadataIntegrationTest {
         STREAMS_CONFIG.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, COMMIT_INTERVAL);
     }
 
-    @AfterClass
+    @AfterAll
     public static void closeCluster() {
         CLUSTER.stop();
     }
@@ -79,7 +76,7 @@ public class JoinWithIncompleteMetadataIntegrationTest {
     final ValueJoiner<String, String, String> valueJoiner = (value1, value2) -> value1 + "-" + value2;
     private KTable<Long, String> rightTable;
 
-    @Before
+    @BeforeEach
     public void prepareTopology() throws InterruptedException {
         CLUSTER.createTopics(INPUT_TOPIC_RIGHT, OUTPUT_TOPIC);
         STREAMS_CONFIG.put(StreamsConfig.STATE_DIR_CONFIG, testFolder.getRoot().getPath());
@@ -88,7 +85,7 @@ public class JoinWithIncompleteMetadataIntegrationTest {
         rightTable = builder.table(INPUT_TOPIC_RIGHT);
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws InterruptedException {
         CLUSTER.deleteAllTopicsAndWait(120000);
     }
@@ -115,6 +112,6 @@ public class JoinWithIncompleteMetadataIntegrationTest {
         TestUtils.waitForCondition(listener::transitToPendingShutdownSeen, "Did not seen thread state transited to PENDING_SHUTDOWN");
 
         streams.close();
-        assertTrue(listener.transitToPendingShutdownSeen());
+        Assertions.assertTrue(listener.transitToPendingShutdownSeen());
     }
 }

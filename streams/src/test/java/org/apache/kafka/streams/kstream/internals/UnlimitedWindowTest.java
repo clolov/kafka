@@ -19,11 +19,9 @@ package org.apache.kafka.streams.kstream.internals;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
-
 public class UnlimitedWindowTest {
 
-    private long start = 50;
+    private final long start = 50;
     private final UnlimitedWindow window = new UnlimitedWindow(start);
     private final SessionWindow sessionWindow = new SessionWindow(start, start);
 
@@ -36,6 +34,6 @@ public class UnlimitedWindowTest {
 
     @Test
     public void cannotCompareUnlimitedWindowWithDifferentWindowType() {
-        assertThrows(IllegalArgumentException.class, () -> window.overlap(sessionWindow));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> window.overlap(sessionWindow));
     }
 }

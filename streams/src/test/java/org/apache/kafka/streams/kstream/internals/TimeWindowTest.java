@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static java.time.Duration.ofMillis;
-import static org.junit.Assert.assertThrows;
 
 public class TimeWindowTest {
 
@@ -34,7 +33,7 @@ public class TimeWindowTest {
 
     @Test
     public void endMustBeLargerThanStart() {
-        assertThrows(IllegalArgumentException.class, () -> new TimeWindow(start, start));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new TimeWindow(start, start));
     }
 
     @Test
@@ -119,7 +118,7 @@ public class TimeWindowTest {
 
     @Test
     public void cannotCompareTimeWindowWithDifferentWindowType() {
-        assertThrows(IllegalArgumentException.class, () -> window.overlap(sessionWindow));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> window.overlap(sessionWindow));
     }
 
     @SuppressWarnings("deprecation")

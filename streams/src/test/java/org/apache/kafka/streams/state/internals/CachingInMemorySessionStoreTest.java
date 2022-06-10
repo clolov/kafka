@@ -63,7 +63,7 @@ import static org.apache.kafka.test.StreamsTestUtils.verifyWindowedKeyValue;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
+
 
 @SuppressWarnings("PointlessArithmeticExpression")
 public class CachingInMemorySessionStoreTest {
@@ -272,7 +272,7 @@ public class CachingInMemorySessionStoreTest {
         underlyingStore.close();
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, cachingStore::close);
+        Assertions.assertThrows(RuntimeException.class, cachingStore::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -288,7 +288,7 @@ public class CachingInMemorySessionStoreTest {
         underlyingStore.close();
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, cachingStore::close);
+        Assertions.assertThrows(RuntimeException.class, cachingStore::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -304,7 +304,7 @@ public class CachingInMemorySessionStoreTest {
         EasyMock.expectLastCall().andThrow(new RuntimeException("Simulating an error on close"));
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, cachingStore::close);
+        Assertions.assertThrows(RuntimeException.class, cachingStore::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -757,45 +757,45 @@ public class CachingInMemorySessionStoreTest {
     @Test
     public void shouldThrowIfTryingToFetchFromClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.fetch(keyA));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.fetch(keyA));
     }
 
     @Test
     public void shouldThrowIfTryingToFindMergeSessionFromClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.findSessions(keyA, 0, Long.MAX_VALUE));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.findSessions(keyA, 0, Long.MAX_VALUE));
     }
 
     @Test
     public void shouldThrowIfTryingToRemoveFromClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.remove(new Windowed<>(keyA, new SessionWindow(0, 0))));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.remove(new Windowed<>(keyA, new SessionWindow(0, 0))));
     }
 
     @Test
     public void shouldThrowIfTryingToPutIntoClosedCachingStore() {
         cachingStore.close();
-        assertThrows(InvalidStateStoreException.class, () -> cachingStore.put(new Windowed<>(keyA, new SessionWindow(0, 0)), "1".getBytes()));
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> cachingStore.put(new Windowed<>(keyA, new SessionWindow(0, 0)), "1".getBytes()));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnFindSessionsNullKey() {
-        assertThrows(NullPointerException.class, () -> cachingStore.findSessions(null, 1L, 2L));
+        Assertions.assertThrows(NullPointerException.class, () -> cachingStore.findSessions(null, 1L, 2L));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnFetchNullKey() {
-        assertThrows(NullPointerException.class, () -> cachingStore.fetch(null));
+        Assertions.assertThrows(NullPointerException.class, () -> cachingStore.fetch(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnRemoveNullKey() {
-        assertThrows(NullPointerException.class, () -> cachingStore.remove(null));
+        Assertions.assertThrows(NullPointerException.class, () -> cachingStore.remove(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutNullKey() {
-        assertThrows(NullPointerException.class, () -> cachingStore.put(null, "1".getBytes()));
+        Assertions.assertThrows(NullPointerException.class, () -> cachingStore.put(null, "1".getBytes()));
     }
 
     @Test

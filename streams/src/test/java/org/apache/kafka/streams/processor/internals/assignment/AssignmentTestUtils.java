@@ -16,10 +16,6 @@
  */
 package org.apache.kafka.streams.processor.internals.assignment;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListOffsetsResult;
 import org.apache.kafka.clients.admin.ListOffsetsResult.ListOffsetsResultInfo;
@@ -28,15 +24,19 @@ import org.apache.kafka.common.internals.KafkaFutureImpl;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.Task;
 import org.apache.kafka.streams.processor.internals.TopologyMetadata.Subtopology;
-
 import org.easymock.EasyMock;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.jupiter.api.Assertions;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -55,7 +55,6 @@ import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
 
 public final class AssignmentTestUtils {
 
@@ -350,7 +349,7 @@ public final class AssignmentTestUtils {
                 .append(1.0)
                 .append(" in: ");
             appendClientStates(builder, clientStates);
-            fail(builder.append(failureContext).toString());
+            Assertions.fail(builder.append(failureContext).toString());
         }
     }
 
@@ -372,14 +371,14 @@ public final class AssignmentTestUtils {
                 .append(1.0)
                 .append(" in: ");
             appendClientStates(builder, clientStates);
-            fail(builder.append(failureContext).toString());
+            Assertions.fail(builder.append(failureContext).toString());
         }
     }
 
     static void assertBalancedTasks(final Map<UUID, ClientState> clientStates) {
         final TaskSkewReport taskSkewReport = analyzeTaskAssignmentBalance(clientStates);
         if (taskSkewReport.totalSkewedTasks() > 0) {
-            fail("Expected a balanced task assignment, but was: " + taskSkewReport);
+            Assertions.fail("Expected a balanced task assignment, but was: " + taskSkewReport);
         }
     }
 

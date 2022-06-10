@@ -19,6 +19,7 @@ package org.apache.kafka.streams.state.internals.metrics;
 import org.apache.kafka.common.utils.MockTime;
 import org.apache.kafka.common.utils.Time;
 import org.apache.kafka.streams.processor.TaskId;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,7 @@ import static org.easymock.EasyMock.niceMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.resetToDefault;
 import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertThrows;
+
 
 public class RocksDBMetricsRecordingTriggerTest {
 
@@ -73,7 +74,7 @@ public class RocksDBMetricsRecordingTriggerTest {
     public void shouldThrowIfRecorderToAddHasBeenAlreadyAdded() {
         recordingTrigger.addMetricsRecorder(recorder1);
 
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> recordingTrigger.addMetricsRecorder(recorder1)
         );
@@ -82,7 +83,7 @@ public class RocksDBMetricsRecordingTriggerTest {
     @Test
     public void shouldThrowIfRecorderToRemoveCouldNotBeFound() {
         recordingTrigger.addMetricsRecorder(recorder1);
-        assertThrows(
+        Assertions.assertThrows(
             IllegalStateException.class,
             () -> recordingTrigger.removeMetricsRecorder(recorder2)
         );

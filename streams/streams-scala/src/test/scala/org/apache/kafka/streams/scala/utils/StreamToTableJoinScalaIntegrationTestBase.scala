@@ -16,7 +16,6 @@
  */
 package org.apache.kafka.streams.scala.utils
 
-import java.util.Properties
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization._
@@ -27,6 +26,7 @@ import org.apache.kafka.test.TestUtils
 import org.junit.jupiter.api._
 
 import java.io.File
+import java.util.Properties
 
 /**
  * Test suite base that prepares Kafka cluster for stream-table joins in Kafka Streams

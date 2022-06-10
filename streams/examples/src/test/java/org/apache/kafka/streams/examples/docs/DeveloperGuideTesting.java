@@ -54,8 +54,8 @@ public class DeveloperGuideTesting {
     private TestOutputTopic<String, Long> outputTopic;
     private KeyValueStore<String, Long> store;
 
-    private Serde<String> stringSerde = new Serdes.StringSerde();
-    private Serde<Long> longSerde = new Serdes.LongSerde();
+    private final Serde<String> stringSerde = new Serdes.StringSerde();
+    private final Serde<Long> longSerde = new Serdes.LongSerde();
 
     @BeforeEach
     public void setup() {

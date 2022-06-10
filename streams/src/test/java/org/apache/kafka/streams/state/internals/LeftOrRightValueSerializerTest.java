@@ -17,12 +17,13 @@
 package org.apache.kafka.streams.state.internals;
 
 import org.apache.kafka.common.serialization.Serdes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThrows;
+
 
 public class LeftOrRightValueSerializerTest {
     private static final String TOPIC = "some-topic";
@@ -66,13 +67,13 @@ public class LeftOrRightValueSerializerTest {
 
     @Test
     public void shouldThrowIfSerializeValueAsNull() {
-        assertThrows(NullPointerException.class,
+        Assertions.assertThrows(NullPointerException.class,
             () -> STRING_OR_INTEGER_SERDE.serializer().serialize(TOPIC, LeftOrRightValue.makeLeftValue(null)));
     }
 
     @Test
     public void shouldThrowIfSerializeOtherValueAsNull() {
-        assertThrows(NullPointerException.class,
+        Assertions.assertThrows(NullPointerException.class,
             () -> STRING_OR_INTEGER_SERDE.serializer().serialize(TOPIC, LeftOrRightValue.makeRightValue(null)));
     }
 }

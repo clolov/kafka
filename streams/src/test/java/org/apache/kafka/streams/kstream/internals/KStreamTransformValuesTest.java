@@ -19,9 +19,10 @@ package org.apache.kafka.streams.kstream.internals;
 import org.apache.kafka.common.serialization.IntegerSerializer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValueTimestamp;
-import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.ValueTransformer;
 import org.apache.kafka.streams.kstream.ValueTransformerSupplier;
@@ -29,24 +30,23 @@ import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
 import org.apache.kafka.streams.kstream.ValueTransformerWithKeySupplier;
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.internals.ForwardingDisabledProcessorContext;
-import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.processor.internals.InternalProcessorContext;
 import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.NoOpValueTransformerWithKeySupplier;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.easymock.EasyMockRunner;
+import org.easymock.EasyMockExtension;
 import org.easymock.Mock;
 import org.easymock.MockType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
 
-@RunWith(EasyMockRunner.class)
+@ExtendWith(EasyMockExtension.class)
 public class KStreamTransformValuesTest {
     private final String topicName = "topic";
     private final MockProcessorSupplier<Integer, Integer> supplier = new MockProcessorSupplier<>();
@@ -94,7 +94,7 @@ public class KStreamTransformValuesTest {
             new KeyValueTimestamp<>(100, 1110, 50),
             new KeyValueTimestamp<>(1000, 11110, 500)};
 
-        assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
+        Assertions.assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
     }
 
     @SuppressWarnings("deprecation") // Old PAPI. Needs to be migrated.
@@ -137,7 +137,7 @@ public class KStreamTransformValuesTest {
             new KeyValueTimestamp<>(100, 1221, 50),
             new KeyValueTimestamp<>(1000, 12221, 500)};
 
-        assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
+        Assertions.assertArrayEquals(expected, supplier.theCapturedProcessor().processed().toArray());
     }
 
     @SuppressWarnings("unchecked")

@@ -17,11 +17,10 @@
 package org.apache.kafka.test;
 
 import org.apache.kafka.streams.processor.PunctuationType;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("deprecation") // Old PAPI. Needs to be migrated.
 public class MockProcessorSupplier<K, V> implements org.apache.kafka.streams.processor.ProcessorSupplier<K, V> {
@@ -66,7 +65,7 @@ public class MockProcessorSupplier<K, V> implements org.apache.kafka.streams.pro
 
         // get the captured processors with the expected number
     public List<MockProcessor<K, V>> capturedProcessors(final int expectedNumberOfProcessors) {
-        assertEquals(expectedNumberOfProcessors, processors.size());
+        Assertions.assertEquals(expectedNumberOfProcessors, processors.size());
 
         return processors;
     }

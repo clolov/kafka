@@ -25,31 +25,31 @@ import static java.time.Duration.ZERO;
 import static java.time.Duration.ofMillis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertThrows;
+
 
 public class RocksDbIndexedTimeOrderedWindowBytesStoreSupplierTest {
 
     @Test
     public void shouldThrowIfStoreNameIsNull() {
-        final Exception e = assertThrows(NullPointerException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create(null, ZERO, ZERO, false, false));
+        final Exception e = Assertions.assertThrows(NullPointerException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create(null, ZERO, ZERO, false, false));
         Assertions.assertEquals("name cannot be null", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfRetentionPeriodIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create("anyName", ofMillis(-1L), ZERO, false, false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create("anyName", ofMillis(-1L), ZERO, false, false));
         Assertions.assertEquals("retentionPeriod cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfWindowSizeIsNegative() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create("anyName", ofMillis(0L), ofMillis(-1L), false, false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create("anyName", ofMillis(0L), ofMillis(-1L), false, false));
         Assertions.assertEquals("windowSize cannot be negative", e.getMessage());
     }
 
     @Test
     public void shouldThrowIfWindowSizeIsLargerThanRetention() {
-        final Exception e = assertThrows(IllegalArgumentException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create("anyName", ofMillis(1L), ofMillis(2L), false, false));
+        final Exception e = Assertions.assertThrows(IllegalArgumentException.class, () -> RocksDbIndexedTimeOrderedWindowBytesStoreSupplier.create("anyName", ofMillis(1L), ofMillis(2L), false, false));
         Assertions.assertEquals("The retention period of the window store anyName must be no smaller than its window size. Got size=[2], retention=[1]", e.getMessage());
     }
 

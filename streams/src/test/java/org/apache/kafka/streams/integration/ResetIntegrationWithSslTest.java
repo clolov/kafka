@@ -19,14 +19,14 @@ package org.apache.kafka.streams.integration;
 import kafka.server.KafkaConfig$;
 import org.apache.kafka.common.network.Mode;
 import org.apache.kafka.streams.integration.utils.EmbeddedKafkaCluster;
-import org.apache.kafka.test.IntegrationTest;
 import org.apache.kafka.test.TestSslUtils;
 import org.apache.kafka.test.TestUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.IOException;
 import java.util.Map;
@@ -35,7 +35,7 @@ import java.util.Properties;
 /**
  * Tests command line SSL setup for reset tool.
  */
-@Category({IntegrationTest.class})
+@Tag("integration")
 public class ResetIntegrationWithSslTest extends AbstractResetIntegrationTest {
 
     public static final EmbeddedKafkaCluster CLUSTER;
@@ -62,12 +62,12 @@ public class ResetIntegrationWithSslTest extends AbstractResetIntegrationTest {
         CLUSTER = new EmbeddedKafkaCluster(1, brokerProps);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void startCluster() throws IOException {
         CLUSTER.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void closeCluster() {
         CLUSTER.stop();
     }
@@ -77,13 +77,13 @@ public class ResetIntegrationWithSslTest extends AbstractResetIntegrationTest {
         return SSL_CONFIG;
     }
 
-    @Before
-    public void before() throws Exception {
+    @BeforeEach
+    public void before(final TestInfo testInfo) throws Exception {
         cluster = CLUSTER;
-        prepareTest();
+        prepareTest(testInfo);
     }
 
-    @After 
+    @AfterEach
     public void after() throws Exception {
         cleanupTest();
     }

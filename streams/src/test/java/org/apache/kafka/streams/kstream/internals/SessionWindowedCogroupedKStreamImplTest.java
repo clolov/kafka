@@ -17,12 +17,6 @@
 
 package org.apache.kafka.streams.kstream.internals;
 
-import static java.time.Duration.ofMillis;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
-
-import java.util.Properties;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -47,8 +41,15 @@ import org.apache.kafka.streams.test.TestRecord;
 import org.apache.kafka.test.MockAggregator;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.StreamsTestUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
+
+import static java.time.Duration.ofMillis;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @SuppressWarnings("deprecation")
 public class SessionWindowedCogroupedKStreamImplTest {
@@ -83,59 +84,59 @@ public class SessionWindowedCogroupedKStreamImplTest {
 
     @Test
     public void shouldNotHaveNullInitializerOnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(null, sessionMerger));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(null, sessionMerger));
     }
 
     @Test
     public void shouldNotHaveNullSessionMergerOnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT, null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT, null));
     }
 
     @Test
     public void shouldNotHaveNullMaterializedOnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
             sessionMerger, (Named) null));
     }
 
     @Test
     public void shouldNotHaveNullSessionMerger2OnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
             null, Materialized.as("test")));
     }
 
     @Test
     public void shouldNotHaveNullInitializer2OnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(null, sessionMerger,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(null, sessionMerger,
             Materialized.as("test")));
     }
 
     @Test
     public void shouldNotHaveNullMaterialized2OnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
             sessionMerger, Named.as("name"), null));
     }
 
     @Test
     public void shouldNotHaveNullSessionMerger3OnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
             null, Named.as("name"), Materialized.as("test")));
     }
 
     @Test
     public void shouldNotHaveNullNamedOnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT,
             sessionMerger, null, Materialized.as("test")));
     }
 
     @Test
     public void shouldNotHaveNullInitializer3OnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(null, sessionMerger,
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(null, sessionMerger,
             Named.as("name"), Materialized.as("test")));
     }
 
     @Test
     public void shouldNotHaveNullNamed2OnAggregate() {
-        assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT, sessionMerger, (Named) null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedCogroupedStream.aggregate(MockInitializer.STRING_INIT, sessionMerger, (Named) null));
     }
 
     @Test

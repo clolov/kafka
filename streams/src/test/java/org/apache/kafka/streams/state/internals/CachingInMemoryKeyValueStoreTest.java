@@ -38,6 +38,7 @@ import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.TestUtils;
 import org.easymock.EasyMock;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +53,7 @@ import static org.apache.kafka.streams.state.internals.ThreadCacheTest.memoryCac
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest {
 
@@ -156,7 +157,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         underlyingStore.close();
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, store::close);
+        Assertions.assertThrows(RuntimeException.class, store::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -172,7 +173,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         underlyingStore.close();
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, store::close);
+        Assertions.assertThrows(RuntimeException.class, store::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -188,7 +189,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
         EasyMock.expectLastCall().andThrow(new RuntimeException("Simulating an error on close"));
         EasyMock.replay(underlyingStore);
 
-        assertThrows(RuntimeException.class, store::close);
+        Assertions.assertThrows(RuntimeException.class, store::close);
         EasyMock.verify(cache, underlyingStore);
     }
 
@@ -268,9 +269,9 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
     public void shouldFlushEvictedItemsIntoUnderlyingStore() {
         final int added = addItemsToCache();
         // all dirty entries should have been flushed
-        org.junit.jupiter.api.Assertions.assertEquals(added, underlyingStore.approximateNumEntries());
-        org.junit.jupiter.api.Assertions.assertEquals(added, store.approximateNumEntries());
-        org.junit.jupiter.api.Assertions.assertNotNull(underlyingStore.get(Bytes.wrap("0".getBytes())));
+        Assertions.assertEquals(added, underlyingStore.approximateNumEntries());
+        Assertions.assertEquals(added, store.approximateNumEntries());
+        Assertions.assertNotNull(underlyingStore.get(Bytes.wrap("0".getBytes())));
     }
 
     @Test
@@ -507,7 +508,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToGetFromClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.get(bytesKey("a"));
         });
@@ -515,7 +516,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToWriteToClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.put(bytesKey("a"), bytesValue("a"));
         });
@@ -523,7 +524,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoRangeQueryOnClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.range(bytesKey("a"), bytesKey("b"));
         });
@@ -531,7 +532,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoReverseRangeQueryOnClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.reverseRange(bytesKey("a"), bytesKey("b"));
         });
@@ -539,7 +540,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoAllQueryOnClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.all();
         });
@@ -547,7 +548,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoReverseAllQueryOnClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.reverseAll();
         });
@@ -555,7 +556,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoGetApproxSizeOnClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.close();
             store.approximateNumEntries();
@@ -564,7 +565,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoPutAllClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.putAll(Collections.singletonList(KeyValue.pair(bytesKey("a"), bytesValue("a"))));
         });
@@ -572,7 +573,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDoPutIfAbsentClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.putIfAbsent(bytesKey("b"), bytesValue("c"));
         });
@@ -580,19 +581,19 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutWithNullKey() {
-        assertThrows(NullPointerException.class, () -> store.put(null, bytesValue("c")));
+        Assertions.assertThrows(NullPointerException.class, () -> store.put(null, bytesValue("c")));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutIfAbsentWithNullKey() {
-        assertThrows(NullPointerException.class, () -> store.putIfAbsent(null, bytesValue("c")));
+        Assertions.assertThrows(NullPointerException.class, () -> store.putIfAbsent(null, bytesValue("c")));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionOnPutAllWithNullKey() {
         final List<KeyValue<Bytes, byte[]>> entries = new ArrayList<>();
         entries.add(new KeyValue<>(null, bytesValue("a")));
-        assertThrows(NullPointerException.class, () -> store.putAll(entries));
+        Assertions.assertThrows(NullPointerException.class, () -> store.putAll(entries));
     }
 
     @Test
@@ -621,7 +622,7 @@ public class CachingInMemoryKeyValueStoreTest extends AbstractKeyValueStoreTest 
 
     @Test
     public void shouldThrowIfTryingToDeleteFromClosedCachingStore() {
-        assertThrows(InvalidStateStoreException.class, () -> {
+        Assertions.assertThrows(InvalidStateStoreException.class, () -> {
             store.close();
             store.delete(bytesKey("key"));
         });

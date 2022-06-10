@@ -28,8 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThrows;
-
 public class TimeWindowedSerializerTest {
     private final TimeWindowedSerializer<?> timeWindowedSerializer = new TimeWindowedSerializer<>(Serdes.String().serializer());
     private final Map<String, String> props = new HashMap<>();
@@ -53,19 +51,19 @@ public class TimeWindowedSerializerTest {
     @Test
     public void shouldThrowErrorIfWindowedInnerClassSerialiserIsNotSet() {
         final TimeWindowedSerializer<?> serializer = new TimeWindowedSerializer<>();
-        assertThrows(IllegalArgumentException.class, () -> serializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> serializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowErrorIfWindowedInnerClassSerialisersConflictInConstructorAndConfig() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, Serdes.ByteArraySerde.class.getName());
-        assertThrows(IllegalArgumentException.class, () -> timeWindowedSerializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> timeWindowedSerializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowConfigExceptionWhenInvalidWindowedInnerClassSerialiserSupplied() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, "some.non.existent.class");
-        assertThrows(ConfigException.class, () -> timeWindowedSerializer.configure(props, false));
+        Assertions.assertThrows(ConfigException.class, () -> timeWindowedSerializer.configure(props, false));
     }
 
 }

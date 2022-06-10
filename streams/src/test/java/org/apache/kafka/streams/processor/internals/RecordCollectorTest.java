@@ -55,9 +55,6 @@ import org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl;
 import org.apache.kafka.streams.processor.internals.testutil.LogCaptureAppender;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockClientSupplier;
-
-import java.util.UUID;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,14 +64,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonMap;
 import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.streams.processor.internals.ClientUtils.producerRecordSizeInBytes;
 import static org.apache.kafka.streams.processor.internals.metrics.StreamsMetricsImpl.TOPIC_LEVEL_GROUP;
-
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.mock;
@@ -83,11 +84,6 @@ import static org.easymock.EasyMock.verify;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertThrows;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonMap;
 
 public class RecordCollectorTest {
 
@@ -287,7 +283,7 @@ public class RecordCollectorTest {
 
         // returned offsets should not be modified
         final TopicPartition topicPartition = new TopicPartition(topic, 0);
-        assertThrows(UnsupportedOperationException.class, () -> offsets.put(topicPartition, 50L));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> offsets.put(topicPartition, 50L));
     }
 
     @Test
@@ -447,7 +443,7 @@ public class RecordCollectorTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldThrowInformativeStreamsExceptionOnKeyClassCastException() {
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> this.collector.send(
                 "topic",
@@ -475,7 +471,7 @@ public class RecordCollectorTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldThrowInformativeStreamsExceptionOnKeyAndNullValueClassCastException() {
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> this.collector.send(
                 "topic",
@@ -503,7 +499,7 @@ public class RecordCollectorTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldThrowInformativeStreamsExceptionOnValueClassCastException() {
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> this.collector.send(
                 "topic",
@@ -531,7 +527,7 @@ public class RecordCollectorTest {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
     public void shouldThrowInformativeStreamsExceptionOnValueAndNullKeyClassCastException() {
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> this.collector.send(
                 "topic",
@@ -568,7 +564,7 @@ public class RecordCollectorTest {
         );
         collector.initialize();
 
-        final StreamsException exception = assertThrows(
+        final StreamsException exception = Assertions.assertThrows(
             StreamsException.class,
             () -> collector.send(topic, "0", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
@@ -600,7 +596,7 @@ public class RecordCollectorTest {
         );
         collector.initialize();
 
-        final RuntimeException exception = assertThrows(
+        final RuntimeException exception = Assertions.assertThrows(
             runtimeException.getClass(),
             () -> collector.send(topic, "0", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
@@ -630,7 +626,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final TaskMigratedException thrown = assertThrows(
+        final TaskMigratedException thrown = Assertions.assertThrows(
             TaskMigratedException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
@@ -660,7 +656,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final TaskMigratedException thrown = assertThrows(TaskMigratedException.class, collector::flush);
+        final TaskMigratedException thrown = Assertions.assertThrows(TaskMigratedException.class, collector::flush);
         Assertions.assertEquals(exception, thrown.getCause());
     }
 
@@ -687,7 +683,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final TaskMigratedException thrown = assertThrows(TaskMigratedException.class, collector::closeClean);
+        final TaskMigratedException thrown = Assertions.assertThrows(TaskMigratedException.class, collector::closeClean);
         Assertions.assertEquals(exception, thrown.getCause());
     }
 
@@ -705,7 +701,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
@@ -732,7 +728,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final StreamsException thrown = assertThrows(StreamsException.class, collector::flush);
+        final StreamsException thrown = Assertions.assertThrows(StreamsException.class, collector::flush);
         Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
@@ -756,7 +752,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final StreamsException thrown = assertThrows(StreamsException.class, collector::closeClean);
+        final StreamsException thrown = Assertions.assertThrows(StreamsException.class, collector::closeClean);
         Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
@@ -780,7 +776,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );
@@ -807,7 +803,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final StreamsException thrown = assertThrows(StreamsException.class, collector::flush);
+        final StreamsException thrown = Assertions.assertThrows(StreamsException.class, collector::flush);
         Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
@@ -831,7 +827,7 @@ public class RecordCollectorTest {
 
         collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner);
 
-        final StreamsException thrown = assertThrows(StreamsException.class, collector::closeClean);
+        final StreamsException thrown = Assertions.assertThrows(StreamsException.class, collector::closeClean);
         Assertions.assertEquals(exception, thrown.getCause());
         assertThat(
             thrown.getMessage(),
@@ -949,7 +945,7 @@ public class RecordCollectorTest {
         );
         collector.initialize();
 
-        final StreamsException thrown = assertThrows(
+        final StreamsException thrown = Assertions.assertThrows(
             StreamsException.class,
             () -> collector.send(topic, "3", "0", null, null, stringSerializer, stringSerializer, null, null, streamPartitioner)
         );

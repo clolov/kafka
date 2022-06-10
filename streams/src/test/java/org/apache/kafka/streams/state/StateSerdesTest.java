@@ -27,24 +27,23 @@ import java.nio.ByteBuffer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
 
 @SuppressWarnings("unchecked")
 public class StateSerdesTest {
 
     @Test
     public void shouldThrowIfTopicNameIsNullForBuiltinTypes() {
-        assertThrows(NullPointerException.class, () -> StateSerdes.withBuiltinTypes(null, byte[].class, byte[].class));
+        Assertions.assertThrows(NullPointerException.class, () -> StateSerdes.withBuiltinTypes(null, byte[].class, byte[].class));
     }
 
     @Test
     public void shouldThrowIfKeyClassIsNullForBuiltinTypes() {
-        assertThrows(NullPointerException.class, () -> StateSerdes.withBuiltinTypes("anyName", null, byte[].class));
+        Assertions.assertThrows(NullPointerException.class, () -> StateSerdes.withBuiltinTypes("anyName", null, byte[].class));
     }
 
     @Test
     public void shouldThrowIfValueClassIsNullForBuiltinTypes() {
-        assertThrows(NullPointerException.class, () -> StateSerdes.withBuiltinTypes("anyName", byte[].class, null));
+        Assertions.assertThrows(NullPointerException.class, () -> StateSerdes.withBuiltinTypes("anyName", byte[].class, null));
     }
 
     @Test
@@ -70,27 +69,27 @@ public class StateSerdesTest {
 
     @Test
     public void shouldThrowForUnknownKeyTypeForBuiltinTypes() {
-        assertThrows(IllegalArgumentException.class, () -> StateSerdes.withBuiltinTypes("anyName", Class.class, byte[].class));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> StateSerdes.withBuiltinTypes("anyName", Class.class, byte[].class));
     }
 
     @Test
     public void shouldThrowForUnknownValueTypeForBuiltinTypes() {
-        assertThrows(IllegalArgumentException.class, () -> StateSerdes.withBuiltinTypes("anyName", byte[].class, Class.class));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> StateSerdes.withBuiltinTypes("anyName", byte[].class, Class.class));
     }
 
     @Test
     public void shouldThrowIfTopicNameIsNull() {
-        assertThrows(NullPointerException.class, () -> new StateSerdes<>(null, Serdes.ByteArray(), Serdes.ByteArray()));
+        Assertions.assertThrows(NullPointerException.class, () -> new StateSerdes<>(null, Serdes.ByteArray(), Serdes.ByteArray()));
     }
 
     @Test
     public void shouldThrowIfKeyClassIsNull() {
-        assertThrows(NullPointerException.class, () -> new StateSerdes<>("anyName", null, Serdes.ByteArray()));
+        Assertions.assertThrows(NullPointerException.class, () -> new StateSerdes<>("anyName", null, Serdes.ByteArray()));
     }
 
     @Test
     public void shouldThrowIfValueClassIsNull() {
-        assertThrows(NullPointerException.class, () -> new StateSerdes<>("anyName", Serdes.ByteArray(), null));
+        Assertions.assertThrows(NullPointerException.class, () -> new StateSerdes<>("anyName", Serdes.ByteArray(), null));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class StateSerdesTest {
         final Class myClass = Class.forName("java.lang.String");
         final StateSerdes<Object, Object> stateSerdes = new StateSerdes<Object, Object>("anyName", Serdes.serdeFrom(myClass), Serdes.serdeFrom(myClass));
         final Integer myInt = 123;
-        final Exception e = assertThrows(StreamsException.class, () -> stateSerdes.rawValue(myInt));
+        final Exception e = Assertions.assertThrows(StreamsException.class, () -> stateSerdes.rawValue(myInt));
         assertThat(
             e.getMessage(),
             equalTo(
@@ -113,7 +112,7 @@ public class StateSerdesTest {
         final StateSerdes<Object, Object> stateSerdes =
             new StateSerdes<Object, Object>("anyName", Serdes.serdeFrom(myClass), new ValueAndTimestampSerde(Serdes.serdeFrom(myClass)));
         final Integer myInt = 123;
-        final Exception e = assertThrows(StreamsException.class, () -> stateSerdes.rawValue(ValueAndTimestamp.make(myInt, 0L)));
+        final Exception e = Assertions.assertThrows(StreamsException.class, () -> stateSerdes.rawValue(ValueAndTimestamp.make(myInt, 0L)));
         assertThat(
             e.getMessage(),
             equalTo(
@@ -127,7 +126,7 @@ public class StateSerdesTest {
         final Class myClass = Class.forName("java.lang.String");
         final StateSerdes<Object, Object> stateSerdes = new StateSerdes<Object, Object>("anyName", Serdes.serdeFrom(myClass), Serdes.serdeFrom(myClass));
         final Integer myInt = 123;
-        final Exception e = assertThrows(StreamsException.class, () -> stateSerdes.rawKey(myInt));
+        final Exception e = Assertions.assertThrows(StreamsException.class, () -> stateSerdes.rawKey(myInt));
         assertThat(
             e.getMessage(),
             equalTo(

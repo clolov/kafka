@@ -24,6 +24,7 @@ import org.apache.kafka.streams.processor.api.ProcessorSupplier;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.test.TestUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +39,6 @@ import java.nio.file.Files;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 
 public class PrintedTest {
 
@@ -106,26 +106,26 @@ public class PrintedTest {
 
     @Test
     public void shouldThrowNullPointerExceptionIfFilePathIsNull() {
-        assertThrows(NullPointerException.class, () -> Printed.toFile(null));
+        Assertions.assertThrows(NullPointerException.class, () -> Printed.toFile(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionIfMapperIsNull() {
-        assertThrows(NullPointerException.class, () -> sysOutPrinter.withKeyValueMapper(null));
+        Assertions.assertThrows(NullPointerException.class, () -> sysOutPrinter.withKeyValueMapper(null));
     }
 
     @Test
     public void shouldThrowNullPointerExceptionIfLabelIsNull() {
-        assertThrows(NullPointerException.class, () -> sysOutPrinter.withLabel(null));
+        Assertions.assertThrows(NullPointerException.class, () -> sysOutPrinter.withLabel(null));
     }
 
     @Test
     public void shouldThrowTopologyExceptionIfFilePathIsEmpty() {
-        assertThrows(TopologyException.class, () -> Printed.toFile(""));
+        Assertions.assertThrows(TopologyException.class, () -> Printed.toFile(""));
     }
 
     @Test
     public void shouldThrowTopologyExceptionIfFilePathDoesntExist() {
-        assertThrows(TopologyException.class, () -> Printed.toFile("/this/should/not/exist"));
+        Assertions.assertThrows(TopologyException.class, () -> Printed.toFile("/this/should/not/exist"));
     }
 }

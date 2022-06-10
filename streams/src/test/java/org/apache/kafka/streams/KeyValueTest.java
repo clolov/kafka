@@ -16,61 +16,56 @@
  */
 package org.apache.kafka.streams;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+@Timeout(600)
 public class KeyValueTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     @Test
     public void shouldHaveSameEqualsAndHashCode() {
         final KeyValue<String, Long> kv = KeyValue.pair("key1", 1L);
         final KeyValue<String, Long> copyOfKV = KeyValue.pair(kv.key, kv.value);
 
         // Reflexive
-        assertTrue(kv.equals(kv));
-        assertTrue(kv.hashCode() == kv.hashCode());
+        Assertions.assertTrue(kv.equals(kv));
+        Assertions.assertTrue(kv.hashCode() == kv.hashCode());
 
         // Symmetric
-        assertTrue(kv.equals(copyOfKV));
-        assertTrue(kv.hashCode() == copyOfKV.hashCode());
-        assertTrue(copyOfKV.hashCode() == kv.hashCode());
+        Assertions.assertTrue(kv.equals(copyOfKV));
+        Assertions.assertTrue(kv.hashCode() == copyOfKV.hashCode());
+        Assertions.assertTrue(copyOfKV.hashCode() == kv.hashCode());
 
         // Transitive
         final KeyValue<String, Long> copyOfCopyOfKV = KeyValue.pair(copyOfKV.key, copyOfKV.value);
-        assertTrue(copyOfKV.equals(copyOfCopyOfKV));
-        assertTrue(copyOfKV.hashCode() == copyOfCopyOfKV.hashCode());
-        assertTrue(kv.equals(copyOfCopyOfKV));
-        assertTrue(kv.hashCode() == copyOfCopyOfKV.hashCode());
+        Assertions.assertEquals(copyOfKV, copyOfCopyOfKV);
+        Assertions.assertEquals(copyOfKV.hashCode(), copyOfCopyOfKV.hashCode());
+        Assertions.assertEquals(kv, copyOfCopyOfKV);
+        Assertions.assertEquals(kv.hashCode(), copyOfCopyOfKV.hashCode());
 
         // Inequality scenarios
-        assertFalse("must be false for null", kv.equals(null));
-        assertFalse("must be false if key is non-null and other key is null", kv.equals(KeyValue.pair(null, kv.value)));
-        assertFalse("must be false if value is non-null and other value is null", kv.equals(KeyValue.pair(kv.key, null)));
+        Assertions.assertNotEquals(null, kv, "must be false for null");
+        Assertions.assertNotEquals(kv, KeyValue.pair(null, kv.value), "must be false if key is non-null and other key is null");
+        Assertions.assertNotEquals(kv, KeyValue.pair(kv.key, null), "must be false if value is non-null and other value is null");
         final KeyValue<Long, Long> differentKeyType = KeyValue.pair(1L, kv.value);
-        assertFalse("must be false for different key types", kv.equals(differentKeyType));
+        Assertions.assertNotEquals(kv, differentKeyType, "must be false for different key types");
         final KeyValue<String, String> differentValueType = KeyValue.pair(kv.key, "anyString");
-        assertFalse("must be false for different value types", kv.equals(differentValueType));
+        Assertions.assertNotEquals(kv, differentValueType, "must be false for different value types");
         final KeyValue<Long, String> differentKeyValueTypes = KeyValue.pair(1L, "anyString");
-        assertFalse("must be false for different key and value types", kv.equals(differentKeyValueTypes));
-        assertFalse("must be false for different types of objects", kv.equals(new Object()));
+        Assertions.assertNotEquals(kv, differentKeyValueTypes, "must be false for different key and value types");
+        Assertions.assertNotEquals(kv, new Object(), "must be false for different types of objects");
 
         final KeyValue<String, Long> differentKey = KeyValue.pair(kv.key + "suffix", kv.value);
-        assertFalse("must be false if key is different", kv.equals(differentKey));
-        assertFalse("must be false if key is different", differentKey.equals(kv));
+        Assertions.assertNotEquals(kv, differentKey, "must be false if key is different");
+        Assertions.assertNotEquals(differentKey, kv, "must be false if key is different");
 
         final KeyValue<String, Long> differentValue = KeyValue.pair(kv.key, kv.value + 1L);
-        assertFalse("must be false if value is different", kv.equals(differentValue));
-        assertFalse("must be false if value is different", differentValue.equals(kv));
+        Assertions.assertNotEquals(kv, differentValue, "must be false if value is different");
+        Assertions.assertNotEquals(differentValue, kv, "must be false if value is different");
 
         final KeyValue<String, Long> differentKeyAndValue = KeyValue.pair(kv.key + "suffix", kv.value + 1L);
-        assertFalse("must be false if key and value are different", kv.equals(differentKeyAndValue));
-        assertFalse("must be false if key and value are different", differentKeyAndValue.equals(kv));
+        Assertions.assertNotEquals(kv, differentKeyAndValue, "must be false if key and value are different");
+        Assertions.assertNotEquals(differentKeyAndValue, kv, "must be false if key and value are different");
     }
 
 }

@@ -22,13 +22,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertThrows;
-
 public class NamedTest {
 
     @Test
     public void shouldThrowExceptionGivenNullName() {
-        assertThrows(NullPointerException.class, () -> Named.as(null));
+        Assertions.assertThrows(NullPointerException.class, () -> Named.as(null));
     }
 
     @Test

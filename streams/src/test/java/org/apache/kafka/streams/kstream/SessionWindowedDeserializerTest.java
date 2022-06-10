@@ -28,8 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThrows;
-
 
 public class SessionWindowedDeserializerTest {
     private final SessionWindowedDeserializer<?> sessionWindowedDeserializer = new SessionWindowedDeserializer<>(new StringDeserializer());
@@ -54,18 +52,18 @@ public class SessionWindowedDeserializerTest {
     @Test
     public void shouldThrowErrorIfWindowInnerClassDeserialiserIsNotSet() {
         final SessionWindowedDeserializer<?> deserializer = new SessionWindowedDeserializer<>();
-        assertThrows(IllegalArgumentException.class, () -> deserializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> deserializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowErrorIfDeserialisersConflictInConstructorAndConfig() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, Serdes.ByteArraySerde.class.getName());
-        assertThrows(IllegalArgumentException.class, () -> sessionWindowedDeserializer.configure(props, false));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> sessionWindowedDeserializer.configure(props, false));
     }
 
     @Test
     public void shouldThrowConfigExceptionWhenInvalidWindowInnerClassDeserialiserSupplied() {
         props.put(StreamsConfig.WINDOWED_INNER_CLASS_SERDE, "some.non.existent.class");
-        assertThrows(ConfigException.class, () -> sessionWindowedDeserializer.configure(props, false));
+        Assertions.assertThrows(ConfigException.class, () -> sessionWindowedDeserializer.configure(props, false));
     }
 }

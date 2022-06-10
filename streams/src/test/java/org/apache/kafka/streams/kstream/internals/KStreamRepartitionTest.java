@@ -36,10 +36,11 @@ import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.test.TestRecord;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.easymock.EasyMock;
-import org.easymock.EasyMockRunner;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.easymock.EasyMockExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -55,12 +56,9 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThrows;
 
 @SuppressWarnings("deprecation")
-@RunWith(EasyMockRunner.class)
+@ExtendWith(EasyMockExtension.class)
 public class KStreamRepartitionTest {
     private final String inputTopic = "input-topic";
 
@@ -68,7 +66,7 @@ public class KStreamRepartitionTest {
 
     private StreamsBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         builder = new StreamsBuilder();
     }
@@ -109,7 +107,7 @@ public class KStreamRepartitionTest {
 
             assertThat(testOutputTopic.readRecord(), equalTo(new TestRecord<>(0, "X0", Instant.ofEpochMilli(10))));
             assertThat(testOutputTopic.readRecord(), equalTo(new TestRecord<>(1, "X1", Instant.ofEpochMilli(11))));
-            assertTrue(testOutputTopic.readRecordsToList().isEmpty());
+            Assertions.assertTrue(testOutputTopic.readRecordsToList().isEmpty());
         }
 
         verify(streamPartitionerMock);
@@ -147,14 +145,14 @@ public class KStreamRepartitionTest {
                 Utils.mkEntry(toRepartitionTopicName(inputTopicRepartitionedName), inputTopicNumberOfPartitions)
         );
 
-        final TopologyException expected = assertThrows(
+        final TopologyException expected = Assertions.assertThrows(
                 TopologyException.class, () -> builder.build(props)
         );
         final String expectedErrorMessage = String.format("Following topics do not have the same " +
                         "number of partitions: [%s]",
                 new TreeMap<>(repartitionTopicsWithNumOfPartitions));
-        assertNotNull(expected);
-        assertTrue(expected.getMessage().contains(expectedErrorMessage));
+        Assertions.assertNotNull(expected);
+        Assertions.assertTrue(expected.getMessage().contains(expectedErrorMessage));
     }
 
     private String toRepartitionTopicName(final String input) {

@@ -45,7 +45,7 @@ import static org.apache.kafka.streams.processor.internals.metrics.StreamsMetric
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class ProcessorNodeTest {
 
@@ -53,14 +53,14 @@ public class ProcessorNodeTest {
     public void shouldThrowStreamsExceptionIfExceptionCaughtDuringInit() {
         final ProcessorNode<Object, Object, Object, Object> node =
             new ProcessorNode<>("name", new ExceptionalProcessor(), Collections.emptySet());
-        assertThrows(StreamsException.class, () -> node.init(null));
+        Assertions.assertThrows(StreamsException.class, () -> node.init(null));
     }
 
     @Test
     public void shouldThrowStreamsExceptionIfExceptionCaughtDuringClose() {
         final ProcessorNode<Object, Object, Object, Object> node =
             new ProcessorNode<>("name", new ExceptionalProcessor(), Collections.emptySet());
-        assertThrows(StreamsException.class, () -> node.init(null));
+        Assertions.assertThrows(StreamsException.class, () -> node.init(null));
     }
 
     private static class ExceptionalProcessor implements Processor<Object, Object, Object, Object> {
@@ -137,7 +137,7 @@ public class ProcessorNodeTest {
         try (final TopologyTestDriver testDriver = new TopologyTestDriver(topology, config)) {
             final TestInputTopic<String, String> topic = testDriver.createInputTopic("streams-plaintext-input", new StringSerializer(), new StringSerializer());
 
-            final StreamsException se = assertThrows(StreamsException.class, () -> topic.pipeInput("a-key", "a value"));
+            final StreamsException se = Assertions.assertThrows(StreamsException.class, () -> topic.pipeInput("a-key", "a value"));
             final String msg = se.getMessage();
             Assertions.assertTrue(msg.contains("ClassCastException"), "Error about class cast with serdes");
             Assertions.assertTrue(msg.contains("Serdes"), "Error about class cast with serdes");
@@ -153,7 +153,7 @@ public class ProcessorNodeTest {
             .flatMapValues(value -> Collections.singletonList(""));
         final Topology topology = builder.build();
 
-        final ConfigException se = assertThrows(ConfigException.class, () -> new TopologyTestDriver(topology));
+        final ConfigException se = Assertions.assertThrows(ConfigException.class, () -> new TopologyTestDriver(topology));
         final String msg = se.getMessage();
         Assertions.assertTrue(msg.contains("StreamsConfig#DEFAULT_KEY_SERDE_CLASS_CONFIG"), "Error about class cast with serdes");
         Assertions.assertTrue(msg.contains("specify a key serde"), "Error about class cast with serdes");
@@ -180,7 +180,7 @@ public class ProcessorNodeTest {
         final ProcessorNode<Object, Object, Object, Object> node =
             new ProcessorNode<>("pname", new ClassCastProcessor(), Collections.emptySet());
         node.init(context);
-        final StreamsException se = assertThrows(
+        final StreamsException se = Assertions.assertThrows(
             StreamsException.class,
             () -> node.process(new Record<>("aKey", "aValue", 0))
         );

@@ -25,7 +25,6 @@ import java.util.Map;
 import static java.time.Instant.ofEpochMilli;
 import static org.apache.kafka.streams.EqualityCheck.verifyEquality;
 import static org.apache.kafka.streams.EqualityCheck.verifyInEquality;
-import static org.junit.Assert.assertThrows;
 
 public class UnlimitedWindowsTest {
 
@@ -38,7 +37,7 @@ public class UnlimitedWindowsTest {
 
     @Test
     public void startTimeMustNotBeNegative() {
-        assertThrows(IllegalArgumentException.class, () -> UnlimitedWindows.of().startOn(ofEpochMilli(-1)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> UnlimitedWindows.of().startOn(ofEpochMilli(-1)));
     }
 
     @Test

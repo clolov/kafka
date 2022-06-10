@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
-import static org.junit.Assert.assertThrows;
 
 public class SubscriptionResponseWrapperSerdeTest {
     private static final class NonNullableSerde<T> implements Serde<T>, Serializer<T>, Deserializer<T> {
@@ -131,7 +130,7 @@ public class SubscriptionResponseWrapperSerdeTest {
     @Test
     public void shouldThrowExceptionWithBadVersionTest() {
         final long[] hashedValue = null;
-        assertThrows(UnsupportedVersionException.class,
+        Assertions.assertThrows(UnsupportedVersionException.class,
             () -> new SubscriptionResponseWrapper<>(hashedValue, "foreignValue", (byte) 0xFF, 1));
     }
 }

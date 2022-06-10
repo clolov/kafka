@@ -17,8 +17,8 @@
 package org.apache.kafka.streams.scala.kstream
 
 import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.streams.kstream.{Consumed => ConsumedJ}
 import org.apache.kafka.streams.Topology
+import org.apache.kafka.streams.kstream.{Consumed => ConsumedJ}
 import org.apache.kafka.streams.processor.TimestampExtractor
 
 object Consumed {

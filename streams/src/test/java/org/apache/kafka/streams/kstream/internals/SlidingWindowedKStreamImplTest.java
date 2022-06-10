@@ -22,6 +22,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
@@ -35,12 +36,12 @@ import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.apache.kafka.streams.state.WindowBytesStoreSupplier;
 import org.apache.kafka.streams.state.WindowStore;
-import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.MockAggregator;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +53,6 @@ import static java.time.Duration.ofMillis;
 import static java.time.Instant.ofEpochMilli;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 
 public class SlidingWindowedKStreamImplTest {
 
@@ -317,27 +317,27 @@ public class SlidingWindowedKStreamImplTest {
 
     @Test
     public void shouldThrowNullPointerOnAggregateIfInitializerIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.aggregate(null, MockAggregator.TOSTRING_ADDER));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.aggregate(null, MockAggregator.TOSTRING_ADDER));
     }
 
     @Test
     public void shouldThrowNullPointerOnAggregateIfAggregatorIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.aggregate(MockInitializer.STRING_INIT, null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.aggregate(MockInitializer.STRING_INIT, null));
     }
 
     @Test
     public void shouldThrowNullPointerOnReduceIfReducerIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.reduce(null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.reduce(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfInitializerIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.aggregate(null, MockAggregator.TOSTRING_ADDER, Materialized.as("store")));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.aggregate(null, MockAggregator.TOSTRING_ADDER, Materialized.as("store")));
     }
 
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfAggregatorIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.aggregate(
             MockInitializer.STRING_INIT,
             null,
             Materialized.as("store")));
@@ -346,33 +346,33 @@ public class SlidingWindowedKStreamImplTest {
     @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.aggregate(MockInitializer.STRING_INIT, MockAggregator.TOSTRING_ADDER, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.aggregate(MockInitializer.STRING_INIT, MockAggregator.TOSTRING_ADDER, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnMaterializedReduceIfReducerIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.reduce(null, Materialized.as("store")));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.reduce(null, Materialized.as("store")));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void shouldThrowNullPointerOnMaterializedReduceIfMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.reduce(MockReducer.STRING_ADDER, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.reduce(MockReducer.STRING_ADDER, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnMaterializedReduceIfNamedIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.reduce(MockReducer.STRING_ADDER, (Named) null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.reduce(MockReducer.STRING_ADDER, (Named) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnCountIfMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> windowedStream.count((Materialized<String, Long, WindowStore<Bytes, byte[]>>) null));
+        Assertions.assertThrows(NullPointerException.class, () -> windowedStream.count((Materialized<String, Long, WindowStore<Bytes, byte[]>>) null));
     }
 
     @Test
     public void shouldThrowIllegalArgumentWhenRetentionIsTooSmall() {
-        assertThrows(IllegalArgumentException.class, () -> windowedStream
+        Assertions.assertThrows(IllegalArgumentException.class, () -> windowedStream
             .aggregate(
                 MockInitializer.STRING_INIT,
                 MockAggregator.TOSTRING_ADDER,

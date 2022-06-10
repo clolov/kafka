@@ -35,9 +35,8 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.utils.UniqueTopicSerdeScope;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.util.Collections;
 import java.util.Map;
@@ -57,11 +56,8 @@ public class KTableKTableForeignKeyJoinScenarioTest {
     private static final String RIGHT_TABLE = "right_table";
     private static final String OUTPUT = "output-topic";
 
-    @Rule
-    public TestName testName = new TestName();
-
     @Test
-    public void shouldWorkWithDefaultSerdes() {
+    public void shouldWorkWithDefaultSerdes(final TestInfo testInfo) {
         final StreamsBuilder builder = new StreamsBuilder();
         final KTable<Integer, String> aTable = builder.table("A");
         final KTable<Integer, String> bTable = builder.table("B");
@@ -80,11 +76,11 @@ public class KTableKTableForeignKeyJoinScenarioTest {
 
         finalJoinResult.toStream().to("output");
 
-        validateTopologyCanProcessData(builder);
+        validateTopologyCanProcessData(builder, testInfo);
     }
 
     @Test
-    public void shouldWorkWithDefaultAndConsumedSerdes() {
+    public void shouldWorkWithDefaultAndConsumedSerdes(final TestInfo testInfo) {
         final StreamsBuilder builder = new StreamsBuilder();
         final KTable<Integer, String> aTable = builder.table("A", Consumed.with(Serdes.Integer(), Serdes.String()));
         final KTable<Integer, String> bTable = builder.table("B");
@@ -103,11 +99,11 @@ public class KTableKTableForeignKeyJoinScenarioTest {
 
         finalJoinResult.toStream().to("output");
 
-        validateTopologyCanProcessData(builder);
+        validateTopologyCanProcessData(builder, testInfo);
     }
 
     @Test
-    public void shouldWorkWithDefaultAndJoinResultSerdes() {
+    public void shouldWorkWithDefaultAndJoinResultSerdes(final TestInfo testInfo) {
         final StreamsBuilder builder = new StreamsBuilder();
         final KTable<Integer, String> aTable = builder.table("A");
         final KTable<Integer, String> bTable = builder.table("B");
@@ -128,11 +124,11 @@ public class KTableKTableForeignKeyJoinScenarioTest {
 
         finalJoinResult.toStream().to("output");
 
-        validateTopologyCanProcessData(builder);
+        validateTopologyCanProcessData(builder, testInfo);
     }
 
     @Test
-    public void shouldWorkWithDefaultAndEquiJoinResultSerdes() {
+    public void shouldWorkWithDefaultAndEquiJoinResultSerdes(final TestInfo testInfo) {
         final StreamsBuilder builder = new StreamsBuilder();
         final KTable<Integer, String> aTable = builder.table("A");
         final KTable<Integer, String> bTable = builder.table("B");
@@ -152,11 +148,11 @@ public class KTableKTableForeignKeyJoinScenarioTest {
 
         finalJoinResult.toStream().to("output");
 
-        validateTopologyCanProcessData(builder);
+        validateTopologyCanProcessData(builder, testInfo);
     }
 
     @Test
-    public void shouldWorkWithDefaultAndProducedSerdes() {
+    public void shouldWorkWithDefaultAndProducedSerdes(final TestInfo testInfo) {
         final StreamsBuilder builder = new StreamsBuilder();
         final KTable<Integer, String> aTable = builder.table("A");
         final KTable<Integer, String> bTable = builder.table("B");
@@ -175,7 +171,7 @@ public class KTableKTableForeignKeyJoinScenarioTest {
 
         finalJoinResult.toStream().to("output", Produced.with(Serdes.Integer(), Serdes.String()));
 
-        validateTopologyCanProcessData(builder);
+        validateTopologyCanProcessData(builder, testInfo);
     }
 
     @Test
@@ -238,9 +234,9 @@ public class KTableKTableForeignKeyJoinScenarioTest {
         )));
     }
 
-    private void validateTopologyCanProcessData(final StreamsBuilder builder) {
+    private void validateTopologyCanProcessData(final StreamsBuilder builder, final TestInfo testInfo) {
         final Properties config = new Properties();
-        final String safeTestName = safeUniqueTestName(getClass(), testName);
+        final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         config.setProperty(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.IntegerSerde.class.getName());
         config.setProperty(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class.getName());
         config.setProperty(StreamsConfig.STATE_DIR_CONFIG, TestUtils.tempDirectory().getAbsolutePath());

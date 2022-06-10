@@ -22,6 +22,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.errors.TopologyException;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -32,7 +33,6 @@ import org.apache.kafka.streams.kstream.KeyValueMapper;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
-import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.MockAggregator;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockInitializer;
@@ -48,7 +48,6 @@ import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 
 public class KGroupedTableImplTest {
 
@@ -67,7 +66,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowInvalidStoreNameOnAggregate() {
-        assertThrows(TopologyException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(TopologyException.class, () -> groupedTable.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             MockAggregator.TOSTRING_REMOVER,
@@ -76,7 +75,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowNullInitializerOnAggregate() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             null,
             MockAggregator.TOSTRING_ADDER,
             MockAggregator.TOSTRING_REMOVER,
@@ -85,7 +84,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowNullAdderOnAggregate() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             MockInitializer.STRING_INIT,
             null,
             MockAggregator.TOSTRING_REMOVER,
@@ -94,7 +93,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowNullSubtractorOnAggregate() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             null,
@@ -103,7 +102,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowNullAdderOnReduce() {
-        assertThrows(NullPointerException.class, () -> groupedTable.reduce(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.reduce(
             null,
             MockReducer.STRING_REMOVER,
             Materialized.as("store")));
@@ -111,7 +110,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowNullSubtractorOnReduce() {
-        assertThrows(NullPointerException.class, () -> groupedTable.reduce(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.reduce(
             MockReducer.STRING_ADDER,
             null,
             Materialized.as("store")));
@@ -119,7 +118,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldNotAllowInvalidStoreNameOnReduce() {
-        assertThrows(TopologyException.class, () -> groupedTable.reduce(
+        Assertions.assertThrows(TopologyException.class, () -> groupedTable.reduce(
             MockReducer.STRING_ADDER,
             MockReducer.STRING_REMOVER,
             Materialized.as(INVALID_STORE_NAME)));
@@ -299,12 +298,12 @@ public class KGroupedTableImplTest {
     @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowNullPointOnCountWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.count((Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.count((Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnReduceWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.reduce(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.reduce(
             MockReducer.STRING_ADDER,
             MockReducer.STRING_REMOVER,
             null));
@@ -312,7 +311,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldThrowNullPointerOnReduceWhenAdderIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.reduce(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.reduce(
             null,
             MockReducer.STRING_REMOVER,
             Materialized.as("store")));
@@ -320,7 +319,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldThrowNullPointerOnReduceWhenSubtractorIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.reduce(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.reduce(
             MockReducer.STRING_ADDER,
             null,
             Materialized.as("store")));
@@ -328,7 +327,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldThrowNullPointerOnAggregateWhenInitializerIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             null,
             MockAggregator.TOSTRING_ADDER,
             MockAggregator.TOSTRING_REMOVER,
@@ -337,7 +336,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldThrowNullPointerOnAggregateWhenAdderIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             MockInitializer.STRING_INIT,
             null,
             MockAggregator.TOSTRING_REMOVER,
@@ -346,7 +345,7 @@ public class KGroupedTableImplTest {
 
     @Test
     public void shouldThrowNullPointerOnAggregateWhenSubtractorIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             null,
@@ -356,7 +355,7 @@ public class KGroupedTableImplTest {
     @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowNullPointerOnAggregateWhenMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> groupedTable.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             MockAggregator.TOSTRING_REMOVER,

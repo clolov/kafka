@@ -45,9 +45,10 @@ import org.apache.kafka.test.KeyValueIteratorStub;
 import org.easymock.EasyMockRule;
 import org.easymock.Mock;
 import org.easymock.MockType;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -70,10 +71,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+
+
+
+
 
 public class MeteredKeyValueStoreTest {
 
@@ -104,7 +105,7 @@ public class MeteredKeyValueStoreTest {
     private final Metrics metrics = new Metrics();
     private Map<String, String> tags;
 
-    @Before
+    @BeforeEach
     public void before() {
         final Time mockTime = new MockTime();
         metered = new MeteredKeyValueStore<>(
@@ -220,12 +221,12 @@ public class MeteredKeyValueStoreTest {
         reporter.contextChange(metricsContext);
 
         metrics.addReporter(reporter);
-        assertTrue(reporter.containsMbean(String.format(
+        Assertions.assertTrue(reporter.containsMbean(String.format(
             "kafka.streams:type=%s,%s=%s,task-id=%s,%s-state-id=%s",
             STORE_LEVEL_GROUP,
             THREAD_ID_TAG_KEY,
             threadId,
-            taskId.toString(),
+                taskId,
             STORE_TYPE,
             STORE_NAME
         )));
@@ -253,7 +254,7 @@ public class MeteredKeyValueStoreTest {
         metered.put(KEY, VALUE);
 
         final KafkaMetric metric = metric("put-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -265,7 +266,7 @@ public class MeteredKeyValueStoreTest {
         assertThat(metered.get(KEY), equalTo(VALUE));
 
         final KafkaMetric metric = metric("get-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -277,7 +278,7 @@ public class MeteredKeyValueStoreTest {
         metered.putIfAbsent(KEY, VALUE);
 
         final KafkaMetric metric = metric("put-if-absent-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -291,7 +292,7 @@ public class MeteredKeyValueStoreTest {
         metered.putAll(Collections.singletonList(KeyValue.pair(KEY, VALUE)));
 
         final KafkaMetric metric = metric("put-all-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -303,7 +304,7 @@ public class MeteredKeyValueStoreTest {
         metered.delete(KEY);
 
         final KafkaMetric metric = metric("delete-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -315,11 +316,11 @@ public class MeteredKeyValueStoreTest {
 
         final KeyValueIterator<String, String> iterator = metered.range(KEY, KEY);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         final KafkaMetric metric = metric("range-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -330,11 +331,11 @@ public class MeteredKeyValueStoreTest {
 
         final KeyValueIterator<String, String> iterator = metered.all();
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         final KafkaMetric metric = metric(new MetricName("all-rate", STORE_LEVEL_GROUP, "", tags));
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -347,7 +348,7 @@ public class MeteredKeyValueStoreTest {
         metered.flush();
 
         final KafkaMetric metric = metric("flush-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 
@@ -368,7 +369,7 @@ public class MeteredKeyValueStoreTest {
             Serdes.String(),
             Serdes.String()
         );
-        assertTrue(metered.setFlushListener(null, false));
+        Assertions.assertTrue(metered.setFlushListener(null, false));
 
         verify(cachedKeyValueStore);
     }
@@ -378,12 +379,12 @@ public class MeteredKeyValueStoreTest {
         expect(inner.get(Bytes.wrap("a".getBytes()))).andReturn(null);
 
         init();
-        assertNull(metered.get("a"));
+        Assertions.assertNull(metered.get("a"));
     }
 
     @Test
     public void shouldNotSetFlushListenerOnWrappedNoneCachingStore() {
-        assertFalse(metered.setFlushListener(null, false));
+        Assertions.assertFalse(metered.setFlushListener(null, false));
     }
 
     @Test
@@ -406,60 +407,60 @@ public class MeteredKeyValueStoreTest {
         init(); // replays "inner"
 
         assertThat(storeMetrics(), not(empty()));
-        assertThrows(RuntimeException.class, metered::close);
+        Assertions.assertThrows(RuntimeException.class, metered::close);
         assertThat(storeMetrics(), empty());
         verify(inner);
     }
 
     @Test
     public void shouldThrowNullPointerOnGetIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.get(null));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.get(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnPutIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.put(null, VALUE));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.put(null, VALUE));
     }
 
     @Test
     public void shouldThrowNullPointerOnPutIfAbsentIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.putIfAbsent(null, VALUE));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.putIfAbsent(null, VALUE));
     }
 
     @Test
     public void shouldThrowNullPointerOnDeleteIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.delete(null));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.delete(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnPutAllIfAnyKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.putAll(Collections.singletonList(KeyValue.pair(null, VALUE))));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.putAll(Collections.singletonList(KeyValue.pair(null, VALUE))));
     }
 
     @Test
     public void shouldThrowNullPointerOnPrefixScanIfPrefixIsNull() {
         final StringSerializer stringSerializer = new StringSerializer();
-        assertThrows(NullPointerException.class, () -> metered.prefixScan(null, stringSerializer));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.prefixScan(null, stringSerializer));
     }
 
     @Test
     public void shouldThrowNullPointerOnRangeIfFromIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.range(null, "to"));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.range(null, "to"));
     }
 
     @Test
     public void shouldThrowNullPointerOnRangeIfToIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.range("from", null));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.range("from", null));
     }
 
     @Test
     public void shouldThrowNullPointerOnReverseRangeIfFromIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.reverseRange(null, "to"));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.reverseRange(null, "to"));
     }
 
     @Test
     public void shouldThrowNullPointerOnReverseRangeIfToIsNull() {
-        assertThrows(NullPointerException.class, () -> metered.reverseRange("from", null));
+        Assertions.assertThrows(NullPointerException.class, () -> metered.reverseRange("from", null));
     }
 
     @Test
@@ -474,7 +475,7 @@ public class MeteredKeyValueStoreTest {
         iterator.close();
 
         final KafkaMetric metric = metrics.metric(new MetricName("prefix-scan-rate", STORE_LEVEL_GROUP, "", tags));
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(inner);
     }
 

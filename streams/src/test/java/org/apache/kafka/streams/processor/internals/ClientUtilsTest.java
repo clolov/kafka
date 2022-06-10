@@ -16,10 +16,6 @@
  */
 package org.apache.kafka.streams.processor.internals;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListOffsetsResult;
@@ -40,6 +36,11 @@ import org.easymock.EasyMock;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static org.apache.kafka.common.utils.Utils.mkSet;
@@ -47,13 +48,12 @@ import static org.apache.kafka.streams.processor.internals.ClientUtils.consumerR
 import static org.apache.kafka.streams.processor.internals.ClientUtils.fetchCommittedOffsets;
 import static org.apache.kafka.streams.processor.internals.ClientUtils.fetchEndOffsets;
 import static org.apache.kafka.streams.processor.internals.ClientUtils.producerRecordSizeInBytes;
-
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class ClientUtilsTest {
 
@@ -102,7 +102,7 @@ public class ClientUtilsTest {
         final Consumer<byte[], byte[]> consumer = EasyMock.createMock(Consumer.class);
         expect(consumer.committed(PARTITIONS)).andThrow(new KafkaException());
         replay(consumer);
-        assertThrows(StreamsException.class, () -> fetchCommittedOffsets(PARTITIONS, consumer));
+        Assertions.assertThrows(StreamsException.class, () -> fetchCommittedOffsets(PARTITIONS, consumer));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class ClientUtilsTest {
         final Consumer<byte[], byte[]> consumer = EasyMock.createMock(Consumer.class);
         expect(consumer.committed(PARTITIONS)).andThrow(new TimeoutException());
         replay(consumer);
-        assertThrows(TimeoutException.class, () -> fetchCommittedOffsets(PARTITIONS, consumer));
+        Assertions.assertThrows(TimeoutException.class, () -> fetchCommittedOffsets(PARTITIONS, consumer));
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ClientUtilsTest {
         EasyMock.expect(allFuture.get()).andThrow(new RuntimeException());
         replay(adminClient, result, allFuture);
 
-        assertThrows(StreamsException.class, () -> fetchEndOffsets(PARTITIONS, adminClient));
+        Assertions.assertThrows(StreamsException.class, () -> fetchEndOffsets(PARTITIONS, adminClient));
         verify(adminClient);
     }
 
@@ -151,7 +151,7 @@ public class ClientUtilsTest {
         EasyMock.expect(allFuture.get()).andThrow(new InterruptedException());
         replay(adminClient, result, allFuture);
 
-        assertThrows(StreamsException.class, () -> fetchEndOffsets(PARTITIONS, adminClient));
+        Assertions.assertThrows(StreamsException.class, () -> fetchEndOffsets(PARTITIONS, adminClient));
         verify(adminClient);
     }
 
@@ -166,7 +166,7 @@ public class ClientUtilsTest {
         EasyMock.expect(allFuture.get()).andThrow(new ExecutionException(new RuntimeException()));
         replay(adminClient, result, allFuture);
 
-        assertThrows(StreamsException.class, () -> fetchEndOffsets(PARTITIONS, adminClient));
+        Assertions.assertThrows(StreamsException.class, () -> fetchEndOffsets(PARTITIONS, adminClient));
         verify(adminClient);
     }
     

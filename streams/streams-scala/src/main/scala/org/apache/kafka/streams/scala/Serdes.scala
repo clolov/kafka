@@ -16,10 +16,10 @@
  */
 package org.apache.kafka.streams.scala
 
-import java.util
-
-import org.apache.kafka.common.serialization.{Deserializer, Serde, Serdes => JSerdes, Serializer}
+import org.apache.kafka.common.serialization.{Deserializer, Serde, Serializer, Serdes => JSerdes}
 import org.apache.kafka.streams.kstream.WindowedSerdes
+
+import java.util
 
 @deprecated(
   "Use org.apache.kafka.streams.scala.serialization.Serdes. For WindowedSerdes.TimeWindowedSerde, use explicit constructors.",

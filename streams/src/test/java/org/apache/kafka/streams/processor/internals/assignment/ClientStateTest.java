@@ -54,7 +54,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
+
 
 public class ClientStateTest {
     private final ClientState client = new ClientState(1);
@@ -103,54 +103,54 @@ public class ClientStateTest {
     public void shouldRefuseDoubleActiveTask() {
         final ClientState clientState = new ClientState(1);
         clientState.assignActive(TASK_0_0);
-        assertThrows(IllegalArgumentException.class, () -> clientState.assignActive(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.assignActive(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseActiveAndStandbyTask() {
         final ClientState clientState = new ClientState(1);
         clientState.assignActive(TASK_0_0);
-        assertThrows(IllegalArgumentException.class, () -> clientState.assignStandby(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.assignStandby(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseDoubleStandbyTask() {
         final ClientState clientState = new ClientState(1);
         clientState.assignStandby(TASK_0_0);
-        assertThrows(IllegalArgumentException.class, () -> clientState.assignStandby(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.assignStandby(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseStandbyAndActiveTask() {
         final ClientState clientState = new ClientState(1);
         clientState.assignStandby(TASK_0_0);
-        assertThrows(IllegalArgumentException.class, () -> clientState.assignActive(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.assignActive(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseToUnassignNotAssignedActiveTask() {
         final ClientState clientState = new ClientState(1);
-        assertThrows(IllegalArgumentException.class, () -> clientState.unassignActive(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.unassignActive(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseToUnassignNotAssignedStandbyTask() {
         final ClientState clientState = new ClientState(1);
-        assertThrows(IllegalArgumentException.class, () -> clientState.unassignStandby(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.unassignStandby(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseToUnassignActiveTaskAsStandby() {
         final ClientState clientState = new ClientState(1);
         clientState.assignActive(TASK_0_0);
-        assertThrows(IllegalArgumentException.class, () -> clientState.unassignStandby(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.unassignStandby(TASK_0_0));
     }
 
     @Test
     public void shouldRefuseToUnassignStandbyTaskAsActive() {
         final ClientState clientState = new ClientState(1);
         clientState.assignStandby(TASK_0_0);
-        assertThrows(IllegalArgumentException.class, () -> clientState.unassignActive(TASK_0_0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> clientState.unassignActive(TASK_0_0));
     }
 
     @Test
@@ -175,7 +175,7 @@ public class ClientStateTest {
     public void shouldNotModifyActiveView() {
         final ClientState clientState = new ClientState(1);
         final Set<TaskId> taskIds = clientState.activeTasks();
-        assertThrows(UnsupportedOperationException.class, () -> taskIds.add(TASK_0_0));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> taskIds.add(TASK_0_0));
         assertThat(clientState, hasActiveTasks(0));
     }
 
@@ -183,7 +183,7 @@ public class ClientStateTest {
     public void shouldNotModifyStandbyView() {
         final ClientState clientState = new ClientState(1);
         final Set<TaskId> taskIds = clientState.standbyTasks();
-        assertThrows(UnsupportedOperationException.class, () -> taskIds.add(TASK_0_0));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> taskIds.add(TASK_0_0));
         assertThat(clientState, hasStandbyTasks(0));
     }
 
@@ -191,7 +191,7 @@ public class ClientStateTest {
     public void shouldNotModifyAssignedView() {
         final ClientState clientState = new ClientState(1);
         final Set<TaskId> taskIds = clientState.assignedTasks();
-        assertThrows(UnsupportedOperationException.class, () -> taskIds.add(TASK_0_0));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> taskIds.add(TASK_0_0));
         assertThat(clientState, hasActiveTasks(0));
         assertThat(clientState, hasStandbyTasks(0));
     }
@@ -290,12 +290,12 @@ public class ClientStateTest {
 
     @Test
     public void shouldThrowIllegalStateExceptionIfCapacityOfThisClientStateIsZero() {
-        assertThrows(IllegalStateException.class, () -> zeroCapacityClient.hasMoreAvailableCapacityThan(client));
+        Assertions.assertThrows(IllegalStateException.class, () -> zeroCapacityClient.hasMoreAvailableCapacityThan(client));
     }
 
     @Test
     public void shouldThrowIllegalStateExceptionIfCapacityOfOtherClientStateIsZero() {
-        assertThrows(IllegalStateException.class, () -> client.hasMoreAvailableCapacityThan(zeroCapacityClient));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.hasMoreAvailableCapacityThan(zeroCapacityClient));
     }
 
     @Test
@@ -325,7 +325,7 @@ public class ClientStateTest {
         final Map<TopicPartition, TaskId> taskForPartitionMap = Collections.singletonMap(TP_0_1, TASK_0_1);
         client.addOwnedPartitions(Collections.singleton(TP_0_0), "c1");
         client.addPreviousTasksAndOffsetSums("c1", Collections.emptyMap());
-        assertThrows(IllegalStateException.class, () -> client.initializePrevTasks(taskForPartitionMap, false));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.initializePrevTasks(taskForPartitionMap, false));
     }
 
     @Test
@@ -462,7 +462,7 @@ public class ClientStateTest {
         client.addPreviousTasksAndOffsetSums("c1", clientReportedTaskEndOffsetSums);
         client.computeTaskLags(null, allTaskEndOffsetSumsComputedByAssignor);
 
-        assertThrows(IllegalStateException.class, () -> client.lagFor(NAMED_TASK_T1_0_0));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.lagFor(NAMED_TASK_T1_0_0));
 
         client.assignActive(NAMED_TASK_T0_0_0);
         assertThat(client.prevTasksByLag("c1"), equalTo(mkSortedSet(NAMED_TASK_T0_0_0)));
@@ -509,7 +509,7 @@ public class ClientStateTest {
         final Map<TaskId, Long> taskOffsetSums = Collections.singletonMap(TASK_0_1, 5L);
         final Map<TaskId, Long> allTaskEndOffsetSums = Collections.singletonMap(TASK_0_1, 1L);
         client.computeTaskLags(null, taskOffsetSums);
-        assertThrows(IllegalStateException.class, () -> client.computeTaskLags(null, allTaskEndOffsetSums));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.computeTaskLags(null, allTaskEndOffsetSums));
     }
 
     @Test
@@ -518,18 +518,18 @@ public class ClientStateTest {
         final Map<TaskId, Long> allTaskEndOffsetSums = Collections.singletonMap(TASK_0_1, 500L);
         client.addPreviousTasksAndOffsetSums("c1", taskOffsetSums);
         client.computeTaskLags(null, allTaskEndOffsetSums);
-        assertThrows(IllegalStateException.class, () -> client.lagFor(TASK_0_2));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.lagFor(TASK_0_2));
     }
 
     @Test
     public void shouldThrowIllegalStateExceptionIfAttemptingToInitializeNonEmptyPrevTaskSets() {
         client.addPreviousActiveTasks(Collections.singleton(TASK_0_1));
-        assertThrows(IllegalStateException.class, () -> client.initializePrevTasks(Collections.emptyMap(), false));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.initializePrevTasks(Collections.emptyMap(), false));
     }
 
     @Test
     public void shouldThrowIllegalStateExceptionIfAssignedTasksForConsumerToNonClientAssignActive() {
-        assertThrows(IllegalStateException.class, () -> client.assignActiveToConsumer(TASK_0_0, "c1"));
+        Assertions.assertThrows(IllegalStateException.class, () -> client.assignActiveToConsumer(TASK_0_0, "c1"));
     }
 
     @Test

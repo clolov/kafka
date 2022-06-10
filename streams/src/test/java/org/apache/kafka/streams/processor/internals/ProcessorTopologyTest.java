@@ -26,13 +26,13 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.Serializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TestOutputTopic;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.TopologyWrapper;
-import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.StreamPartitioner;
 import org.apache.kafka.streams.processor.TimestampExtractor;
 import org.apache.kafka.streams.processor.api.Processor;
@@ -40,10 +40,10 @@ import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.ProcessorSupplier;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueBytesStoreSupplier;
+import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
-import org.apache.kafka.streams.state.KeyValueIterator;
 import org.apache.kafka.streams.test.TestRecord;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.TestUtils;
@@ -55,12 +55,12 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
@@ -73,7 +73,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class ProcessorTopologyTest {
 
@@ -237,7 +237,7 @@ public class ProcessorTopologyTest {
         topology.addSource(nonExistingSourceNode, topicOfNonExistingSourceNode);
         final ProcessorTopology processorTopology = topology.getInternalBuilder("X").buildTopology();
 
-        final Throwable exception = assertThrows(
+        final Throwable exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> processorTopology.updateSourceTopics(Collections.singletonMap(
                 existingSourceNode, Collections.singletonList(topicOfExistingSourceNode)
@@ -256,7 +256,7 @@ public class ProcessorTopologyTest {
         topology.addSource(updatedSourceNode, topic);
         final ProcessorTopology processorTopology = topology.getInternalBuilder("X").buildTopology();
 
-        final Throwable exception = assertThrows(
+        final Throwable exception = Assertions.assertThrows(
             IllegalStateException.class,
             () -> processorTopology.updateSourceTopics(mkMap(
                 mkEntry(sourceNode, Collections.singletonList(doublySubscribedTopic)),

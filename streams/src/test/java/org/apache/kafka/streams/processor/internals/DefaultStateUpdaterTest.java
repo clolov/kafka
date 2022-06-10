@@ -24,6 +24,7 @@ import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.StateUpdater.ExceptionAndTasks;
 import org.apache.kafka.streams.processor.internals.Task.State;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -42,10 +43,6 @@ import static org.apache.kafka.common.utils.Utils.mkEntry;
 import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkSet;
 import static org.apache.kafka.test.TestUtils.waitForCondition;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
@@ -129,7 +126,7 @@ class DefaultStateUpdaterTest {
         for (final State state : State.values()) {
             if (state != correctState) {
                 when(task.state()).thenReturn(state);
-                assertThrows(IllegalStateException.class, () -> stateUpdater.add(task));
+                Assertions.assertThrows(IllegalStateException.class, () -> stateUpdater.add(task));
             }
         }
     }
@@ -154,7 +151,7 @@ class DefaultStateUpdaterTest {
         }
 
         verifyRestoredActiveTasks(tasks);
-        assertTrue(stateUpdater.getAllTasks().isEmpty());
+        Assertions.assertTrue(stateUpdater.getAllTasks().isEmpty());
     }
 
     @Test
@@ -173,7 +170,7 @@ class DefaultStateUpdaterTest {
         stateUpdater.add(task);
 
         verifyRestoredActiveTasks(task);
-        assertTrue(stateUpdater.getAllTasks().isEmpty());
+        Assertions.assertTrue(stateUpdater.getAllTasks().isEmpty());
         verify(changelogReader, times(1)).enforceRestoreActive();
         verify(changelogReader, atLeast(1)).restore(anyMap());
         verify(task).completeRestoration(offsetResetter);
@@ -201,7 +198,7 @@ class DefaultStateUpdaterTest {
         stateUpdater.add(task3);
 
         verifyRestoredActiveTasks(task3, task1, task2);
-        assertTrue(stateUpdater.getAllTasks().isEmpty());
+        Assertions.assertTrue(stateUpdater.getAllTasks().isEmpty());
         verify(changelogReader, times(3)).enforceRestoreActive();
         verify(changelogReader, atLeast(4)).restore(anyMap());
         verify(task3).completeRestoration(offsetResetter);
@@ -315,15 +312,15 @@ class DefaultStateUpdaterTest {
         stateUpdater.add(task2);
 
         final List<ExceptionAndTasks> failedTasks = getFailedTasks(1);
-        assertEquals(1, failedTasks.size());
+        Assertions.assertEquals(1, failedTasks.size());
         final ExceptionAndTasks actualFailedTasks = failedTasks.get(0);
-        assertEquals(2, actualFailedTasks.tasks.size());
-        assertTrue(actualFailedTasks.tasks.containsAll(Arrays.asList(task1, task2)));
-        assertTrue(actualFailedTasks.exception instanceof StreamsException);
+        Assertions.assertEquals(2, actualFailedTasks.tasks.size());
+        Assertions.assertTrue(actualFailedTasks.tasks.containsAll(Arrays.asList(task1, task2)));
+        Assertions.assertTrue(actualFailedTasks.exception instanceof StreamsException);
         final StreamsException actualException = (StreamsException) actualFailedTasks.exception;
-        assertFalse(actualException.taskId().isPresent());
-        assertEquals(expectedMessage, actualException.getMessage());
-        assertTrue(stateUpdater.getAllTasks().isEmpty());
+        Assertions.assertFalse(actualException.taskId().isPresent());
+        Assertions.assertEquals(expectedMessage, actualException.getMessage());
+        Assertions.assertTrue(stateUpdater.getAllTasks().isEmpty());
     }
 
     @Test
@@ -355,25 +352,25 @@ class DefaultStateUpdaterTest {
         stateUpdater.add(task3);
 
         final List<ExceptionAndTasks> failedTasks = getFailedTasks(2);
-        assertEquals(2, failedTasks.size());
+        Assertions.assertEquals(2, failedTasks.size());
         final ExceptionAndTasks actualFailedTasks1 = failedTasks.get(0);
-        assertEquals(1, actualFailedTasks1.tasks.size());
-        assertTrue(actualFailedTasks1.tasks.contains(task1));
-        assertTrue(actualFailedTasks1.exception instanceof StreamsException);
+        Assertions.assertEquals(1, actualFailedTasks1.tasks.size());
+        Assertions.assertTrue(actualFailedTasks1.tasks.contains(task1));
+        Assertions.assertTrue(actualFailedTasks1.exception instanceof StreamsException);
         final StreamsException actualException1 = (StreamsException) actualFailedTasks1.exception;
-        assertTrue(actualException1.taskId().isPresent());
-        assertEquals(task1.id(), actualException1.taskId().get());
-        assertEquals(expectedMessage, actualException1.getMessage());
+        Assertions.assertTrue(actualException1.taskId().isPresent());
+        Assertions.assertEquals(task1.id(), actualException1.taskId().get());
+        Assertions.assertEquals(expectedMessage, actualException1.getMessage());
         final ExceptionAndTasks actualFailedTasks2 = failedTasks.get(1);
-        assertEquals(1, actualFailedTasks2.tasks.size());
-        assertTrue(actualFailedTasks2.tasks.contains(task3));
-        assertTrue(actualFailedTasks2.exception instanceof StreamsException);
+        Assertions.assertEquals(1, actualFailedTasks2.tasks.size());
+        Assertions.assertTrue(actualFailedTasks2.tasks.contains(task3));
+        Assertions.assertTrue(actualFailedTasks2.exception instanceof StreamsException);
         final StreamsException actualException2 = (StreamsException) actualFailedTasks2.exception;
-        assertTrue(actualException2.taskId().isPresent());
-        assertEquals(task3.id(), actualException2.taskId().get());
-        assertEquals(expectedMessage, actualException2.getMessage());
-        assertEquals(1, stateUpdater.getAllTasks().size());
-        assertTrue(stateUpdater.getAllTasks().contains(task2));
+        Assertions.assertTrue(actualException2.taskId().isPresent());
+        Assertions.assertEquals(task3.id(), actualException2.taskId().get());
+        Assertions.assertEquals(expectedMessage, actualException2.getMessage());
+        Assertions.assertEquals(1, stateUpdater.getAllTasks().size());
+        Assertions.assertTrue(stateUpdater.getAllTasks().contains(task2));
     }
 
     @Test
@@ -395,17 +392,17 @@ class DefaultStateUpdaterTest {
         stateUpdater.add(task3);
 
         final List<ExceptionAndTasks> failedTasks = getFailedTasks(1);
-        assertEquals(1, failedTasks.size());
+        Assertions.assertEquals(1, failedTasks.size());
         final List<Task> expectedFailedTasks = Arrays.asList(task1, task2);
         final ExceptionAndTasks actualFailedTasks = failedTasks.get(0);
-        assertEquals(2, actualFailedTasks.tasks.size());
-        assertTrue(actualFailedTasks.tasks.containsAll(expectedFailedTasks));
-        assertTrue(actualFailedTasks.exception instanceof TaskCorruptedException);
+        Assertions.assertEquals(2, actualFailedTasks.tasks.size());
+        Assertions.assertTrue(actualFailedTasks.tasks.containsAll(expectedFailedTasks));
+        Assertions.assertTrue(actualFailedTasks.exception instanceof TaskCorruptedException);
         final TaskCorruptedException actualException = (TaskCorruptedException) actualFailedTasks.exception;
         final Set<TaskId> corruptedTasks = actualException.corruptedTasks();
-        assertTrue(corruptedTasks.containsAll(expectedFailedTasks.stream().map(Task::id).collect(Collectors.toList())));
-        assertEquals(1, stateUpdater.getAllTasks().size());
-        assertTrue(stateUpdater.getAllTasks().contains(task3));
+        Assertions.assertTrue(corruptedTasks.containsAll(expectedFailedTasks.stream().map(Task::id).collect(Collectors.toList())));
+        Assertions.assertEquals(1, stateUpdater.getAllTasks().size());
+        Assertions.assertTrue(stateUpdater.getAllTasks().contains(task3));
     }
 
     @Test
@@ -425,12 +422,12 @@ class DefaultStateUpdaterTest {
         final List<ExceptionAndTasks> failedTasks = getFailedTasks(1);
         final List<Task> expectedFailedTasks = Arrays.asList(task1, task2);
         final ExceptionAndTasks actualFailedTasks = failedTasks.get(0);
-        assertEquals(2, actualFailedTasks.tasks.size());
-        assertTrue(actualFailedTasks.tasks.containsAll(expectedFailedTasks));
-        assertTrue(actualFailedTasks.exception instanceof IllegalStateException);
+        Assertions.assertEquals(2, actualFailedTasks.tasks.size());
+        Assertions.assertTrue(actualFailedTasks.tasks.containsAll(expectedFailedTasks));
+        Assertions.assertTrue(actualFailedTasks.exception instanceof IllegalStateException);
         final IllegalStateException actualException = (IllegalStateException) actualFailedTasks.exception;
-        assertEquals(actualException.getMessage(), illegalStateException.getMessage());
-        assertTrue(stateUpdater.getAllTasks().isEmpty());
+        Assertions.assertEquals(actualException.getMessage(), illegalStateException.getMessage());
+        Assertions.assertTrue(stateUpdater.getAllTasks().isEmpty());
     }
 
     private void verifyRestoredActiveTasks(final StreamTask... tasks) throws Exception {
@@ -444,8 +441,8 @@ class DefaultStateUpdaterTest {
             VERIFICATION_TIMEOUT,
             "Did not get any restored active task within the given timeout!"
         );
-        assertTrue(restoredTasks.containsAll(expectedRestoredTasks));
-        assertEquals(expectedRestoredTasks.size(), restoredTasks.stream().filter(task -> task.state() == State.RESTORING).count());
+        Assertions.assertTrue(restoredTasks.containsAll(expectedRestoredTasks));
+        Assertions.assertEquals(expectedRestoredTasks.size(), restoredTasks.stream().filter(task -> task.state() == State.RESTORING).count());
     }
 
     private void verifyUpdatingStandbyTasks(final StandbyTask... tasks) throws Exception {
@@ -459,8 +456,8 @@ class DefaultStateUpdaterTest {
             VERIFICATION_TIMEOUT,
             "Did not see all standby task within the given timeout!"
         );
-        assertTrue(standbyTasks.containsAll(expectedStandbyTasks));
-        assertEquals(expectedStandbyTasks.size(), standbyTasks.stream().filter(t -> t.state() == State.RUNNING).count());
+        Assertions.assertTrue(standbyTasks.containsAll(expectedStandbyTasks));
+        Assertions.assertEquals(expectedStandbyTasks.size(), standbyTasks.stream().filter(t -> t.state() == State.RUNNING).count());
     }
 
     private List<ExceptionAndTasks> getFailedTasks(final int expectedCount) throws Exception {

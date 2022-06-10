@@ -32,10 +32,10 @@ import org.apache.kafka.streams.errors.ProcessorStateException;
 import org.apache.kafka.streams.errors.StreamsException;
 import org.apache.kafka.streams.processor.StateRestoreCallback;
 import org.apache.kafka.streams.processor.StateStore;
+import org.apache.kafka.streams.processor.internals.testutil.LogCaptureAppender;
 import org.apache.kafka.streams.state.TimestampedBytesStore;
 import org.apache.kafka.streams.state.internals.OffsetCheckpoint;
 import org.apache.kafka.streams.state.internals.WrappedStateStore;
-import org.apache.kafka.streams.processor.internals.testutil.LogCaptureAppender;
 import org.apache.kafka.test.InternalMockProcessorContext;
 import org.apache.kafka.test.MockStateRestoreListener;
 import org.apache.kafka.test.NoOpReadOnlyStore;
@@ -66,12 +66,12 @@ import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.test.MockStateRestoreListener.RESTORE_BATCH;
 import static org.apache.kafka.test.MockStateRestoreListener.RESTORE_END;
 import static org.apache.kafka.test.MockStateRestoreListener.RESTORE_START;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+
 
 public class GlobalStateManagerImplTest {
 
@@ -193,7 +193,7 @@ public class GlobalStateManagerImplTest {
         checkpoint.write(startOffsets);
 
         // initialize will throw exception
-        final StreamsException e = assertThrows(StreamsException.class, () -> stateManager.initialize());
+        final StreamsException e = Assertions.assertThrows(StreamsException.class, () -> stateManager.initialize());
         assertThat(e.getMessage(), equalTo("Encountered a topic-partition not associated with any global state store"));
     }
 
@@ -207,7 +207,7 @@ public class GlobalStateManagerImplTest {
     @Test
     public void shouldThrowStreamsExceptionIfFailedToReadCheckpointedOffsets() throws IOException {
         writeCorruptCheckpoint();
-        assertThrows(StreamsException.class, stateManager::initialize);
+        Assertions.assertThrows(StreamsException.class, stateManager::initialize);
     }
 
     @Test
@@ -381,7 +381,7 @@ public class GlobalStateManagerImplTest {
                 throw new RuntimeException("KABOOM!");
             }
         }, stateRestoreCallback, null);
-        assertThrows(StreamsException.class, stateManager::flush);
+        Assertions.assertThrows(StreamsException.class, stateManager::flush);
     }
 
     @Test
@@ -409,7 +409,7 @@ public class GlobalStateManagerImplTest {
             }
         }, stateRestoreCallback, null);
 
-        assertThrows(ProcessorStateException.class, stateManager::close);
+        Assertions.assertThrows(ProcessorStateException.class, stateManager::close);
     }
 
     @Test
@@ -577,7 +577,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> stateManager.initialize()
         );
@@ -620,7 +620,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final TimeoutException expected = assertThrows(
+        final TimeoutException expected = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );
@@ -661,7 +661,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final TimeoutException expected = assertThrows(
+        final TimeoutException expected = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );
@@ -743,7 +743,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> stateManager.initialize()
         );
@@ -786,7 +786,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final TimeoutException expected = assertThrows(
+        final TimeoutException expected = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );
@@ -827,7 +827,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final TimeoutException expected = assertThrows(
+        final TimeoutException expected = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );
@@ -909,7 +909,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final StreamsException expected = assertThrows(
+        final StreamsException expected = Assertions.assertThrows(
             StreamsException.class,
             () -> stateManager.initialize()
         );
@@ -952,7 +952,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final TimeoutException expected = assertThrows(
+        final TimeoutException expected = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );
@@ -993,7 +993,7 @@ public class GlobalStateManagerImplTest {
         processorContext.setStateManger(stateManager);
         stateManager.setGlobalProcessorContext(processorContext);
 
-        final TimeoutException expected = assertThrows(
+        final TimeoutException expected = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );
@@ -1078,7 +1078,7 @@ public class GlobalStateManagerImplTest {
 
         final long startTime = time.milliseconds();
 
-        final TimeoutException exception = assertThrows(
+        final TimeoutException exception = Assertions.assertThrows(
             TimeoutException.class,
             () -> stateManager.initialize()
         );

@@ -48,13 +48,14 @@ import org.apache.kafka.test.MockProcessorSupplier;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.NoOpValueTransformerWithKeySupplier;
 import org.apache.kafka.test.TestUtils;
-import org.easymock.EasyMockRunner;
+import org.easymock.EasyMockExtension;
 import org.easymock.Mock;
 import org.easymock.MockType;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,10 +71,8 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
-@RunWith(EasyMockRunner.class)
+@ExtendWith(EasyMockExtension.class)
 @SuppressWarnings("deprecation") // Old PAPI. Needs to be migrated.
 public class KTableTransformValuesTest {
     private static final String QUERYABLE_NAME = "queryable-store";
@@ -101,7 +100,7 @@ public class KTableTransformValuesTest {
     @Mock(MockType.NICE)
     private ValueTransformerWithKey<String, String, String> transformer;
 
-    @After
+    @AfterEach
     public void cleanup() {
         if (driver != null) {
             driver.close();
@@ -109,7 +108,7 @@ public class KTableTransformValuesTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         capture = new MockProcessorSupplier<>();
         builder = new StreamsBuilder();
@@ -122,7 +121,7 @@ public class KTableTransformValuesTest {
 
         try {
             transformer.get();
-            fail("NPE expected");
+            Assertions.fail("NPE expected");
         } catch (final NullPointerException expected) {
             // expected
         }
@@ -135,7 +134,7 @@ public class KTableTransformValuesTest {
 
         try {
             view.get();
-            fail("NPE expected");
+            Assertions.fail("NPE expected");
         } catch (final NullPointerException expected) {
             // expected
         }
@@ -374,7 +373,7 @@ public class KTableTransformValuesTest {
                 new KeyValueTimestamp<>("B", "B->b!", 10),
                 new KeyValueTimestamp<>("D", "D->null!", 15)
         ));
-        assertNull("Store should not be materialized", driver.getKeyValueStore(QUERYABLE_NAME));
+        Assertions.assertNull(driver.getKeyValueStore(QUERYABLE_NAME), "Store should not be materialized");
     }
 
     @Test

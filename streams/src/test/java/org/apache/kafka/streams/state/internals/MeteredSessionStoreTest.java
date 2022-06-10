@@ -47,9 +47,10 @@ import org.apache.kafka.test.KeyValueIteratorStub;
 import org.easymock.EasyMockRule;
 import org.easymock.Mock;
 import org.easymock.MockType;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,10 +72,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+
+
+
+
 
 public class MeteredSessionStoreTest {
 
@@ -107,7 +108,7 @@ public class MeteredSessionStoreTest {
 
     private Map<String, String> tags;
     
-    @Before
+    @BeforeEach
     public void before() {
         final Time mockTime = new MockTime();
         store = new MeteredSessionStore<>(
@@ -223,12 +224,12 @@ public class MeteredSessionStoreTest {
         reporter.contextChange(metricsContext);
 
         metrics.addReporter(reporter);
-        assertTrue(reporter.containsMbean(String.format(
+        Assertions.assertTrue(reporter.containsMbean(String.format(
             "kafka.streams:type=%s,%s=%s,task-id=%s,%s-state-id=%s",
             STORE_LEVEL_GROUP,
             THREAD_ID_TAG_KEY,
             threadId,
-            taskId.toString(),
+                taskId,
             STORE_TYPE,
             STORE_NAME
         )));
@@ -245,7 +246,7 @@ public class MeteredSessionStoreTest {
         // it suffices to verify one put metric since all put metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("put-rate");
-        assertTrue(((Double) metric.metricValue()) > 0);
+        Assertions.assertTrue(((Double) metric.metricValue()) > 0);
         verify(innerStore);
     }
 
@@ -258,13 +259,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.findSessions(KEY, 0, 0);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all put metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -280,13 +281,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.backwardFindSessions(KEY, 0, 0);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all put metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -299,13 +300,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.findSessions(KEY, KEY, 0, 0);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all put metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -321,13 +322,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.backwardFindSessions(KEY, KEY, 0, 0);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all put metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -343,7 +344,7 @@ public class MeteredSessionStoreTest {
         // it suffices to verify one remove metric since all remove metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("remove-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -356,13 +357,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.fetch(KEY);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all fetch metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -378,13 +379,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.backwardFetch(KEY);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all fetch metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -397,13 +398,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.fetch(KEY, KEY);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all fetch metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -419,13 +420,13 @@ public class MeteredSessionStoreTest {
 
         final KeyValueIterator<Windowed<String>, String> iterator = store.backwardFetch(KEY, KEY);
         assertThat(iterator.next().value, equalTo(VALUE));
-        assertFalse(iterator.hasNext());
+        Assertions.assertFalse(iterator.hasNext());
         iterator.close();
 
         // it suffices to verify one fetch metric since all fetch metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("fetch-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
         verify(innerStore);
     }
 
@@ -436,7 +437,7 @@ public class MeteredSessionStoreTest {
         // it suffices to verify one restore metric since all restore metrics are recorded by the same sensor
         // and the sensor is tested elsewhere
         final KafkaMetric metric = metric("restore-rate");
-        assertTrue((Double) metric.metricValue() > 0);
+        Assertions.assertTrue((Double) metric.metricValue() > 0);
     }
 
     @Test
@@ -444,102 +445,102 @@ public class MeteredSessionStoreTest {
         expect(innerStore.fetchSession(Bytes.wrap("a".getBytes()), 0, Long.MAX_VALUE)).andReturn(null);
 
         init();
-        assertNull(store.fetchSession("a", 0, Long.MAX_VALUE));
+        Assertions.assertNull(store.fetchSession("a", 0, Long.MAX_VALUE));
     }
 
     @Test
     public void shouldThrowNullPointerOnPutIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.put(null, "a"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.put(null, "a"));
     }
 
     @Test
     public void shouldThrowNullPointerOnRemoveIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.remove(null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.remove(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnPutIfWrappedKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.put(new Windowed<>(null, new SessionWindow(0, 0)), "a"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.put(new Windowed<>(null, new SessionWindow(0, 0)), "a"));
     }
 
     @Test
     public void shouldThrowNullPointerOnRemoveIfWrappedKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.remove(new Windowed<>(null, new SessionWindow(0, 0))));
+        Assertions.assertThrows(NullPointerException.class, () -> store.remove(new Windowed<>(null, new SessionWindow(0, 0))));
     }
 
     @Test
     public void shouldThrowNullPointerOnPutIfWindowIsNull() {
-        assertThrows(NullPointerException.class, () -> store.put(new Windowed<>(KEY, null), "a"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.put(new Windowed<>(KEY, null), "a"));
     }
 
     @Test
     public void shouldThrowNullPointerOnRemoveIfWindowIsNull() {
-        assertThrows(NullPointerException.class, () -> store.remove(new Windowed<>(KEY, null)));
+        Assertions.assertThrows(NullPointerException.class, () -> store.remove(new Windowed<>(KEY, null)));
     }
 
     @Test
     public void shouldThrowNullPointerOnFetchIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.fetch(null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.fetch(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnFetchSessionIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.fetchSession(null, 0, Long.MAX_VALUE));
+        Assertions.assertThrows(NullPointerException.class, () -> store.fetchSession(null, 0, Long.MAX_VALUE));
     }
 
     @Test
     public void shouldThrowNullPointerOnFetchRangeIfFromIsNull() {
-        assertThrows(NullPointerException.class, () -> store.fetch(null, "to"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.fetch(null, "to"));
     }
 
     @Test
     public void shouldThrowNullPointerOnFetchRangeIfToIsNull() {
-        assertThrows(NullPointerException.class, () -> store.fetch("from", null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.fetch("from", null));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFetchIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFetch(null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFetch(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFetchIfFromIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFetch(null, "to"));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFetch(null, "to"));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFetchIfToIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFetch("from", null));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFetch("from", null));
     }
 
     @Test
     public void shouldThrowNullPointerOnFindSessionsIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.findSessions(null, 0, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> store.findSessions(null, 0, 0));
     }
 
     @Test
     public void shouldThrowNullPointerOnFindSessionsRangeIfFromIsNull() {
-        assertThrows(NullPointerException.class, () -> store.findSessions(null, "a", 0, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> store.findSessions(null, "a", 0, 0));
     }
 
     @Test
     public void shouldThrowNullPointerOnFindSessionsRangeIfToIsNull() {
-        assertThrows(NullPointerException.class, () -> store.findSessions("a", null, 0, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> store.findSessions("a", null, 0, 0));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFindSessionsIfKeyIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFindSessions(null, 0, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFindSessions(null, 0, 0));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFindSessionsRangeIfFromIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFindSessions(null, "a", 0, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFindSessions(null, "a", 0, 0));
     }
 
     @Test
     public void shouldThrowNullPointerOnBackwardFindSessionsRangeIfToIsNull() {
-        assertThrows(NullPointerException.class, () -> store.backwardFindSessions("a", null, 0, 0));
+        Assertions.assertThrows(NullPointerException.class, () -> store.backwardFindSessions("a", null, 0, 0));
     }
 
     private interface CachedSessionStore extends SessionStore<Bytes, byte[]>, CachedStateStore<byte[], byte[]> { }
@@ -558,14 +559,14 @@ public class MeteredSessionStoreTest {
             Serdes.String(),
             Serdes.String(),
             new MockTime());
-        assertTrue(store.setFlushListener(null, false));
+        Assertions.assertTrue(store.setFlushListener(null, false));
 
         verify(cachedSessionStore);
     }
 
     @Test
     public void shouldNotSetFlushListenerOnWrappedNoneCachingStore() {
-        assertFalse(store.setFlushListener(null, false));
+        Assertions.assertFalse(store.setFlushListener(null, false));
     }
 
     @Test
@@ -588,7 +589,7 @@ public class MeteredSessionStoreTest {
         init(); // replays "inner"
 
         assertThat(storeMetrics(), not(empty()));
-        assertThrows(RuntimeException.class, store::close);
+        Assertions.assertThrows(RuntimeException.class, store::close);
         assertThat(storeMetrics(), empty());
         verify(innerStore);
     }

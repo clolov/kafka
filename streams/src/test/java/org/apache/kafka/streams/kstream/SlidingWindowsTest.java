@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import static java.time.Duration.ofMillis;
 import static org.apache.kafka.streams.EqualityCheck.verifyEquality;
 import static org.apache.kafka.streams.EqualityCheck.verifyInEquality;
-import static org.junit.Assert.assertThrows;
 
 public class SlidingWindowsTest {
 
@@ -39,7 +38,7 @@ public class SlidingWindowsTest {
 
     @Test
     public void timeDifferenceMustNotBeNegative() {
-        assertThrows(IllegalArgumentException.class, () ->  SlidingWindows.ofTimeDifferenceAndGrace(ofMillis(-1), ofMillis(5)));
+        Assertions.assertThrows(IllegalArgumentException.class, () ->  SlidingWindows.ofTimeDifferenceAndGrace(ofMillis(-1), ofMillis(5)));
     }
 
     @Test
@@ -49,7 +48,7 @@ public class SlidingWindowsTest {
 
     @Test
     public void gracePeriodMustNotBeNegative() {
-        assertThrows(IllegalArgumentException.class, () ->  SlidingWindows.ofTimeDifferenceAndGrace(ofMillis(10), ofMillis(-1)));
+        Assertions.assertThrows(IllegalArgumentException.class, () ->  SlidingWindows.ofTimeDifferenceAndGrace(ofMillis(10), ofMillis(-1)));
     }
 
     @Test

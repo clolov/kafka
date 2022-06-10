@@ -25,23 +25,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertThrows;
+
 
 public class InternalTopicConfigTest {
 
     @Test
     public void shouldThrowNpeIfTopicConfigIsNull() {
-        assertThrows(NullPointerException.class, () -> new RepartitionTopicConfig("topic", null));
+        Assertions.assertThrows(NullPointerException.class, () -> new RepartitionTopicConfig("topic", null));
     }
 
     @Test
     public void shouldThrowIfNameIsNull() {
-        assertThrows(NullPointerException.class, () -> new RepartitionTopicConfig(null, Collections.emptyMap()));
+        Assertions.assertThrows(NullPointerException.class, () -> new RepartitionTopicConfig(null, Collections.emptyMap()));
     }
 
     @Test
     public void shouldThrowIfNameIsInvalid() {
-        assertThrows(InvalidTopicException.class, () -> new RepartitionTopicConfig("foo bar baz", Collections.emptyMap()));
+        Assertions.assertThrows(InvalidTopicException.class, () -> new RepartitionTopicConfig("foo bar baz", Collections.emptyMap()));
     }
 
     @Test

@@ -113,7 +113,7 @@ public interface InternalProcessorContext<KOut, VOut>
      */
     @SuppressWarnings("unchecked")
     default <T extends StateStore> T getStateStore(final StoreBuilder<T> builder) {
-        return (T) getStateStore(builder.name());
+        return getStateStore(builder.name());
     }
 
     void logChange(final String storeName,

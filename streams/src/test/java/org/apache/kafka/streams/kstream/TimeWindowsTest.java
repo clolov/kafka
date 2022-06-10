@@ -27,7 +27,6 @@ import static java.time.Duration.ofMillis;
 import static org.apache.kafka.streams.EqualityCheck.verifyEquality;
 import static org.apache.kafka.streams.EqualityCheck.verifyInEquality;
 import static org.apache.kafka.streams.kstream.Windows.DEPRECATED_DEFAULT_24_HR_GRACE_PERIOD;
-import static org.junit.Assert.assertThrows;
 
 public class TimeWindowsTest {
 
@@ -50,19 +49,19 @@ public class TimeWindowsTest {
 
     @Test
     public void windowSizeMustNotBeZero() {
-        assertThrows(IllegalArgumentException.class, () -> TimeWindows.ofSizeWithNoGrace(ofMillis(0)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TimeWindows.ofSizeWithNoGrace(ofMillis(0)));
     }
 
     @Test
     public void windowSizeMustNotBeNegative() {
-        assertThrows(IllegalArgumentException.class, () -> TimeWindows.ofSizeWithNoGrace(ofMillis(-1)));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TimeWindows.ofSizeWithNoGrace(ofMillis(-1)));
     }
 
     @SuppressWarnings("deprecation")
     @Test
     public void graceShouldNotCalledAfterGraceSet() {
-        assertThrows(IllegalStateException.class, () -> TimeWindows.ofSizeAndGrace(ofMillis(10), ofMillis(10)).grace(ofMillis(10)));
-        assertThrows(IllegalStateException.class, () -> TimeWindows.ofSizeWithNoGrace(ofMillis(10)).grace(ofMillis(10)));
+        Assertions.assertThrows(IllegalStateException.class, () -> TimeWindows.ofSizeAndGrace(ofMillis(10), ofMillis(10)).grace(ofMillis(10)));
+        Assertions.assertThrows(IllegalStateException.class, () -> TimeWindows.ofSizeWithNoGrace(ofMillis(10)).grace(ofMillis(10)));
     }
 
     @Test

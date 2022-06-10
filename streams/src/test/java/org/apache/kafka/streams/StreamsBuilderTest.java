@@ -52,9 +52,9 @@ import org.apache.kafka.test.MockValueJoiner;
 import org.apache.kafka.test.NoopValueTransformer;
 import org.apache.kafka.test.NoopValueTransformerWithKey;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.Timeout;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -66,22 +66,19 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import static java.util.Arrays.asList;
 import static org.apache.kafka.streams.processor.internals.assignment.AssignmentTestUtils.SUBTOPOLOGY_0;
 import static org.apache.kafka.streams.processor.internals.assignment.AssignmentTestUtils.SUBTOPOLOGY_1;
-
-import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
+
+
+
+
+@Timeout(600)
 public class StreamsBuilderTest {
-    @Rule
-    public Timeout globalTimeout = Timeout.seconds(600);
-
     private static final String STREAM_TOPIC = "stream-topic";
 
     private static final String STREAM_OPERATION_NAME = "stream-operation";
@@ -156,7 +153,7 @@ public class StreamsBuilderTest {
         assertThat(
             topology.processorConnectedStateStores("KSTREAM-JOIN-0000000005"),
             equalTo(Collections.singleton(topology.stateStores().get(0).name())));
-        assertTrue(
+        Assertions.assertTrue(
             topology.processorConnectedStateStores("KTABLE-FILTER-0000000003").isEmpty());
     }
 
@@ -203,7 +200,7 @@ public class StreamsBuilderTest {
         assertThat(
             topology.processorConnectedStateStores("KSTREAM-JOIN-0000000005"),
             equalTo(Collections.singleton(topology.stateStores().get(0).name())));
-        assertTrue(
+        Assertions.assertTrue(
             topology.processorConnectedStateStores("KTABLE-MAPVALUES-0000000003").isEmpty());
     }
 
@@ -249,7 +246,7 @@ public class StreamsBuilderTest {
         assertThat(
             topology.processorConnectedStateStores("KSTREAM-JOIN-0000000010"),
             equalTo(Utils.mkSet(topology.stateStores().get(0).name(), topology.stateStores().get(1).name())));
-        assertTrue(
+        Assertions.assertTrue(
             topology.processorConnectedStateStores("KTABLE-MERGE-0000000007").isEmpty());
     }
 
@@ -313,7 +310,7 @@ public class StreamsBuilderTest {
         }
 
         // no exception was thrown
-        assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)),
+        Assertions.assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)),
                      processorSupplier.theCapturedProcessor().processed());
     }
 
@@ -335,8 +332,8 @@ public class StreamsBuilderTest {
             inputTopic.pipeInput("A", "aa");
         }
 
-        assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), sourceProcessorSupplier.theCapturedProcessor().processed());
-        assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), throughProcessorSupplier.theCapturedProcessor().processed());
+        Assertions.assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), sourceProcessorSupplier.theCapturedProcessor().processed());
+        Assertions.assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), throughProcessorSupplier.theCapturedProcessor().processed());
     }
 
     @Test
@@ -356,8 +353,8 @@ public class StreamsBuilderTest {
             inputTopic.pipeInput("A", "aa");
         }
 
-        assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), sourceProcessorSupplier.theCapturedProcessor().processed());
-        assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), throughProcessorSupplier.theCapturedProcessor().processed());
+        Assertions.assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), sourceProcessorSupplier.theCapturedProcessor().processed());
+        Assertions.assertEquals(Collections.singletonList(new KeyValueTimestamp<>("A", "aa", 0)), throughProcessorSupplier.theCapturedProcessor().processed());
     }
 
     @Test
@@ -384,7 +381,7 @@ public class StreamsBuilderTest {
             inputTopic1.pipeInput("D", "dd");
         }
 
-        assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 0),
+        Assertions.assertEquals(asList(new KeyValueTimestamp<>("A", "aa", 0),
                             new KeyValueTimestamp<>("B", "bb", 0),
                             new KeyValueTimestamp<>("C", "cc", 0),
                             new KeyValueTimestamp<>("D", "dd", 0)), processorSupplier.theCapturedProcessor().processed());
@@ -523,13 +520,13 @@ public class StreamsBuilderTest {
     @Test
     public void shouldThrowExceptionWhenNoTopicPresent() {
         builder.stream(Collections.emptyList());
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldThrowExceptionWhenTopicNamesAreNull() {
         builder.stream(Arrays.asList(null, null));
-        assertThrows(NullPointerException.class, builder::build);
+        Assertions.assertThrows(NullPointerException.class, builder::build);
     }
 
     @Test
@@ -1074,78 +1071,78 @@ public class StreamsBuilderTest {
     public void shouldNotAllowReadingFromOverlappingAndUnequalCollectionOfTopics() {
         builder.stream(Collections.singletonList("topic"));
         builder.stream(asList("topic", "anotherTopic"));
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldThrowWhenSubscribedToATopicWithDifferentResetPolicies() {
         builder.stream("topic", Consumed.with(AutoOffsetReset.EARLIEST));
         builder.stream("topic", Consumed.with(AutoOffsetReset.LATEST));
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldThrowWhenSubscribedToATopicWithSetAndUnsetResetPolicies() {
         builder.stream("topic", Consumed.with(AutoOffsetReset.EARLIEST));
         builder.stream("topic");
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldThrowWhenSubscribedToATopicWithUnsetAndSetResetPolicies() {
         builder.stream("another-topic");
         builder.stream("another-topic", Consumed.with(AutoOffsetReset.LATEST));
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldThrowWhenSubscribedToAPatternWithDifferentResetPolicies() {
         builder.stream(Pattern.compile("some-regex"), Consumed.with(AutoOffsetReset.EARLIEST));
         builder.stream(Pattern.compile("some-regex"), Consumed.with(AutoOffsetReset.LATEST));
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldThrowWhenSubscribedToAPatternWithSetAndUnsetResetPolicies() {
         builder.stream(Pattern.compile("some-regex"), Consumed.with(AutoOffsetReset.EARLIEST));
         builder.stream(Pattern.compile("some-regex"));
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldNotAllowTablesFromSameTopic() {
         builder.table("topic");
         builder.table("topic");
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     @Test
     public void shouldNowAllowStreamAndTableFromSameTopic() {
         builder.stream("topic");
         builder.table("topic");
-        assertThrows(TopologyException.class, builder::build);
+        Assertions.assertThrows(TopologyException.class, builder::build);
     }
 
     private static void assertBuildDoesNotThrow(final StreamsBuilder builder) {
         try {
             builder.build();
         } catch (final TopologyException topologyException) {
-            fail("TopologyException not expected");
+            Assertions.fail("TopologyException not expected");
         }
     }
 
     private static void assertNamesForOperation(final ProcessorTopology topology, final String... expected) {
         final List<ProcessorNode<?, ?, ?, ?>> processors = topology.processors();
-        assertEquals("Invalid number of expected processors", expected.length, processors.size());
+        Assertions.assertEquals(expected.length, processors.size(), "Invalid number of expected processors");
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], processors.get(i).name());
+            Assertions.assertEquals(expected[i], processors.get(i).name());
         }
     }
 
     private static void assertNamesForStateStore(final List<StateStore> stores, final String... expected) {
-        assertEquals("Invalid number of expected state stores", expected.length, stores.size());
+        Assertions.assertEquals(expected.length, stores.size(), "Invalid number of expected state stores");
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], stores.get(i).name());
+            Assertions.assertEquals(expected[i], stores.get(i).name());
         }
     }
 }

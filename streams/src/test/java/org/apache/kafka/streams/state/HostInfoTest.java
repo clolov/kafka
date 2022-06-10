@@ -16,13 +16,12 @@
  */
 package org.apache.kafka.streams.state;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThrows;
-
 import org.apache.kafka.common.config.ConfigException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class HostInfoTest {
     
@@ -47,6 +46,6 @@ public class HostInfoTest {
 
     @Test
     public void shouldThrowConfigExceptionForNonsenseEndPoint() {
-        assertThrows(ConfigException.class, () -> HostInfo.buildFromEndpoint("nonsense"));
+        Assertions.assertThrows(ConfigException.class, () -> HostInfo.buildFromEndpoint("nonsense"));
     }
 }

@@ -23,6 +23,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TopologyTestDriver;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
@@ -35,12 +36,12 @@ import org.apache.kafka.streams.kstream.SessionWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.state.SessionStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
-import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.test.MockAggregator;
 import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +53,6 @@ import java.util.Properties;
 import static java.time.Duration.ofMillis;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 
 public class SessionWindowedKStreamImplTest {
     private static final String TOPIC = "input";
@@ -216,27 +216,27 @@ public class SessionWindowedKStreamImplTest {
 
     @Test
     public void shouldThrowNullPointerOnAggregateIfInitializerIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(null, MockAggregator.TOSTRING_ADDER, sessionMerger));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(null, MockAggregator.TOSTRING_ADDER, sessionMerger));
     }
 
     @Test
     public void shouldThrowNullPointerOnAggregateIfAggregatorIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(MockInitializer.STRING_INIT, null, sessionMerger));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(MockInitializer.STRING_INIT, null, sessionMerger));
     }
 
     @Test
     public void shouldThrowNullPointerOnAggregateIfMergerIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(MockInitializer.STRING_INIT, MockAggregator.TOSTRING_ADDER, null));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(MockInitializer.STRING_INIT, MockAggregator.TOSTRING_ADDER, null));
     }
 
     @Test
     public void shouldThrowNullPointerOnReduceIfReducerIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.reduce(null));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.reduce(null));
     }
 
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfInitializerIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(
             null,
             MockAggregator.TOSTRING_ADDER,
             sessionMerger,
@@ -245,7 +245,7 @@ public class SessionWindowedKStreamImplTest {
 
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfAggregatorIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(
             MockInitializer.STRING_INIT,
             null,
             sessionMerger,
@@ -254,7 +254,7 @@ public class SessionWindowedKStreamImplTest {
 
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfMergerIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             null,
@@ -264,7 +264,7 @@ public class SessionWindowedKStreamImplTest {
     @SuppressWarnings("unchecked")
     @Test
     public void shouldThrowNullPointerOnMaterializedAggregateIfMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.aggregate(
+        Assertions.assertThrows(NullPointerException.class, () -> stream.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             sessionMerger,
@@ -273,23 +273,23 @@ public class SessionWindowedKStreamImplTest {
 
     @Test
     public void shouldThrowNullPointerOnMaterializedReduceIfReducerIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.reduce(null, Materialized.as("store")));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.reduce(null, Materialized.as("store")));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void shouldThrowNullPointerOnMaterializedReduceIfMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.reduce(MockReducer.STRING_ADDER, (Materialized) null));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.reduce(MockReducer.STRING_ADDER, (Materialized) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnMaterializedReduceIfNamedIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.reduce(MockReducer.STRING_ADDER, (Named) null));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.reduce(MockReducer.STRING_ADDER, (Named) null));
     }
 
     @Test
     public void shouldThrowNullPointerOnCountIfMaterializedIsNull() {
-        assertThrows(NullPointerException.class, () -> stream.count((Materialized<String, Long, SessionStore<Bytes, byte[]>>) null));
+        Assertions.assertThrows(NullPointerException.class, () -> stream.count((Materialized<String, Long, SessionStore<Bytes, byte[]>>) null));
     }
 
     private void processData(final TopologyTestDriver driver) {

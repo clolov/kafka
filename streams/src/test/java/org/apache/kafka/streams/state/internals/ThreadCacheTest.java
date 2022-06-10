@@ -23,8 +23,6 @@ import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.common.utils.LogContext;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.processor.internals.MockStreamsMetrics;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -35,8 +33,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThrows;
 
 public class ThreadCacheTest {
     final String namespace = "0.0-namespace";
@@ -285,7 +283,7 @@ public class ThreadCacheTest {
 
     private void shouldThrowIfNoPeekNextKey(final Supplier<ThreadCache.MemoryLRUCacheBytesIterator> methodUnderTest) {
         final ThreadCache.MemoryLRUCacheBytesIterator iterator = methodUnderTest.get();
-        assertThrows(NoSuchElementException.class, iterator::peekNextKey);
+        Assertions.assertThrows(NoSuchElementException.class, iterator::peekNextKey);
     }
 
     @Test

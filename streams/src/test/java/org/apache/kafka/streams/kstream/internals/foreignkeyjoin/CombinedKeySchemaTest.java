@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertThrows;
-
 public class CombinedKeySchemaTest {
 
     @Test
@@ -47,7 +45,7 @@ public class CombinedKeySchemaTest {
             () -> "fkTopic", Serdes.String(),
             () -> "pkTopic", Serdes.Integer()
         );
-        assertThrows(NullPointerException.class, () -> cks.toBytes("foreignKey", null));
+        Assertions.assertThrows(NullPointerException.class, () -> cks.toBytes("foreignKey", null));
     }
 
     @Test
@@ -56,7 +54,7 @@ public class CombinedKeySchemaTest {
             () -> "fkTopic", Serdes.String(),
             () -> "pkTopic", Serdes.Integer()
         );
-        assertThrows(NullPointerException.class, () -> cks.toBytes(null, 10));
+        Assertions.assertThrows(NullPointerException.class, () -> cks.toBytes(null, 10));
     }
 
     @Test
@@ -85,6 +83,6 @@ public class CombinedKeySchemaTest {
             () -> "pkTopic", Serdes.Integer()
         );
         final String foreignKey = null;
-        assertThrows(NullPointerException.class, () -> cks.prefixBytes(foreignKey));
+        Assertions.assertThrows(NullPointerException.class, () -> cks.prefixBytes(foreignKey));
     }
 }

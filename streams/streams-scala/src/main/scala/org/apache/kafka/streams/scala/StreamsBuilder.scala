@@ -16,15 +16,14 @@
  */
 package org.apache.kafka.streams.scala
 
-import java.util.Properties
-import java.util.regex.Pattern
-
 import org.apache.kafka.streams.kstream.GlobalKTable
 import org.apache.kafka.streams.processor.{ProcessorSupplier, StateStore}
-import org.apache.kafka.streams.state.StoreBuilder
-import org.apache.kafka.streams.{StreamsBuilder => StreamsBuilderJ, Topology}
 import org.apache.kafka.streams.scala.kstream.{Consumed, KStream, KTable, Materialized}
+import org.apache.kafka.streams.state.StoreBuilder
+import org.apache.kafka.streams.{Topology, StreamsBuilder => StreamsBuilderJ}
 
+import java.util.Properties
+import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
 
 /**

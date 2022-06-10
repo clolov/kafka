@@ -16,11 +16,12 @@
  */
 package org.apache.kafka.streams.state.internals;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 /**
  * This class was taken from Hive org.apache.hive.common.util;
@@ -45,7 +46,7 @@ public class Murmur3Test {
         int seed = 123;
         for (Map.Entry c : cases.entrySet()) {
             byte[] b = (byte[]) c.getKey();
-            assertEquals(c.getValue(), Murmur3.hash32(b, b.length, seed));
+            Assertions.assertEquals(c.getValue(), Murmur3.hash32(b, b.length, seed));
         }
     }
 

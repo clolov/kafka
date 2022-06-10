@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.assertThrows;
+
 
 public class DelegatingPeekingKeyValueIteratorTest {
 
@@ -81,7 +81,7 @@ public class DelegatingPeekingKeyValueIteratorTest {
     public void shouldThrowNoSuchElementWhenNoMoreItemsLeftAndNextCalled() {
         try (final DelegatingPeekingKeyValueIterator<String, String> peekingIterator =
             new DelegatingPeekingKeyValueIterator<>(name, store.all())) {
-            assertThrows(NoSuchElementException.class, peekingIterator::next);
+            Assertions.assertThrows(NoSuchElementException.class, peekingIterator::next);
         }
     }
 
@@ -89,7 +89,7 @@ public class DelegatingPeekingKeyValueIteratorTest {
     public void shouldThrowNoSuchElementWhenNoMoreItemsLeftAndPeekNextCalled() {
         try (final DelegatingPeekingKeyValueIterator<String, String> peekingIterator =
             new DelegatingPeekingKeyValueIterator<>(name, store.all())) {
-            assertThrows(NoSuchElementException.class, peekingIterator::peekNextKey);
+            Assertions.assertThrows(NoSuchElementException.class, peekingIterator::peekNextKey);
         }
     }
 

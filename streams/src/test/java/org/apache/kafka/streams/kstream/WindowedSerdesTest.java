@@ -26,7 +26,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThrows;
 
 public class WindowedSerdesTest {
 
@@ -71,7 +70,7 @@ public class WindowedSerdesTest {
     @Test
     public void timeWindowedSerializerShouldThrowNpeIfNotInitializedProperly() {
         final TimeWindowedSerializer<byte[]> serializer = new TimeWindowedSerializer<>();
-        final NullPointerException exception = assertThrows(
+        final NullPointerException exception = Assertions.assertThrows(
             NullPointerException.class,
             () -> serializer.serialize("topic", new Windowed<>(new byte[0], new TimeWindow(0, 1))));
         assertThat(
@@ -83,7 +82,7 @@ public class WindowedSerdesTest {
     @Test
     public void timeWindowedSerializerShouldThrowNpeOnSerializingBaseKeyIfNotInitializedProperly() {
         final TimeWindowedSerializer<byte[]> serializer = new TimeWindowedSerializer<>();
-        final NullPointerException exception = assertThrows(
+        final NullPointerException exception = Assertions.assertThrows(
             NullPointerException.class,
             () -> serializer.serializeBaseKey("topic", new Windowed<>(new byte[0], new TimeWindow(0, 1))));
         assertThat(
@@ -95,7 +94,7 @@ public class WindowedSerdesTest {
     @Test
     public void timeWindowedDeserializerShouldThrowNpeIfNotInitializedProperly() {
         final TimeWindowedDeserializer<byte[]> deserializer = new TimeWindowedDeserializer<>();
-        final NullPointerException exception = assertThrows(
+        final NullPointerException exception = Assertions.assertThrows(
             NullPointerException.class,
             () -> deserializer.deserialize("topic", new byte[0]));
         assertThat(
@@ -107,7 +106,7 @@ public class WindowedSerdesTest {
     @Test
     public void sessionWindowedSerializerShouldThrowNpeIfNotInitializedProperly() {
         final SessionWindowedSerializer<byte[]> serializer = new SessionWindowedSerializer<>();
-        final NullPointerException exception = assertThrows(
+        final NullPointerException exception = Assertions.assertThrows(
             NullPointerException.class,
             () -> serializer.serialize("topic", new Windowed<>(new byte[0], new SessionWindow(0, 0))));
         assertThat(
@@ -119,7 +118,7 @@ public class WindowedSerdesTest {
     @Test
     public void sessionWindowedSerializerShouldThrowNpeOnSerializingBaseKeyIfNotInitializedProperly() {
         final SessionWindowedSerializer<byte[]> serializer = new SessionWindowedSerializer<>();
-        final NullPointerException exception = assertThrows(
+        final NullPointerException exception = Assertions.assertThrows(
             NullPointerException.class,
             () -> serializer.serializeBaseKey("topic", new Windowed<>(new byte[0], new SessionWindow(0, 0))));
         assertThat(
@@ -131,7 +130,7 @@ public class WindowedSerdesTest {
     @Test
     public void sessionWindowedDeserializerShouldThrowNpeIfNotInitializedProperly() {
         final SessionWindowedDeserializer<byte[]> deserializer = new SessionWindowedDeserializer<>();
-        final NullPointerException exception = assertThrows(
+        final NullPointerException exception = Assertions.assertThrows(
             NullPointerException.class,
             () -> deserializer.deserialize("topic", new byte[0]));
         assertThat(

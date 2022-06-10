@@ -16,14 +16,13 @@
  */
 package org.apache.kafka.test;
 
+import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorSupplier;
-import org.apache.kafka.streams.processor.PunctuationType;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class MockApiProcessorSupplier<KIn, VIn, KOut, VOut> implements ProcessorSupplier<KIn, VIn, KOut, VOut> {
 
@@ -67,7 +66,7 @@ public class MockApiProcessorSupplier<KIn, VIn, KOut, VOut> implements Processor
 
     // get the captured processors with the expected number
     public List<MockApiProcessor<KIn, VIn, KOut, VOut>> capturedProcessors(final int expectedNumberOfProcessors) {
-        assertEquals(expectedNumberOfProcessors, processors.size());
+        Assertions.assertEquals(expectedNumberOfProcessors, processors.size());
 
         return processors;
     }

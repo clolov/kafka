@@ -17,20 +17,21 @@
 package org.apache.kafka.streams.state.internals;
 
 import org.apache.kafka.common.utils.Bytes;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksIterator;
 
 import java.util.Collections;
 import java.util.NoSuchElementException;
 
-import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThrows;
+
 
 public class RocksDBRangeIteratorTest {
 
@@ -346,7 +347,7 @@ public class RocksDBRangeIteratorTest {
         assertThat(rocksDBRangeIterator.peekNextKey(), is(key3Bytes));
         assertThat(rocksDBRangeIterator.next().key, is(key3Bytes));
         assertThat(rocksDBRangeIterator.hasNext(), is(false));
-        assertThrows(NoSuchElementException.class, rocksDBRangeIterator::peekNextKey);
+        Assertions.assertThrows(NoSuchElementException.class, rocksDBRangeIterator::peekNextKey);
         verify(rocksIterator);
     }
 
@@ -384,7 +385,7 @@ public class RocksDBRangeIteratorTest {
         assertThat(rocksDBRangeIterator.peekNextKey(), is(key3Bytes));
         assertThat(rocksDBRangeIterator.next().key, is(key3Bytes));
         assertThat(rocksDBRangeIterator.hasNext(), is(false));
-        assertThrows(NoSuchElementException.class, rocksDBRangeIterator::peekNextKey);
+        Assertions.assertThrows(NoSuchElementException.class, rocksDBRangeIterator::peekNextKey);
         verify(rocksIterator);
     }
 

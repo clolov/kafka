@@ -16,8 +16,6 @@
  */
 package org.apache.kafka.streams.processor.internals.assignment;
 
-import java.util.Map;
-
 import org.apache.kafka.streams.errors.TaskAssignmentException;
 import org.apache.kafka.streams.processor.TaskId;
 import org.apache.kafka.streams.processor.internals.Task;
@@ -27,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.apache.kafka.common.utils.Utils.mkEntry;
@@ -53,7 +52,7 @@ import static org.apache.kafka.streams.processor.internals.assignment.Subscripti
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
-import static org.junit.Assert.assertThrows;
+
 
 public class SubscriptionInfoTest {
     private static final Set<TaskId> ACTIVE_TASKS = new HashSet<>(Arrays.asList(
@@ -89,7 +88,7 @@ public class SubscriptionInfoTest {
 
     @Test
     public void shouldThrowForUnknownVersion1() {
-        assertThrows(IllegalArgumentException.class, () -> new SubscriptionInfo(
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new SubscriptionInfo(
             0,
             LATEST_SUPPORTED_VERSION,
             UUID_1,
@@ -103,7 +102,7 @@ public class SubscriptionInfoTest {
 
     @Test
     public void shouldThrowForUnknownVersion2() {
-        assertThrows(IllegalArgumentException.class, () -> new SubscriptionInfo(
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new SubscriptionInfo(
             LATEST_SUPPORTED_VERSION + 1,
             LATEST_SUPPORTED_VERSION,
             UUID_1,
@@ -435,7 +434,7 @@ public class SubscriptionInfoTest {
 
     @Test
     public void shouldThrowIfAttemptingToUseNamedTopologiesWithOlderVersion() {
-        assertThrows(
+        Assertions.assertThrows(
             TaskAssignmentException.class,
             () -> new SubscriptionInfo(MIN_NAMED_TOPOLOGY_VERSION - 1, LATEST_SUPPORTED_VERSION, UUID_1, "localhost:80", NAMED_TASK_OFFSET_SUMS, IGNORED_UNIQUE_FIELD, IGNORED_ERROR_CODE, EMPTY_CLIENT_TAGS)
         );

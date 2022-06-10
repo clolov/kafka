@@ -19,10 +19,10 @@ package org.apache.kafka.streams.processor.internals;
 import org.apache.kafka.streams.errors.StreamsException;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.To;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 
 public class ForwardingDisabledProcessorContextTest {
@@ -36,11 +36,11 @@ public class ForwardingDisabledProcessorContextTest {
 
     @Test
     public void shouldThrowOnForward() {
-        assertThrows(StreamsException.class, () -> context.forward("key", "value"));
+        Assertions.assertThrows(StreamsException.class, () -> context.forward("key", "value"));
     }
 
     @Test
     public void shouldThrowOnForwardWithTo() {
-        assertThrows(StreamsException.class, () -> context.forward("key", "value", To.all()));
+        Assertions.assertThrows(StreamsException.class, () -> context.forward("key", "value", To.all()));
     }
 }
