@@ -572,7 +572,7 @@ public class StoreUpgradeIntegrationTest {
     private void shouldMigrateWindowStoreToTimestampedWindowStoreUsingPapi(final StreamsBuilder streamsBuilderForOldStore,
                                                                            final StreamsBuilder streamsBuilderForNewStore,
                                                                            final boolean persistentStore,
-                                                                          final TestInfo testInfo) throws Exception {
+                                                                           final TestInfo testInfo) throws Exception {
         final Properties props = props(testInfo);
         kafkaStreams =  new KafkaStreams(streamsBuilderForOldStore.build(), props);
         kafkaStreams.start();

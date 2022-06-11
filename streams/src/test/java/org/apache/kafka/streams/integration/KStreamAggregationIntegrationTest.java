@@ -1067,7 +1067,7 @@ public class KStreamAggregationIntegrationTest {
                                                                  final Deserializer<V> valueDeserializer,
                                                                  final Class innerClass,
                                                                  final int numMessages,
-                                                                final TestInfo testInfo)
+                                                                 final TestInfo testInfo)
             throws Exception {
 
         final String safeTestName = safeUniqueTestName(getClass(), testInfo);
@@ -1093,7 +1093,7 @@ public class KStreamAggregationIntegrationTest {
                                                                               final Deserializer<V> valueDeserializer,
                                                                               final Class innerClass,
                                                                               final int numMessages,
-                                                                             final TestInfo testInfo) throws Exception {
+                                                                              final TestInfo testInfo) throws Exception {
         final String safeTestName = safeUniqueTestName(getClass(), testInfo);
         final Properties consumerProperties = new Properties();
         consumerProperties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, CLUSTER.bootstrapServers());

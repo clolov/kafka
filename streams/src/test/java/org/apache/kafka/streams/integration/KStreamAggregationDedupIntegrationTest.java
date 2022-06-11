@@ -252,7 +252,7 @@ public class KStreamAggregationDedupIntegrationTest {
     private <K, V> void validateReceivedMessages(final Deserializer<K> keyDeserializer,
                                                  final Deserializer<V> valueDeserializer,
                                                  final List<KeyValueTimestamp<K, V>> expectedRecords,
-                                                final TestInfo testInfo)
+                                                 final TestInfo testInfo)
             throws Exception {
 
         final String safeTestName = safeUniqueTestName(getClass(), testInfo);
