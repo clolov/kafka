@@ -18,7 +18,6 @@
 package org.apache.kafka.streams.kstream.internals;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.common.utils.Bytes;
@@ -46,24 +45,27 @@ import org.apache.kafka.test.MockApiProcessorSupplier;
 import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
 import java.util.Properties;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
+import java.util.stream.Stream;
 
 import static java.time.Duration.ofMillis;
 import static java.time.Instant.ofEpochMilli;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(Parameterized.class)
+@Tag("integration")
 public class TimeWindowedKStreamImplTest {
     private static final String TOPIC = "input";
     private static final Windowed<String> KEY_1_WINDOW_0 = new Windowed<>("1", new TimeWindow(0L, 500L));
@@ -75,29 +77,24 @@ public class TimeWindowedKStreamImplTest {
     private final Properties props = StreamsTestUtils.getStreamsConfig(Serdes.String(), Serdes.String());
     private TimeWindowedKStream<String, String> windowedStream;
 
-    @Parameter
-    public StrategyType type;
-
-    @Parameter(1)
-    public boolean withCache;
-
-    private EmitStrategy emitStrategy;
-    private boolean emitFinal;
-
-    @Parameterized.Parameters(name = "{0}_cache:{1}")
-    public static Collection<Object[]> data() {
-        return asList(new Object[][] {
-            {StrategyType.ON_WINDOW_UPDATE, true},
-            {StrategyType.ON_WINDOW_UPDATE, false},
-            {StrategyType.ON_WINDOW_CLOSE, true},
-            {StrategyType.ON_WINDOW_CLOSE, false}
-        });
+    private static Stream<Arguments> strategyTypeAndCacheDataSource() {
+        return Stream.of(
+            Arguments.of(StrategyType.ON_WINDOW_UPDATE, true),
+            Arguments.of(StrategyType.ON_WINDOW_UPDATE, false),
+            Arguments.of(StrategyType.ON_WINDOW_CLOSE, true),
+            Arguments.of(StrategyType.ON_WINDOW_CLOSE, false)
+        );
     }
 
-    @Before
+    private static Stream<Arguments> cacheDataSource() {
+        return Stream.of(
+                Arguments.of(true),
+                Arguments.of(false)
+        );
+    }
+
+    @BeforeEach
     public void before() {
-        emitFinal = type.equals(StrategyType.ON_WINDOW_CLOSE);
-        emitStrategy = StrategyType.forType(type);
         // Set interval to 0 so that it always tries to emit
         props.setProperty(InternalConfig.EMIT_INTERVAL_MS_KSTREAMS_WINDOWED_AGGREGATION, "0");
         final KStream<String, String> stream = builder.stream(TOPIC, Consumed.with(Serdes.String(), Serdes.String()));
@@ -105,8 +102,12 @@ public class TimeWindowedKStreamImplTest {
             .windowedBy(TimeWindows.ofSizeWithNoGrace(ofMillis(500L)));
     }
 
-    @Test
-    public void shouldCountWindowed() {
+    @ParameterizedTest
+    @EnumSource(StrategyType.class)
+    public void shouldCountWindowed(StrategyType strategyType) {
+        final boolean emitFinal = strategyType.equals(StrategyType.ON_WINDOW_CLOSE);
+        final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
+
         final MockApiProcessorSupplier<Windowed<String>, Long, Void, Void> supplier = new MockApiProcessorSupplier<>();
         windowedStream
             .emitStrategy(emitStrategy)
@@ -143,8 +144,12 @@ public class TimeWindowedKStreamImplTest {
         }
     }
 
-    @Test
-    public void shouldReduceWindowed() {
+    @ParameterizedTest
+    @EnumSource(StrategyType.class)
+    public void shouldReduceWindowed(StrategyType strategyType) {
+        final boolean emitFinal = strategyType.equals(StrategyType.ON_WINDOW_CLOSE);
+        final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
+
         final MockApiProcessorSupplier<Windowed<String>, String, Void, Void> supplier = new MockApiProcessorSupplier<>();
         windowedStream
             .emitStrategy(emitStrategy)
@@ -181,15 +186,19 @@ public class TimeWindowedKStreamImplTest {
         }
     }
 
-    @Test
-    public void shouldAggregateWindowed() {
+    @ParameterizedTest
+    @MethodSource("strategyTypeAndCacheDataSource")
+    public void shouldAggregateWindowed(final StrategyType strategyType, final boolean withCache) {
+        final boolean emitFinal = strategyType.equals(StrategyType.ON_WINDOW_CLOSE);
+        final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
+
         final MockApiProcessorSupplier<Windowed<String>, String, Void, Void> supplier = new MockApiProcessorSupplier<>();
         windowedStream
             .emitStrategy(emitStrategy)
             .aggregate(
                 MockInitializer.STRING_INIT,
                 MockAggregator.TOSTRING_ADDER,
-                setMaterializedCache(Materialized.with(Serdes.String(), Serdes.String())))
+                setMaterializedCache(Materialized.with(Serdes.String(), Serdes.String()), withCache))
             .toStream()
             .process(supplier);
 
@@ -222,14 +231,18 @@ public class TimeWindowedKStreamImplTest {
         }
     }
 
-    @Test
-    public void shouldMaterializeCount() {
+    @ParameterizedTest
+    @MethodSource("strategyTypeAndCacheDataSource")
+    public void shouldMaterializeCount(StrategyType strategyType, boolean withCache) {
+        final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
+
         windowedStream
             .emitStrategy(emitStrategy)
             .count(
                 setMaterializedCache(Materialized.<String, Long, WindowStore<Bytes, byte[]>>as("count-store")
                     .withKeySerde(Serdes.String())
-                    .withValueSerde(Serdes.Long())));
+                    .withValueSerde(Serdes.Long()),
+                    withCache));
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             processData(driver);
@@ -259,13 +272,15 @@ public class TimeWindowedKStreamImplTest {
         }
     }
 
-    @Test
-    public void shouldMaterializeReduced() {
+    @ParameterizedTest
+    @MethodSource("cacheDataSource")
+    public void shouldMaterializeReduced(final boolean withCache) {
         windowedStream.reduce(
             MockReducer.STRING_ADDER,
             setMaterializedCache(Materialized.<String, String, WindowStore<Bytes, byte[]>>as("reduced")
                 .withKeySerde(Serdes.String())
-                .withValueSerde(Serdes.String())));
+                .withValueSerde(Serdes.String()),
+                withCache));
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             processData(driver);
@@ -294,14 +309,15 @@ public class TimeWindowedKStreamImplTest {
         }
     }
 
-    @Test
-    public void shouldMaterializeAggregated() {
+    @ParameterizedTest
+    @MethodSource("cacheDataSource")
+    public void shouldMaterializeAggregated(final boolean withCache) {
         windowedStream.aggregate(
             MockInitializer.STRING_INIT,
             MockAggregator.TOSTRING_ADDER,
             setMaterializedCache(Materialized.<String, String, WindowStore<Bytes, byte[]>>as("aggregated")
                 .withKeySerde(Serdes.String())
-                .withValueSerde(Serdes.String())));
+                .withValueSerde(Serdes.String()), withCache));
 
         try (final TopologyTestDriver driver = new TopologyTestDriver(builder.build(), props)) {
             processData(driver);
@@ -345,20 +361,22 @@ public class TimeWindowedKStreamImplTest {
         assertThrows(NullPointerException.class, () -> windowedStream.reduce(null));
     }
 
-    @Test
-    public void shouldThrowNullPointerOnMaterializedAggregateIfInitializerIsNull() {
+    @ParameterizedTest
+    @MethodSource("cacheDataSource")
+    public void shouldThrowNullPointerOnMaterializedAggregateIfInitializerIsNull(final boolean withCache) {
         assertThrows(NullPointerException.class, () -> windowedStream.aggregate(
             null,
             MockAggregator.TOSTRING_ADDER,
-            setMaterializedCache(Materialized.as("store"))));
+            setMaterializedCache(Materialized.as("store"), withCache)));
     }
 
-    @Test
-    public void shouldThrowNullPointerOnMaterializedAggregateIfAggregatorIsNull() {
+    @ParameterizedTest
+    @MethodSource("cacheDataSource")
+    public void shouldThrowNullPointerOnMaterializedAggregateIfAggregatorIsNull(final boolean withCache) {
         assertThrows(NullPointerException.class, () -> windowedStream.aggregate(
             MockInitializer.STRING_INIT,
             null,
-            setMaterializedCache(Materialized.as("store"))));
+            setMaterializedCache(Materialized.as("store"), withCache)));
     }
 
     @SuppressWarnings("unchecked")
@@ -370,15 +388,16 @@ public class TimeWindowedKStreamImplTest {
             (Materialized) null));
     }
 
-    @Test
-    public void shouldThrowNullPointerOnMaterializedReduceIfReducerIsNull() {
+    @ParameterizedTest
+    @MethodSource("cacheDataSource")
+    public void shouldThrowNullPointerOnMaterializedReduceIfReducerIsNull(final boolean withCache) {
         assertThrows(NullPointerException.class, () -> windowedStream.reduce(
             null,
-            setMaterializedCache(Materialized.as("store"))));
+            setMaterializedCache(Materialized.as("store"), withCache)));
     }
 
-    @Test
     @SuppressWarnings("unchecked")
+    @Test
     public void shouldThrowNullPointerOnMaterializedReduceIfMaterializedIsNull() {
         assertThrows(NullPointerException.class, () -> windowedStream.reduce(
             MockReducer.STRING_ADDER,
@@ -408,7 +427,7 @@ public class TimeWindowedKStreamImplTest {
         inputTopic.pipeInput("2", "30", 1000L);
     }
 
-    private <K, V, S extends StateStore> Materialized<K, V, S> setMaterializedCache(final Materialized<K, V, S> materialized) {
+    private <K, V, S extends StateStore> Materialized<K, V, S> setMaterializedCache(final Materialized<K, V, S> materialized, final boolean withCache) {
         if (withCache) {
             return materialized.withCachingEnabled();
         }

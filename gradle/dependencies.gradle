@@ -161,6 +161,7 @@ libs += [
   jose4j: "org.bitbucket.b_c:jose4j:$versions.jose4j",
   junitJupiter: "org.junit.jupiter:junit-jupiter:$versions.junit",
   junitJupiterApi: "org.junit.jupiter:junit-jupiter-api:$versions.junit",
+  junitJupiterParams: "org.junit.jupiter:junit-jupiter-params:$versions.junit",
   junitVintageEngine: "org.junit.vintage:junit-vintage-engine:$versions.junit",
   jqwik: "net.jqwik:jqwik:$versions.jqwik",
   hamcrest: "org.hamcrest:hamcrest:$versions.hamcrest",
