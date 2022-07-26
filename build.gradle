@@ -466,7 +466,10 @@ subprojects {
     if (shouldUseJUnit5) {
       useJUnitPlatform {
         includeTags "integration"
-        includeEngines "junit-vintage-engine"
+        // KAFKA-XXX
+        // Both engined are needed to run JUnit 4 tests alongside JUnit 5 tests.
+        // junit-vintage (JUnit 4) can be removed once the JUnit 4 migration is complete.
+        includeEngines "junit-vintage", "junit-jupiter"
       }
     } else {
       useJUnit {
@@ -504,7 +507,10 @@ subprojects {
     if (shouldUseJUnit5) {
       useJUnitPlatform {
         excludeTags "integration"
-        includeEngines "junit-vintage-engine"
+        // KAFKA-XXX
+        // Both engined are needed to run JUnit 4 tests alongside JUnit 5 tests.
+        // junit-vintage (JUnit 4) can be removed once the JUnit 4 migration is complete.
+        includeEngines "junit-vintage", "junit-jupiter"
       }
     } else {
       useJUnit {
@@ -1834,13 +1840,17 @@ project(':streams') {
 
     // testCompileOnly prevents streams from exporting a dependency on test-utils, which would cause a dependency cycle
     testCompileOnly project(':streams:test-utils')
+    // KAFKA-XXX
+    // The below compileOnly dependency is needed for JUnit 4 tests.
+    // It can be safely removed once all of streams has moved to JUnit 5.
+    testCompileOnly libs.junit4
+
     testImplementation project(':clients').sourceSets.test.output
     testImplementation project(':core')
     testImplementation project(':core').sourceSets.test.output
     testImplementation libs.log4j
     testImplementation libs.junitJupiter
     testImplementation libs.junitJupiterParams
-    testImplementation libs.junitVintageEngine
     testImplementation libs.easymock
     testImplementation libs.powermockJunit4
     testImplementation libs.powermockEasymock
@@ -1850,6 +1860,10 @@ project(':streams') {
 
     testRuntimeOnly project(':streams:test-utils')
     testRuntimeOnly libs.slf4jlog4j
+    // KAFKA-XXX
+    // The below runtimeOnly dependency is needed to run JUnit 4 tests.
+    // It can be safely removed once all of streams has moved to JUnit 5.
+    testRuntimeOnly libs.junitVintageEngine
 
     generator project(':generator')
   }

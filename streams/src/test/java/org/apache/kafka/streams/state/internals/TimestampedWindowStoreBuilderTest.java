@@ -32,7 +32,6 @@ import org.easymock.Mock;
 import org.easymock.MockType;
 import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -48,7 +47,6 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Tag("integration")
 public class TimestampedWindowStoreBuilderTest {
     private static final String TIMESTAMP_STORE_NAME = "Timestamped Store";
     private static final String TIMEORDERED_STORE_NAME = "TimeOrdered Store";

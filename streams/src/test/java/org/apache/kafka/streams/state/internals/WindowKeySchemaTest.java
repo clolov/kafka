@@ -36,7 +36,6 @@ import org.apache.kafka.streams.state.internals.PrefixedWindowKeySchemas.KeyFirs
 import org.apache.kafka.streams.state.internals.PrefixedWindowKeySchemas.TimeFirstWindowKeySchema;
 import org.apache.kafka.streams.state.internals.SegmentedBytesStore.KeySchema;
 import org.apache.kafka.test.KeyValueIteratorStub;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -52,7 +51,6 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@Tag("integration")
 public class WindowKeySchemaTest {
 
     private static final Map<SchemaType, KeySchema> SCHEMA_TYPE_MAP = mkMap(

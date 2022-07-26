@@ -46,7 +46,6 @@ import org.apache.kafka.test.MockInitializer;
 import org.apache.kafka.test.MockReducer;
 import org.apache.kafka.test.StreamsTestUtils;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -65,7 +64,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@Tag("integration")
 public class TimeWindowedKStreamImplTest {
     private static final String TOPIC = "input";
     private static final Windowed<String> KEY_1_WINDOW_0 = new Windowed<>("1", new TimeWindow(0L, 500L));
@@ -104,7 +102,7 @@ public class TimeWindowedKStreamImplTest {
 
     @ParameterizedTest
     @EnumSource(StrategyType.class)
-    public void shouldCountWindowed(StrategyType strategyType) {
+    public void shouldCountWindowed(final StrategyType strategyType) {
         final boolean emitFinal = strategyType.equals(StrategyType.ON_WINDOW_CLOSE);
         final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
 
@@ -146,7 +144,7 @@ public class TimeWindowedKStreamImplTest {
 
     @ParameterizedTest
     @EnumSource(StrategyType.class)
-    public void shouldReduceWindowed(StrategyType strategyType) {
+    public void shouldReduceWindowed(final StrategyType strategyType) {
         final boolean emitFinal = strategyType.equals(StrategyType.ON_WINDOW_CLOSE);
         final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
 
@@ -233,7 +231,7 @@ public class TimeWindowedKStreamImplTest {
 
     @ParameterizedTest
     @MethodSource("strategyTypeAndCacheDataSource")
-    public void shouldMaterializeCount(StrategyType strategyType, boolean withCache) {
+    public void shouldMaterializeCount(final StrategyType strategyType, final boolean withCache) {
         final EmitStrategy emitStrategy = StrategyType.forType(strategyType);
 
         windowedStream
