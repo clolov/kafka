@@ -31,7 +31,6 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Materialized;
-import org.apache.kafka.streams.kstream.TimeWindowedKStream;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.apache.kafka.streams.kstream.internals.TimeWindow;
@@ -40,13 +39,10 @@ import org.apache.kafka.streams.state.Stores;
 import org.apache.kafka.streams.state.WindowBytesStoreSupplier;
 import org.apache.kafka.streams.state.WindowStore;
 import org.apache.kafka.test.TestUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -65,8 +61,8 @@ import static org.apache.kafka.common.utils.Utils.mkMap;
 import static org.apache.kafka.common.utils.Utils.mkProperties;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(Parameterized.class)
 public class WindowStoreFetchTest {
     private enum StoreType { InMemory, RocksDB, Timed };
     private static final String STORE_NAME = "store";
@@ -89,11 +85,8 @@ public class WindowStoreFetchTest {
     private String innerHigh;
     private String innerLowBetween;
     private String innerHighBetween;
-    private String storeName;
 
-    private TimeWindowedKStream<String, String> windowedStream;
-
-    public WindowStoreFetchTest(final StoreType storeType, final boolean enableLogging, final boolean enableCaching, final boolean forward) {
+    private void setupParameterizedTest(final StoreType storeType, final boolean enableLogging, final boolean enableCaching, final boolean forward) {
         this.storeType = storeType;
         this.enableLogging = enableLogging;
         this.enableCaching = enableCaching;
@@ -129,19 +122,15 @@ public class WindowStoreFetchTest {
                 innerHighBetween = "key-" + index;
             }
         }
-        Assert.assertNotNull(low);
-        Assert.assertNotNull(high);
-        Assert.assertNotNull(middle);
-        Assert.assertNotNull(innerLow);
-        Assert.assertNotNull(innerHigh);
-        Assert.assertNotNull(innerLowBetween);
-        Assert.assertNotNull(innerHighBetween);
+        assertNotNull(low);
+        assertNotNull(high);
+        assertNotNull(middle);
+        assertNotNull(innerLow);
+        assertNotNull(innerHigh);
+        assertNotNull(innerLowBetween);
+        assertNotNull(innerHighBetween);
     }
 
-    @Rule
-    public TestName testName = new TestName();
-
-    @Parameterized.Parameters(name = "storeType={0}, enableLogging={1}, enableCaching={2}, forward={3}")
     public static Collection<Object[]> data() {
         final List<StoreType> types = Arrays.asList(StoreType.InMemory, StoreType.RocksDB, StoreType.Timed);
         final List<Boolean> logging = Arrays.asList(true, false);
@@ -150,15 +139,18 @@ public class WindowStoreFetchTest {
         return buildParameters(types, logging, caching, forward);
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         streamsConfig = mkProperties(mkMap(
                 mkEntry(StreamsConfig.STATE_DIR_CONFIG, TestUtils.tempDirectory().getPath())
         ));
     }
 
-    @Test
-    public void testStoreConfig() {
+    @ParameterizedTest(name = "storeType={0}, enableLogging={1}, enableCaching={2}, forward={3}")
+    @MethodSource("data")
+    public void testStoreConfig(final StoreType storeType, final boolean enableLogging, final boolean enableCaching, final boolean forward) {
+        setupParameterizedTest(storeType, enableLogging, enableCaching, forward);
+
         final Materialized<String, Long, WindowStore<Bytes, byte[]>> stateStoreConfig = getStoreConfig(storeType, STORE_NAME, enableLogging, enableCaching);
         //Create topology: table from input topic
         final StreamsBuilder builder = new StreamsBuilder();
