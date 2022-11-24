@@ -220,6 +220,8 @@ public class MirrorSourceConnector extends SourceConnector {
         List<TopicPartition> sourceTopicPartitions = findSourceTopicPartitions();
         List<TopicPartition> targetTopicPartitions = findTargetTopicPartitions();
 
+        log.info("BATMAN: Found {}", sourceTopicPartitions);
+
         Set<TopicPartition> sourceTopicPartitionsSet = new HashSet<>(sourceTopicPartitions);
         Set<TopicPartition> knownSourceTopicPartitionsSet = new HashSet<>(knownSourceTopicPartitions);
 
