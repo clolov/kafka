@@ -1193,6 +1193,11 @@ class GroupCoordinator(val brokerId: Int,
     groupManager.removeGroupsForPartition(offsetTopicPartitionId, coordinatorEpoch, onGroupUnloaded)
   }
 
+  def updateConsumerOffsetPartitions(): Unit = {
+    info("Detected a change of leadership. Refreshing the number of __consumer_offsets partitions this broker knows about")
+    groupManager.refreshGroupTopicPartitionCount()
+  }
+
   private def setAndPropagateAssignment(group: GroupMetadata, assignment: Map[String, Array[Byte]]): Unit = {
     assert(group.is(CompletingRebalance))
     group.allMemberMetadata.foreach(member => member.assignment = assignment(member.memberId))

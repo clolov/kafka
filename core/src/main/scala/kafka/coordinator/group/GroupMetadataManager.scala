@@ -79,6 +79,8 @@ class GroupMetadataManager(brokerId: Int,
   /* number of partitions for the consumer metadata topic */
   @volatile private var groupMetadataTopicPartitionCount: Int = _
 
+  @volatile private var refreshGroupMetadataTopicPartitionCount: () => Int = _
+
   /* single-thread scheduler to handle offset/group metadata cache loading and unloading */
   private val scheduler = new KafkaScheduler(threads = 1, threadNamePrefix = "group-metadata-manager-")
 
@@ -174,6 +176,7 @@ class GroupMetadataManager(brokerId: Int,
 
   def startup(retrieveGroupMetadataTopicPartitionCount: () => Int, enableMetadataExpiration: Boolean): Unit = {
     groupMetadataTopicPartitionCount = retrieveGroupMetadataTopicPartitionCount()
+    refreshGroupMetadataTopicPartitionCount = retrieveGroupMetadataTopicPartitionCount
     scheduler.startup()
     if (enableMetadataExpiration) {
       scheduler.schedule(name = "delete-expired-group-metadata",
@@ -181,6 +184,10 @@ class GroupMetadataManager(brokerId: Int,
         period = config.offsetsRetentionCheckIntervalMs,
         unit = TimeUnit.MILLISECONDS)
     }
+  }
+
+  def refreshGroupTopicPartitionCount(): Unit = {
+    groupMetadataTopicPartitionCount = refreshGroupMetadataTopicPartitionCount()
   }
 
   def currentGroups: Iterable[GroupMetadata] = groupMetadataCache.values

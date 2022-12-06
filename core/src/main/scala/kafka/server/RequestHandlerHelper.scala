@@ -34,21 +34,28 @@ object RequestHandlerHelper {
                          txnCoordinator: TransactionCoordinator,
                          updatedLeaders: Iterable[Partition],
                          updatedFollowers: Iterable[Partition]): Unit = {
+    var groupOffsetsTopicHasChangedLeadership = false
     // for each new leader or follower, call coordinator to handle consumer group migration.
     // this callback is invoked under the replica state change lock to ensure proper order of
     // leadership changes
     updatedLeaders.foreach { partition =>
-      if (partition.topic == Topic.GROUP_METADATA_TOPIC_NAME)
+      if (partition.topic == Topic.GROUP_METADATA_TOPIC_NAME) {
         groupCoordinator.onElection(partition.partitionId, partition.getLeaderEpoch)
-      else if (partition.topic == Topic.TRANSACTION_STATE_TOPIC_NAME)
+        groupOffsetsTopicHasChangedLeadership = true
+      } else if (partition.topic == Topic.TRANSACTION_STATE_TOPIC_NAME)
         txnCoordinator.onElection(partition.partitionId, partition.getLeaderEpoch)
     }
 
     updatedFollowers.foreach { partition =>
-      if (partition.topic == Topic.GROUP_METADATA_TOPIC_NAME)
+      if (partition.topic == Topic.GROUP_METADATA_TOPIC_NAME) {
         groupCoordinator.onResignation(partition.partitionId, Some(partition.getLeaderEpoch))
-      else if (partition.topic == Topic.TRANSACTION_STATE_TOPIC_NAME)
+        groupOffsetsTopicHasChangedLeadership = true
+      } else if (partition.topic == Topic.TRANSACTION_STATE_TOPIC_NAME)
         txnCoordinator.onResignation(partition.partitionId, Some(partition.getLeaderEpoch))
+    }
+
+    if (groupOffsetsTopicHasChangedLeadership) {
+      groupCoordinator.updateConsumerOffsetPartitions()
     }
   }
 
