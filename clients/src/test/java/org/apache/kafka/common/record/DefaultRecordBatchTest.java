@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.apache.kafka.common.record.DefaultRecordBatch.RECORDS_COUNT_OFFSET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -380,7 +381,7 @@ public class DefaultRecordBatchTest {
             new SimpleRecord(9999L, "abc".getBytes(), "0".getBytes(), headers)
             );
         DefaultRecordBatch batch = new DefaultRecordBatch(records.buffer());
-        try (CloseableIterator<Record> streamingIterator = batch.skipKeyValueIterator(BufferSupplier.NO_CACHING)) {
+        try (CloseableIterator<Record> streamingIterator = batch.skipKeyValueIterator(BufferSupplier.NO_CACHING, Optional.empty())) {
             assertEquals(Arrays.asList(
                 new PartialDefaultRecord(9, (byte) 0, 0L, 1L, -1, 1, 1),
                 new PartialDefaultRecord(9, (byte) 0, 1L, 2L, -1, 1, 1),

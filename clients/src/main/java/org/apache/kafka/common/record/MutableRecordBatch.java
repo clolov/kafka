@@ -20,6 +20,8 @@ import org.apache.kafka.common.utils.BufferSupplier;
 import org.apache.kafka.common.utils.ByteBufferOutputStream;
 import org.apache.kafka.common.utils.CloseableIterator;
 
+import java.util.Optional;
+
 /**
  * A mutable record batch is one that can be modified in place (without copying). This is used by the broker
  * to override certain fields in the batch before appending it to the log.
@@ -64,5 +66,5 @@ public interface MutableRecordBatch extends RecordBatch {
      *
      * @return The closeable iterator
      */
-    CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier);
+    CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary);
 }

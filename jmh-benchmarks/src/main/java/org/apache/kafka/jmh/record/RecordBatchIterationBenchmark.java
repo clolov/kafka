@@ -32,6 +32,8 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
+import java.util.Optional;
+
 @State(Scope.Benchmark)
 @Fork(value = 1)
 @Warmup(iterations = 5)
@@ -76,7 +78,7 @@ public class RecordBatchIterationBenchmark extends BaseRecordBatchBenchmark {
     public void measureSkipIteratorForVariableBatchSize(Blackhole bh) {
         for (int i = 0; i < batchCount; ++i) {
             for (MutableRecordBatch batch : MemoryRecords.readableRecords(batchBuffers[i].duplicate()).batches()) {
-                try (CloseableIterator<Record> iterator = batch.skipKeyValueIterator(requestLocal.bufferSupplier())) {
+                try (CloseableIterator<Record> iterator = batch.skipKeyValueIterator(requestLocal.bufferSupplier(), Optional.empty())) {
                     while (iterator.hasNext())
                         bh.consume(iterator.next());
                 }

@@ -34,13 +34,15 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 
+import java.util.Optional;
+
 @State(Scope.Benchmark)
 @Fork(value = 1)
 @Warmup(iterations = 5)
 @Measurement(iterations = 15)
 public class CompressedRecordBatchValidationBenchmark extends BaseRecordBatchBenchmark {
 
-    @Param(value = {"LZ4", "SNAPPY", "GZIP", "ZSTD"})
+    @Param(value = {"ZSTD"})
     private CompressionType compressionType = CompressionType.LZ4;
 
     @Override
@@ -56,6 +58,6 @@ public class CompressedRecordBatchValidationBenchmark extends BaseRecordBatchBen
             TimestampType.CREATE_TIME, Long.MAX_VALUE, 0, AppendOrigin.CLIENT,
             MetadataVersion.latest()
         ).validateMessagesAndAssignOffsetsCompressed(PrimitiveRef.ofLong(startingOffset),
-            validatorMetricsRecorder, requestLocal.bufferSupplier());
+            validatorMetricsRecorder, requestLocal.bufferSupplier(), Optional.empty(), Optional.empty());
     }
 }

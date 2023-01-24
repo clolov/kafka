@@ -17,6 +17,7 @@
 
 package kafka.log
 
+import com.github.luben.zstd.ZstdDictTrainer
 import com.yammer.metrics.core.MetricName
 
 import java.io.{File, IOException}
@@ -280,6 +281,9 @@ class UnifiedLog(@volatile var logStartOffset: Long,
   @volatile var partitionMetadataFile: Option[PartitionMetadataFile] = None
 
   @volatile private[kafka] var _localLogStartOffset: Long = logStartOffset
+
+  val zstdDictTrainer = new ZstdDictTrainer(1024, 5 * 1024 * 1024) // 5 MB dictionary and 1 KB record
+  var dictionary: Array[Byte] = _
 
   def localLogStartOffset(): Long = _localLogStartOffset
 
@@ -857,11 +861,16 @@ class UnifiedLog(@volatile var logStartOffset: Long,
                 origin,
                 interBrokerProtocolVersion
               )
+              if (dictionary == null && localLog.segments.sizeInBytes > 5 * 1024 * 1024) {
+                dictionary = zstdDictTrainer.trainSamples();
+              }
               validator.validateMessagesAndAssignOffsets(offset,
                 validatorMetricsRecorder,
                 requestLocal.getOrElse(throw new IllegalArgumentException(
                   "requestLocal should be defined if assignOffsets is true")
-                ).bufferSupplier
+                ).bufferSupplier,
+                if (dictionary == null) Optional.of(zstdDictTrainer) else Optional.empty(),
+                if (dictionary == null) Optional.empty() else Optional.of(dictionary)
               )
             } catch {
               case e: IOException =>

@@ -215,7 +215,7 @@ public final class RecordsIterator<T> implements Iterator<Batch<T>>, AutoCloseab
             }
 
             List<T> records = new ArrayList<>(numRecords);
-            DataInputStream input = new DataInputStream(batch.recordInputStream(bufferSupplier));
+            DataInputStream input = new DataInputStream(batch.recordInputStream(bufferSupplier, Optional.empty()));
             try {
                 for (int i = 0; i < numRecords; i++) {
                     T record = readRecord(input, batch.sizeInBytes());

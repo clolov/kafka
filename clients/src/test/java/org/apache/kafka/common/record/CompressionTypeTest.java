@@ -23,6 +23,7 @@ import org.apache.kafka.common.utils.ByteBufferOutputStream;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,7 +40,7 @@ public class CompressionTypeTest {
         buffer.rewind();
 
         KafkaLZ4BlockInputStream in = (KafkaLZ4BlockInputStream) CompressionType.LZ4.wrapForInput(
-                buffer, RecordBatch.MAGIC_VALUE_V0, BufferSupplier.NO_CACHING);
+                buffer, RecordBatch.MAGIC_VALUE_V0, BufferSupplier.NO_CACHING, Optional.empty());
         assertTrue(in.ignoreFlagDescriptorChecksum());
     }
 
@@ -53,7 +54,7 @@ public class CompressionTypeTest {
         buffer.rewind();
 
         KafkaLZ4BlockInputStream in = (KafkaLZ4BlockInputStream) CompressionType.LZ4.wrapForInput(
-                buffer, RecordBatch.MAGIC_VALUE_V1, BufferSupplier.create());
+                buffer, RecordBatch.MAGIC_VALUE_V1, BufferSupplier.create(), Optional.empty());
         assertFalse(in.ignoreFlagDescriptorChecksum());
     }
 }

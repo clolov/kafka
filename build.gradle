@@ -900,6 +900,7 @@ project(':core') {
     }
     // ZooKeeperMain depends on commons-cli but declares the dependency as `provided`
     implementation libs.commonsCli
+    implementation libs.zstd
 
     compileOnly libs.log4j
 
@@ -1664,6 +1665,7 @@ project(':storage') {
     implementation project(':clients')
     implementation libs.slf4jApi
     implementation libs.jacksonDatabind
+    implementation libs.zstd
 
     testImplementation project(':clients')
     testImplementation project(':clients').sourceSets.test.output

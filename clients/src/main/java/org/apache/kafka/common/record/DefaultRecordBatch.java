@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalLong;
 
 import static org.apache.kafka.common.record.Records.LOG_OVERHEAD;
@@ -270,14 +271,14 @@ public class DefaultRecordBatch extends AbstractRecordBatch implements MutableRe
         return buffer.getInt(PARTITION_LEADER_EPOCH_OFFSET);
     }
 
-    public DataInputStream recordInputStream(BufferSupplier bufferSupplier) {
+    public DataInputStream recordInputStream(BufferSupplier bufferSupplier, Optional<byte[]> dictionary) {
         final ByteBuffer buffer = this.buffer.duplicate();
         buffer.position(RECORDS_OFFSET);
-        return new DataInputStream(compressionType().wrapForInput(buffer, magic(), bufferSupplier));
+        return new DataInputStream(compressionType().wrapForInput(buffer, magic(), bufferSupplier, dictionary));
     }
 
-    private CloseableIterator<Record> compressedIterator(BufferSupplier bufferSupplier, boolean skipKeyValue) {
-        final DataInputStream inputStream = recordInputStream(bufferSupplier);
+    private CloseableIterator<Record> compressedIterator(BufferSupplier bufferSupplier, boolean skipKeyValue, Optional<byte[]> dictionary) {
+        final DataInputStream inputStream = recordInputStream(bufferSupplier, dictionary);
 
         if (skipKeyValue) {
             // this buffer is used to skip length delimited fields like key, value, headers
@@ -331,7 +332,7 @@ public class DefaultRecordBatch extends AbstractRecordBatch implements MutableRe
         // for a normal iterator, we cannot ensure that the underlying compression stream is closed,
         // so we decompress the full record set here. Use cases which call for a lower memory footprint
         // can use `streamingIterator` at the cost of additional complexity
-        try (CloseableIterator<Record> iterator = compressedIterator(BufferSupplier.NO_CACHING, false)) {
+        try (CloseableIterator<Record> iterator = compressedIterator(BufferSupplier.NO_CACHING, false, Optional.empty())) {
             List<Record> records = new ArrayList<>(count());
             while (iterator.hasNext())
                 records.add(iterator.next());
@@ -339,8 +340,8 @@ public class DefaultRecordBatch extends AbstractRecordBatch implements MutableRe
         }
     }
 
-    @Override
-    public CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier) {
+//    @Override
+    public CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary) {
         if (count() == 0) {
             return CloseableIterator.wrap(Collections.emptyIterator());
         }
@@ -355,13 +356,13 @@ public class DefaultRecordBatch extends AbstractRecordBatch implements MutableRe
 
         // we define this to be a closable iterator so that caller (i.e. the log validator) needs to close it
         // while we can save memory footprint of not decompressing the full record set ahead of time
-        return compressedIterator(bufferSupplier, true);
+        return compressedIterator(bufferSupplier, true, dictionary);
     }
 
     @Override
     public CloseableIterator<Record> streamingIterator(BufferSupplier bufferSupplier) {
         if (isCompressed())
-            return compressedIterator(bufferSupplier, false);
+            return compressedIterator(bufferSupplier, false, Optional.empty());
         else
             return uncompressedIterator();
     }

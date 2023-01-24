@@ -56,10 +56,10 @@ public abstract class BaseRecordBatchBenchmark {
     @Param(value = {"1", "2", "10", "50", "200", "500"})
     private int maxBatchSize = 200;
 
-    @Param(value = {"1", "2"})
+    @Param(value = {"2"})
     byte messageVersion = CURRENT_MAGIC_VALUE;
 
-    @Param(value = {"100", "1000", "10000", "100000"})
+    @Param(value = {"1000"})
     private int messageSize = 1000;
 
     @Param(value = {"RANDOM", "ONES"})

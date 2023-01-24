@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.InvalidRecordException;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.CorruptRecordException;
@@ -150,7 +152,9 @@ public class LogValidator {
      */
     public ValidationResult validateMessagesAndAssignOffsets(PrimitiveRef.LongRef offsetCounter,
                                                              MetricsRecorder metricsRecorder,
-                                                             BufferSupplier bufferSupplier) {
+                                                             BufferSupplier bufferSupplier,
+                                                             Optional<ZstdDictTrainer> zstdDictTrainer,
+                                                             Optional<byte[]> dictionary) {
         if (sourceCompression == CompressionType.NONE && targetCompression == CompressionType.NONE) {
             // check the magic value
             if (!records.hasMatchingMagic(toMagic))
@@ -159,7 +163,7 @@ public class LogValidator {
                 // Do in-place validation, offset assignment and maybe set timestamp
                 return assignOffsetsNonCompressed(offsetCounter, metricsRecorder);
         } else
-            return validateMessagesAndAssignOffsetsCompressed(offsetCounter, metricsRecorder, bufferSupplier);
+            return validateMessagesAndAssignOffsetsCompressed(offsetCounter, metricsRecorder, bufferSupplier, zstdDictTrainer, dictionary);
 
     }
 
@@ -314,7 +318,9 @@ public class LogValidator {
     // Visible for benchmarking
     public ValidationResult validateMessagesAndAssignOffsetsCompressed(LongRef offsetCounter,
                                                                        MetricsRecorder metricsRecorder,
-                                                                       BufferSupplier bufferSupplier) {
+                                                                       BufferSupplier bufferSupplier,
+                                                                       Optional<ZstdDictTrainer> zstdDictTrainer,
+                                                                       Optional<byte[]> dictionary) {
         if (targetCompression == CompressionType.ZSTD && interBrokerProtocolVersion.isLessThan(IBP_2_1_IV0))
             throw new UnsupportedCompressionTypeException("Produce requests to inter.broker.protocol.version < 2.1 broker " +
                 "are not allowed to use ZStandard compression");
@@ -352,7 +358,7 @@ public class LogValidator {
             // then we can optimize the iterator to skip key / value / headers since they would not be used at all
             CloseableIterator<Record> recordsIterator;
             if (inPlaceAssignment && firstBatch.magic() >= RecordBatch.MAGIC_VALUE_V2)
-                recordsIterator = batch.skipKeyValueIterator(bufferSupplier);
+                recordsIterator = batch.skipKeyValueIterator(bufferSupplier, dictionary);
             else
                 recordsIterator = batch.streamingIterator(bufferSupplier);
 
@@ -362,6 +368,7 @@ public class LogValidator {
                 int batchIndex = 0;
                 while (recordsIterator.hasNext()) {
                     Record record = recordsIterator.next();
+                    zstdDictTrainer.map(trainer -> trainer.addSample(record.value().array()));
                     long expectedOffset = expectedInnerOffset.value++;
 
                     Optional<ApiRecordError> recordError = validateRecordCompression(sourceCompression,

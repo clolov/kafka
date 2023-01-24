@@ -30,6 +30,7 @@ import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -44,7 +45,7 @@ public enum CompressionType {
         }
 
         @Override
-        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
+        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary) {
             return new ByteBufferInputStream(buffer);
         }
     },
@@ -64,7 +65,7 @@ public enum CompressionType {
         }
 
         @Override
-        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
+        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary) {
             try {
                 // Set output buffer (uncompressed) to 16 KB (none by default) and input buffer (compressed) to
                 // 8 KB (0.5 KB by default) to ensure reasonable performance in cases where the caller reads a small
@@ -90,7 +91,7 @@ public enum CompressionType {
         }
 
         @Override
-        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
+        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary) {
             return SnappyFactory.wrapForInput(buffer);
         }
     },
@@ -106,7 +107,7 @@ public enum CompressionType {
         }
 
         @Override
-        public InputStream wrapForInput(ByteBuffer inputBuffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
+        public InputStream wrapForInput(ByteBuffer inputBuffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary) {
             try {
                 return new KafkaLZ4BlockInputStream(inputBuffer, decompressionBufferSupplier,
                                                     messageVersion == RecordBatch.MAGIC_VALUE_V0);
@@ -123,8 +124,8 @@ public enum CompressionType {
         }
 
         @Override
-        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
-            return ZstdFactory.wrapForInput(buffer, messageVersion, decompressionBufferSupplier);
+        public InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary) {
+            return ZstdFactory.wrapForInput(buffer, messageVersion, decompressionBufferSupplier, dictionary);
         }
     };
 
@@ -157,7 +158,7 @@ public enum CompressionType {
      *                                    batch. As such, a supplier that reuses buffers will have a significant
      *                                    performance impact.
      */
-    public abstract InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier);
+    public abstract InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary);
 
     public static CompressionType forId(int id) {
         switch (id) {

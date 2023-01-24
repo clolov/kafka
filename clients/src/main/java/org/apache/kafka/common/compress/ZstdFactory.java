@@ -31,6 +31,7 @@ import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 public class ZstdFactory {
 
@@ -46,7 +47,7 @@ public class ZstdFactory {
         }
     }
 
-    public static InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
+    public static InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier, Optional<byte[]> dictionary) {
         try {
             // We use our own BufferSupplier instead of com.github.luben.zstd.RecyclingBufferPool since our
             // implementation doesn't require locking or soft references.
@@ -64,8 +65,11 @@ public class ZstdFactory {
 
             // Set output buffer (uncompressed) to 16 KB (none by default) to ensure reasonable performance
             // in cases where the caller reads a small number of bytes (potentially a single byte).
-            return new BufferedInputStream(new ZstdInputStreamNoFinalizer(new ByteBufferInputStream(buffer),
-                bufferPool), 16 * 1024);
+            ZstdInputStreamNoFinalizer zstdInputStream = new ZstdInputStreamNoFinalizer(new ByteBufferInputStream(buffer), bufferPool);
+            if (dictionary.isPresent()) {
+                zstdInputStream.setDict(dictionary.get());
+            }
+            return new BufferedInputStream(zstdInputStream, 16 * 1024);
         } catch (Throwable e) {
             throw new KafkaException(e);
         }

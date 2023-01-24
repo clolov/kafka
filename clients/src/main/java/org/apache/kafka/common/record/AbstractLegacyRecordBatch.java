@@ -35,6 +35,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalLong;
 
 import static org.apache.kafka.common.record.Records.LOG_OVERHEAD;
@@ -332,7 +333,7 @@ public abstract class AbstractLegacyRecordBatch extends AbstractRecordBatch impl
                 throw new InvalidRecordException("Found invalid compressed record set with null value (magic = " +
                         wrapperMagic + ")");
 
-            InputStream stream = compressionType.wrapForInput(wrapperValue, wrapperRecord.magic(), bufferSupplier);
+            InputStream stream = compressionType.wrapForInput(wrapperValue, wrapperRecord.magic(), bufferSupplier, Optional.empty());
             LogInputStream<AbstractLegacyRecordBatch> logStream = new DataLogInputStream(stream, maxMessageSize);
 
             long lastOffsetFromWrapper = wrapperEntry.lastOffset();
@@ -517,7 +518,7 @@ public abstract class AbstractLegacyRecordBatch extends AbstractRecordBatch impl
          * @return An iterator over the records contained within this batch
          */
         @Override
-        public CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier) {
+        public CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary) {
             return CloseableIterator.wrap(iterator(bufferSupplier));
         }
 
