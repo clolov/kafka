@@ -53,8 +53,8 @@ public abstract class BaseRecordBatchBenchmark {
         RANDOM, ONES
     }
 
-    @Param(value = {"1", "2", "10", "50", "200", "500"})
-    private int maxBatchSize = 200;
+    @Param(value = {"5", "50", "200", "500"})
+    int maxBatchSize = 200;
 
     @Param(value = {"2"})
     byte messageVersion = CURRENT_MAGIC_VALUE;
@@ -98,7 +98,7 @@ public abstract class BaseRecordBatchBenchmark {
 
         batchBuffers = new ByteBuffer[batchCount];
         for (int i = 0; i < batchCount; ++i) {
-            int size = random.nextInt(maxBatchSize) + 1;
+            int size = maxBatchSize == 5 ? 5 : random.nextInt(maxBatchSize) + 1;
             batchBuffers[i] = createBatch(size);
         }
     }

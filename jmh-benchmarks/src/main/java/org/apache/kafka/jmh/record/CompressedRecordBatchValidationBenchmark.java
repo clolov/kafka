@@ -16,6 +16,7 @@
  */
 package org.apache.kafka.jmh.record;
 
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.record.CompressionType;
 import org.apache.kafka.common.record.MemoryRecords;
@@ -42,8 +43,11 @@ import java.util.Optional;
 @Measurement(iterations = 15)
 public class CompressedRecordBatchValidationBenchmark extends BaseRecordBatchBenchmark {
 
+    private ZstdDictTrainer zstdDictTrainer = new ZstdDictTrainer(1024, 5 * 1024 * 1024);
+    private byte[] dictionary;
+
     @Param(value = {"ZSTD"})
-    private CompressionType compressionType = CompressionType.LZ4;
+    private CompressionType compressionType = CompressionType.ZSTD;
 
     @Override
     CompressionType compressionType() {
@@ -52,12 +56,17 @@ public class CompressedRecordBatchValidationBenchmark extends BaseRecordBatchBen
 
     @Benchmark
     public void measureValidateMessagesAndAssignOffsetsCompressed(Blackhole bh) {
+        if (dictionary == null && maxBatchSize != 5) {
+            dictionary = zstdDictTrainer.trainSamples();
+        }
         MemoryRecords records = MemoryRecords.readableRecords(singleBatchBuffer.duplicate());
         new LogValidator(records, new TopicPartition("a", 0),
             Time.SYSTEM, compressionType, compressionType, false,  messageVersion,
             TimestampType.CREATE_TIME, Long.MAX_VALUE, 0, AppendOrigin.CLIENT,
             MetadataVersion.latest()
         ).validateMessagesAndAssignOffsetsCompressed(PrimitiveRef.ofLong(startingOffset),
-            validatorMetricsRecorder, requestLocal.bufferSupplier(), Optional.empty(), Optional.empty());
+            validatorMetricsRecorder, requestLocal.bufferSupplier(),
+                dictionary == null ? Optional.of(zstdDictTrainer) : Optional.empty(),
+                dictionary == null ? Optional.empty() : Optional.of(dictionary));
     }
 }
