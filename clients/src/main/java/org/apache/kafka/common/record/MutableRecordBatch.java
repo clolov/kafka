@@ -16,6 +16,7 @@
  */
 package org.apache.kafka.common.record;
 
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.utils.BufferSupplier;
 import org.apache.kafka.common.utils.ByteBufferOutputStream;
 import org.apache.kafka.common.utils.CloseableIterator;
@@ -66,5 +67,5 @@ public interface MutableRecordBatch extends RecordBatch {
      *
      * @return The closeable iterator
      */
-    CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary);
+    CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary, Optional<ZstdDictTrainer> zstdDictTrainer);
 }

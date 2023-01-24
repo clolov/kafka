@@ -16,14 +16,6 @@
  */
 package org.apache.kafka.server.log.internals;
 
-import static org.apache.kafka.server.common.MetadataVersion.IBP_2_1_IV0;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.InvalidRecordException;
 import org.apache.kafka.common.TopicPartition;
@@ -50,7 +42,14 @@ import org.apache.kafka.common.utils.PrimitiveRef.LongRef;
 import org.apache.kafka.common.utils.Time;
 import org.apache.kafka.server.common.MetadataVersion;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.apache.kafka.server.common.MetadataVersion.IBP_2_1_IV0;
 
 public class LogValidator {
 
@@ -358,7 +357,7 @@ public class LogValidator {
             // then we can optimize the iterator to skip key / value / headers since they would not be used at all
             CloseableIterator<Record> recordsIterator;
             if (inPlaceAssignment && firstBatch.magic() >= RecordBatch.MAGIC_VALUE_V2)
-                recordsIterator = batch.skipKeyValueIterator(bufferSupplier, dictionary);
+                recordsIterator = batch.skipKeyValueIterator(bufferSupplier, dictionary, zstdDictTrainer);
             else
                 recordsIterator = batch.streamingIterator(bufferSupplier);
 

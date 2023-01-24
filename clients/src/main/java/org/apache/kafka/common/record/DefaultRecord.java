@@ -16,6 +16,7 @@
  */
 package org.apache.kafka.common.record;
 
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.InvalidRecordException;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -31,6 +32,7 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.apache.kafka.common.record.RecordBatch.MAGIC_VALUE_V2;
 
@@ -367,12 +369,13 @@ public class DefaultRecord implements Record {
                                                          long baseOffset,
                                                          long baseTimestamp,
                                                          int baseSequence,
-                                                         Long logAppendTime) throws IOException {
+                                                         Long logAppendTime,
+                                                         Optional<ZstdDictTrainer> zstdDictTrainer) throws IOException {
         int sizeOfBodyInBytes = ByteUtils.readVarint(input);
         int totalSizeInBytes = ByteUtils.sizeOfVarint(sizeOfBodyInBytes) + sizeOfBodyInBytes;
 
         return readPartiallyFrom(input, skipArray, totalSizeInBytes, sizeOfBodyInBytes, baseOffset, baseTimestamp,
-            baseSequence, logAppendTime);
+            baseSequence, logAppendTime, zstdDictTrainer);
     }
 
     private static PartialDefaultRecord readPartiallyFrom(DataInput input,
@@ -382,7 +385,8 @@ public class DefaultRecord implements Record {
                                                           long baseOffset,
                                                           long baseTimestamp,
                                                           int baseSequence,
-                                                          Long logAppendTime) throws IOException {
+                                                          Long logAppendTime,
+                                                          Optional<ZstdDictTrainer> zstdDictTrainer) throws IOException {
         ByteBuffer skipBuffer = ByteBuffer.wrap(skipArray);
         // set its limit to 0 to indicate no bytes readable yet
         skipBuffer.limit(0);
@@ -426,6 +430,8 @@ public class DefaultRecord implements Record {
             if (bytesRemaining.value > 0 || skipBuffer.remaining() > 0)
                 throw new InvalidRecordException("Invalid record size: expected to read " + sizeOfBodyInBytes +
                     " bytes in record payload, but there are still bytes remaining");
+
+            zstdDictTrainer.ifPresent(dictTrainer -> dictTrainer.addSample(skipBuffer.array()));
 
             return new PartialDefaultRecord(sizeInBytes, attributes, offset, timestamp, sequence, keySize, valueSize);
         } catch (BufferUnderflowException | IllegalArgumentException e) {

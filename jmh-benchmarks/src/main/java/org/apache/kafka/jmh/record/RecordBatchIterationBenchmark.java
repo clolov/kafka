@@ -78,7 +78,7 @@ public class RecordBatchIterationBenchmark extends BaseRecordBatchBenchmark {
     public void measureSkipIteratorForVariableBatchSize(Blackhole bh) {
         for (int i = 0; i < batchCount; ++i) {
             for (MutableRecordBatch batch : MemoryRecords.readableRecords(batchBuffers[i].duplicate()).batches()) {
-                try (CloseableIterator<Record> iterator = batch.skipKeyValueIterator(requestLocal.bufferSupplier(), Optional.empty())) {
+                try (CloseableIterator<Record> iterator = batch.skipKeyValueIterator(requestLocal.bufferSupplier(), Optional.empty(), Optional.empty())) {
                     while (iterator.hasNext())
                         bh.consume(iterator.next());
                 }

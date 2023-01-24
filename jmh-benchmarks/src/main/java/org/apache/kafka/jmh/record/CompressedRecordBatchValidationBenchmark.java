@@ -43,7 +43,7 @@ import java.util.Optional;
 @Measurement(iterations = 15)
 public class CompressedRecordBatchValidationBenchmark extends BaseRecordBatchBenchmark {
 
-    private ZstdDictTrainer zstdDictTrainer = new ZstdDictTrainer(1024, 5 * 1024 * 1024);
+    private ZstdDictTrainer zstdDictTrainer = new ZstdDictTrainer(1024 * 1024, 16 * 1024);
     private byte[] dictionary;
 
     @Param(value = {"ZSTD"})

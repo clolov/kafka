@@ -16,6 +16,7 @@
  */
 package org.apache.kafka.common.record;
 
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.InvalidRecordException;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.errors.CorruptRecordException;
@@ -518,7 +519,7 @@ public abstract class AbstractLegacyRecordBatch extends AbstractRecordBatch impl
          * @return An iterator over the records contained within this batch
          */
         @Override
-        public CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary) {
+        public CloseableIterator<Record> skipKeyValueIterator(BufferSupplier bufferSupplier, Optional<byte[]> dictionary, Optional<ZstdDictTrainer> zstdDictTrainer) {
             return CloseableIterator.wrap(iterator(bufferSupplier));
         }
 
