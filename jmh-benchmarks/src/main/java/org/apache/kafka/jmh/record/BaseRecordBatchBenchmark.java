@@ -72,7 +72,7 @@ public abstract class BaseRecordBatchBenchmark {
     int startingOffset;
 
     // Used by measureSingleMessage
-    ByteBuffer singleBatchBuffer;
+    protected ByteBuffer singleBatchBuffer;
 
     // Used by measureVariableBatchSize
     ByteBuffer[] batchBuffers;
@@ -121,7 +121,7 @@ public abstract class BaseRecordBatchBenchmark {
         }).toArray(Header[]::new);
     }
 
-    abstract CompressionType compressionType();
+    protected abstract CompressionType compressionType();
 
     private ByteBuffer createBatch(int batchSize) {
         // Magic v1 does not support record headers

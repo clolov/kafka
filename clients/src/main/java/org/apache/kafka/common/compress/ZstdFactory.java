@@ -19,6 +19,7 @@ package org.apache.kafka.common.compress;
 
 import com.github.luben.zstd.BufferPool;
 import com.github.luben.zstd.RecyclingBufferPool;
+import com.github.luben.zstd.ZstdDictTrainer;
 import com.github.luben.zstd.ZstdInputStreamNoFinalizer;
 import com.github.luben.zstd.ZstdOutputStreamNoFinalizer;
 import org.apache.kafka.common.KafkaException;
@@ -31,16 +32,17 @@ import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 public class ZstdFactory {
 
     private ZstdFactory() { }
 
-    public static OutputStream wrapForOutput(ByteBufferOutputStream buffer) {
+    public static OutputStream wrapForOutput(ByteBufferOutputStream buffer, Optional<ZstdDictTrainer> maybeTrainer) {
         try {
             // Set input buffer (uncompressed) to 16 KB (none by default) to ensure reasonable performance
             // in cases where the caller passes a small number of bytes to write (potentially a single byte).
-            return new BufferedOutputStream(new ZstdOutputStreamNoFinalizer(buffer, RecyclingBufferPool.INSTANCE), 16 * 1024);
+            return new DictionaryBufferedOutputStream(new ZstdOutputStreamNoFinalizer(buffer, RecyclingBufferPool.INSTANCE), 16 * 1024, maybeTrainer);
         } catch (Throwable e) {
             throw new KafkaException(e);
         }

@@ -44,7 +44,7 @@ public class CompressedRecordBatchValidationBenchmark extends BaseRecordBatchBen
     private CompressionType compressionType = CompressionType.LZ4;
 
     @Override
-    CompressionType compressionType() {
+    protected CompressionType compressionType() {
         return compressionType;
     }
 

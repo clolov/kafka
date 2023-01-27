@@ -16,6 +16,7 @@
  */
 package org.apache.kafka.common.record;
 
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.compress.KafkaLZ4BlockInputStream;
 import org.apache.kafka.common.compress.KafkaLZ4BlockOutputStream;
@@ -30,6 +31,7 @@ import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -39,7 +41,7 @@ import java.util.zip.GZIPOutputStream;
 public enum CompressionType {
     NONE(0, "none", 1.0f) {
         @Override
-        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion) {
+        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<ZstdDictTrainer> noTrainer) {
             return buffer;
         }
 
@@ -52,7 +54,7 @@ public enum CompressionType {
     // Shipped with the JDK
     GZIP(1, "gzip", 1.0f) {
         @Override
-        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion) {
+        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<ZstdDictTrainer> noTrainer) {
             try {
                 // Set input buffer (uncompressed) to 16 KB (none by default) and output buffer (compressed) to
                 // 8 KB (0.5 KB by default) to ensure reasonable performance in cases where the caller passes a small
@@ -85,7 +87,7 @@ public enum CompressionType {
 
     SNAPPY(2, "snappy", 1.0f) {
         @Override
-        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion) {
+        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<ZstdDictTrainer> noTrainer) {
             return SnappyFactory.wrapForOutput(buffer);
         }
 
@@ -97,7 +99,7 @@ public enum CompressionType {
 
     LZ4(3, "lz4", 1.0f) {
         @Override
-        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion) {
+        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<ZstdDictTrainer> noTrainer) {
             try {
                 return new KafkaLZ4BlockOutputStream(buffer, messageVersion == RecordBatch.MAGIC_VALUE_V0);
             } catch (Throwable e) {
@@ -118,8 +120,8 @@ public enum CompressionType {
 
     ZSTD(4, "zstd", 1.0f) {
         @Override
-        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion) {
-            return ZstdFactory.wrapForOutput(buffer);
+        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<ZstdDictTrainer> maybeTrainer) {
+            return ZstdFactory.wrapForOutput(buffer, maybeTrainer);
         }
 
         @Override
@@ -146,7 +148,7 @@ public enum CompressionType {
      * write to the underlying buffer in the given {@link ByteBufferOutputStream} after the compressed data has been written.
      * In the event that the buffer needs to be expanded while writing the data, access to the underlying buffer needs to be preserved.
      */
-    public abstract OutputStream wrapForOutput(ByteBufferOutputStream bufferStream, byte messageVersion);
+    public abstract OutputStream wrapForOutput(ByteBufferOutputStream bufferStream, byte messageVersion, Optional<ZstdDictTrainer> maybeTrainer);
 
     /**
      * Wrap buffer with an InputStream that will decompress data with this CompressionType.

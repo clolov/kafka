@@ -40,7 +40,7 @@ import org.openjdk.jmh.infra.Blackhole;
 public class UncompressedRecordBatchValidationBenchmark extends BaseRecordBatchBenchmark {
 
     @Override
-    CompressionType compressionType() {
+    protected CompressionType compressionType() {
         return CompressionType.NONE;
     }
 

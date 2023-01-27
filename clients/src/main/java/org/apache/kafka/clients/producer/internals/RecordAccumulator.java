@@ -26,10 +26,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.github.luben.zstd.ZstdDictTrainer;
 import org.apache.kafka.clients.ApiVersions;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -314,6 +316,8 @@ public class RecordAccumulator {
                     // After taking the lock, validate that the partition hasn't changed and retry.
                     if (partitionChanged(topic, topicInfo, partitionInfo, dq, nowMs, cluster))
                         continue;
+
+                    ZstdDictTrainer maybeDictionary = topicInfo.dictionaries.computeIfAbsent(effectivePartition, k -> new ZstdDictTrainer(100 * 16 * 1024, 16 * 1024));
 
                     RecordAppendResult appendResult = tryAppend(timestamp, key, value, headers, callbacks, dq, nowMs);
                     if (appendResult != null) {
@@ -1215,6 +1219,7 @@ public class RecordAccumulator {
      */
     private static class TopicInfo {
         public final ConcurrentMap<Integer /*partition*/, Deque<ProducerBatch>> batches = new CopyOnWriteMap<>();
+        public final ConcurrentMap<Integer, ZstdDictTrainer> dictionaries = new CopyOnWriteMap<>();
         public final BuiltInPartitioner builtInPartitioner;
 
         public TopicInfo(LogContext logContext, String topic, int stickyBatchSize) {

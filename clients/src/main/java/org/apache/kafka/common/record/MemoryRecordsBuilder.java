@@ -30,6 +30,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 import static org.apache.kafka.common.utils.Utils.wrapNullable;
 
@@ -137,7 +138,7 @@ public class MemoryRecordsBuilder implements AutoCloseable {
 
         bufferStream.position(initialPosition + batchHeaderSizeInBytes);
         this.bufferStream = bufferStream;
-        this.appendStream = new DataOutputStream(compressionType.wrapForOutput(this.bufferStream, magic));
+        this.appendStream = new DataOutputStream(compressionType.wrapForOutput(this.bufferStream, magic, Optional.empty()));
 
         if (hasDeleteHorizonMs()) {
             this.baseTimestamp = deleteHorizonMs;

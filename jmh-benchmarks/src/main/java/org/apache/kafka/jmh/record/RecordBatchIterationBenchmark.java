@@ -42,7 +42,7 @@ public class RecordBatchIterationBenchmark extends BaseRecordBatchBenchmark {
     private CompressionType compressionType = CompressionType.NONE;
 
     @Override
-    CompressionType compressionType() {
+    protected CompressionType compressionType() {
         return compressionType;
     }
 
