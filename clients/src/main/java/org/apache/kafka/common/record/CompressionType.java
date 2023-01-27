@@ -119,9 +119,13 @@ public enum CompressionType {
     },
 
     ZSTD(4, "zstd", 1.0f) {
+        public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<byte[]> maybeDictionary, Optional<ZstdDictTrainer> maybeTrainer) {
+            return ZstdFactory.wrapForOutput(buffer, maybeDictionary, maybeTrainer);
+        }
+
         @Override
         public OutputStream wrapForOutput(ByteBufferOutputStream buffer, byte messageVersion, Optional<ZstdDictTrainer> maybeTrainer) {
-            return ZstdFactory.wrapForOutput(buffer, maybeTrainer);
+            return ZstdFactory.wrapForOutput(buffer, Optional.empty(), maybeTrainer);
         }
 
         @Override

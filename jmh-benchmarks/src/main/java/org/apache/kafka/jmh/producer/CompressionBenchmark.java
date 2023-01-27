@@ -7,8 +7,10 @@ import org.apache.kafka.common.utils.ByteBufferOutputStream;
 import org.apache.kafka.jmh.record.BaseRecordBatchBenchmark;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
@@ -29,10 +31,17 @@ public class CompressionBenchmark extends BaseRecordBatchBenchmark {
         return CompressionType.ZSTD;
     }
 
+    @Setup(Level.Iteration)
+    public void setup() throws IOException {
+        ZstdDictTrainer trainer = new ZstdDictTrainer(100 * 16 * 1024, 16 * 1024);
+        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(singleBatchBuffer.duplicate()), Optional.empty(), Optional.of(trainer));
+        stream.write(singleBatchBuffer.array());
+        dictionary = trainer.trainSamples();
+    }
+
     @Benchmark
     public void measureCompressionThroughput() throws IOException {
-        ZstdDictTrainer trainer = new ZstdDictTrainer(100 * 16 * 1024, 16 * 1024);
-        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(singleBatchBuffer.duplicate()), Optional.of(trainer));
+        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(singleBatchBuffer.duplicate()), Optional.of(dictionary), Optional.empty());
         stream.write(singleBatchBuffer.array());
     }
 }
