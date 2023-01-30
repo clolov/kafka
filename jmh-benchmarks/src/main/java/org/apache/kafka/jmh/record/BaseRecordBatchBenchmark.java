@@ -72,10 +72,10 @@ public abstract class BaseRecordBatchBenchmark {
     int startingOffset;
 
     // Used by measureSingleMessage
-    protected ByteBuffer singleBatchBuffer;
+    ByteBuffer singleBatchBuffer;
 
     // Used by measureVariableBatchSize
-    ByteBuffer[] batchBuffers;
+    protected ByteBuffer[] batchBuffers;
     RequestLocal requestLocal;
     LogValidator.MetricsRecorder validatorMetricsRecorder = UnifiedLog.newValidatorMetricsRecorder(
         new BrokerTopicStats().allTopicsStats());

@@ -16,6 +16,7 @@ import org.openjdk.jmh.annotations.Warmup;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Optional;
 
 @State(Scope.Benchmark)
@@ -34,14 +35,18 @@ public class CompressionBenchmark extends BaseRecordBatchBenchmark {
     @Setup(Level.Iteration)
     public void setup() throws IOException {
         ZstdDictTrainer trainer = new ZstdDictTrainer(100 * 16 * 1024, 16 * 1024);
-        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(singleBatchBuffer.duplicate()), Optional.empty(), Optional.of(trainer));
-        stream.write(singleBatchBuffer.array());
+        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)), Optional.empty(), Optional.of(trainer));
+        for (ByteBuffer batchBuffer : batchBuffers) {
+            stream.write(batchBuffer.array());
+        }
         dictionary = trainer.trainSamples();
     }
 
     @Benchmark
     public void measureCompressionThroughput() throws IOException {
-        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(singleBatchBuffer.duplicate()), Optional.of(dictionary), Optional.empty());
-        stream.write(singleBatchBuffer.array());
+        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)));
+        for (ByteBuffer batchBuffer : batchBuffers) {
+            stream.write(batchBuffer.array());
+        }
     }
 }

@@ -52,6 +52,17 @@ public class ZstdFactory {
         }
     }
 
+    public static OutputStream wrapForOutput(ByteBufferOutputStream buffer) {
+        try {
+            // Set input buffer (uncompressed) to 16 KB (none by default) to ensure reasonable performance
+            // in cases where the caller passes a small number of bytes to write (potentially a single byte).
+            ZstdOutputStreamNoFinalizer outputStream = new ZstdOutputStreamNoFinalizer(buffer, RecyclingBufferPool.INSTANCE);
+            return new BufferedOutputStream(outputStream, 16 * 1024);
+        } catch (Throwable e) {
+            throw new KafkaException(e);
+        }
+    }
+
     public static InputStream wrapForInput(ByteBuffer buffer, byte messageVersion, BufferSupplier decompressionBufferSupplier) {
         try {
             // We use our own BufferSupplier instead of com.github.luben.zstd.RecyclingBufferPool since our

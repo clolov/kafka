@@ -14,10 +14,6 @@ public class DictionaryBufferedOutputStream extends FilterOutputStream {
 
     protected Optional<ZstdDictTrainer> maybeTrainer;
 
-    public DictionaryBufferedOutputStream(OutputStream out, Optional<ZstdDictTrainer> maybeTrainer) {
-        this(out, 8192, maybeTrainer);
-    }
-
     public DictionaryBufferedOutputStream(OutputStream out, int size, Optional<ZstdDictTrainer> maybeTrainer) {
         super(out);
         if (size <= 0) {
