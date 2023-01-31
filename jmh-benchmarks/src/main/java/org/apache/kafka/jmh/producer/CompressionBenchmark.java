@@ -35,18 +35,28 @@ public class CompressionBenchmark extends BaseRecordBatchBenchmark {
     @Setup(Level.Iteration)
     public void setup() throws IOException {
         ZstdDictTrainer trainer = new ZstdDictTrainer(100 * 16 * 1024, 16 * 1024);
-        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)), Optional.empty(), Optional.of(trainer));
-        for (ByteBuffer batchBuffer : batchBuffers) {
-            stream.write(batchBuffer.array());
+        try (OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)), Optional.empty(), Optional.of(trainer))) {
+            for (ByteBuffer batchBuffer : batchBuffers) {
+                stream.write(batchBuffer.array());
+            }
         }
         dictionary = trainer.trainSamples();
     }
 
     @Benchmark
     public void measureCompressionThroughput() throws IOException {
-        OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)));
-        for (ByteBuffer batchBuffer : batchBuffers) {
-            stream.write(batchBuffer.array());
+        try (OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)), Optional.of(dictionary), Optional.empty())) {
+            for (ByteBuffer batchBuffer : batchBuffers) {
+                stream.write(batchBuffer.array());
+            }
         }
     }
+
+    // Use blackhole
+    // Close stream
+
+    // Pick a random value for each record, but let it be an integer (same type) <--
+    // Pick 3 random values for keys and on each record pick one of those randomly <--
+    // Headers should be similar to keys (3/4 values) <--
+    // Double-check whether we are filling up the dictionary <--
 }

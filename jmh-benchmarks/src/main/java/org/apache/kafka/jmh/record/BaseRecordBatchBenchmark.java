@@ -34,7 +34,9 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -45,27 +47,30 @@ public abstract class BaseRecordBatchBenchmark {
     private static final int MAX_HEADER_SIZE = 5;
     private static final int HEADER_KEY_SIZE = 30;
 
-    private final Random random = new Random(0);
+    private static final Random random = new Random(0);
 
     final int batchCount = 100;
 
     public enum Bytes {
-        RANDOM, ONES
+        RANDOM, ONES, REALISTIC
     }
 
     @Param(value = {"1", "2", "10", "50", "200", "500"})
     private int maxBatchSize = 200;
 
-    @Param(value = {"1", "2"})
+    @Param(value = {"2"})
     byte messageVersion = CURRENT_MAGIC_VALUE;
 
     @Param(value = {"100", "1000", "10000", "100000"})
     private int messageSize = 1000;
 
-    @Param(value = {"RANDOM", "ONES"})
+    @Param(value = {"REALISTIC"})
     private Bytes bytes = Bytes.RANDOM;
 
-    @Param(value = {"NO_CACHING", "CREATE"})
+    @Param(value = {"REALISTIC"})
+    private Bytes headerBytes = Bytes.REALISTIC;
+
+    @Param(value = {"CREATE"})
     private String bufferSupplierStr = "NO_CACHING";
 
     // zero starting offset is much faster for v1 batches, but that will almost never happen
@@ -79,6 +84,12 @@ public abstract class BaseRecordBatchBenchmark {
     RequestLocal requestLocal;
     LogValidator.MetricsRecorder validatorMetricsRecorder = UnifiedLog.newValidatorMetricsRecorder(
         new BrokerTopicStats().allTopicsStats());
+
+    static List<String> possibleHeaders = new ArrayList<String>() {{
+        add(new String(randomCharArrayOfLength()));
+        add(new String(randomCharArrayOfLength()));
+        add(new String(randomCharArrayOfLength()));
+    }};
 
     @Setup
     public void init() {
@@ -98,15 +109,20 @@ public abstract class BaseRecordBatchBenchmark {
 
         batchBuffers = new ByteBuffer[batchCount];
         for (int i = 0; i < batchCount; ++i) {
-            int size = random.nextInt(maxBatchSize) + 1;
+            //int size = random.nextInt(maxBatchSize) + 1;
+            int size = maxBatchSize;
             batchBuffers[i] = createBatch(size);
         }
     }
 
+    private static char[] randomCharArrayOfLength() {
+        byte[] randomBytes = new byte[HEADER_KEY_SIZE];
+        random.nextBytes(randomBytes);
+        return ByteBuffer.wrap(randomBytes).asCharBuffer().array();
+    }
+
     private static Header[] createHeaders() {
-        char[] headerChars = new char[HEADER_KEY_SIZE];
-        Arrays.fill(headerChars, 'a');
-        String headerKey = new String(headerChars);
+        String headerKey = possibleHeaders.get(random.nextInt(3));
         byte[] headerValue = new byte[0];
         return IntStream.range(0, MAX_HEADER_SIZE).mapToObj(index -> new Header() {
             @Override
@@ -142,6 +158,12 @@ public abstract class BaseRecordBatchBenchmark {
                     break;
                 case RANDOM:
                     random.nextBytes(value);
+                    break;
+                case REALISTIC:
+                    ByteBuffer wrappedValue = ByteBuffer.wrap(value);
+                    for (int j = 0; j < (value.length / 4); j++) {
+                        wrappedValue.putInt(random.nextInt());
+                    }
                     break;
             }
 
