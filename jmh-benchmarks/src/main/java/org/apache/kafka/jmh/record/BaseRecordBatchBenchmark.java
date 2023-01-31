@@ -40,8 +40,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
-import static org.apache.kafka.common.record.RecordBatch.CURRENT_MAGIC_VALUE;
-
 @State(Scope.Benchmark)
 public abstract class BaseRecordBatchBenchmark {
     private static final int MAX_HEADER_SIZE = 5;
@@ -55,23 +53,20 @@ public abstract class BaseRecordBatchBenchmark {
         RANDOM, ONES, REALISTIC
     }
 
-    @Param(value = {"1", "2", "10", "50", "200", "500"})
-    private int maxBatchSize = 200;
+    @Param(value = {"100"})
+    private int maxBatchSize;
 
     @Param(value = {"2"})
-    byte messageVersion = CURRENT_MAGIC_VALUE;
+    byte messageVersion;
 
-    @Param(value = {"100", "1000", "10000", "100000"})
-    private int messageSize = 1000;
-
-    @Param(value = {"REALISTIC"})
-    private Bytes bytes = Bytes.RANDOM;
+    @Param(value = {"160"})
+    private int messageSize;
 
     @Param(value = {"REALISTIC"})
-    private Bytes headerBytes = Bytes.REALISTIC;
+    private Bytes bytes;
 
     @Param(value = {"CREATE"})
-    private String bufferSupplierStr = "NO_CACHING";
+    private String bufferSupplierStr;
 
     // zero starting offset is much faster for v1 batches, but that will almost never happen
     int startingOffset;

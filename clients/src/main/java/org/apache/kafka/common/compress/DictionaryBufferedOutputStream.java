@@ -14,6 +14,8 @@ public class DictionaryBufferedOutputStream extends FilterOutputStream {
 
     protected Optional<ZstdDictTrainer> maybeTrainer;
 
+    protected long total;
+
     public DictionaryBufferedOutputStream(OutputStream out, int size, Optional<ZstdDictTrainer> maybeTrainer) {
         super(out);
         if (size <= 0) {
@@ -25,7 +27,15 @@ public class DictionaryBufferedOutputStream extends FilterOutputStream {
 
     private void flushBuffer() throws IOException {
         if (count > 0) {
-            maybeTrainer.map(trainer -> trainer.addSample(buf));
+            maybeTrainer.map(trainer -> {
+                boolean isSuccess = trainer.addSample(buf);
+                if (!isSuccess) {
+                    System.out.println(String.format("Trying to write %d, already at %d", buf.length, total));
+                } else {
+                    total += buf.length;
+                }
+                return isSuccess;
+            });
             out.write(buf, 0, count);
             count = 0;
         }
@@ -43,7 +53,15 @@ public class DictionaryBufferedOutputStream extends FilterOutputStream {
     public synchronized void write(byte b[], int off, int len) throws IOException {
         if (len >= buf.length) {
             flushBuffer();
-            maybeTrainer.map(trainer -> trainer.addSample(b));
+            maybeTrainer.map(trainer -> {
+                boolean isSuccess = trainer.addSample(b);
+                if (!isSuccess) {
+                    System.out.println(String.format("Trying to write %d, already at %d", b.length, total));
+                } else {
+                    total += b.length;
+                }
+                return isSuccess;
+            });
             out.write(b, off, len);
             return;
         }

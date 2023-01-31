@@ -34,13 +34,16 @@ public class CompressionBenchmark extends BaseRecordBatchBenchmark {
 
     @Setup(Level.Iteration)
     public void setup() throws IOException {
-        ZstdDictTrainer trainer = new ZstdDictTrainer(100 * 16 * 1024, 16 * 1024);
+        ZstdDictTrainer trainer = new ZstdDictTrainer(100 * 110 * 1024, 110 * 1024);
         try (OutputStream stream = ZstdFactory.wrapForOutput(new ByteBufferOutputStream(ByteBuffer.allocate(512)), Optional.empty(), Optional.of(trainer))) {
+            System.out.println(String.format("\nbatchBuffers.length: %d", batchBuffers.length));
             for (ByteBuffer batchBuffer : batchBuffers) {
+                System.out.println(batchBuffer.array().length);
                 stream.write(batchBuffer.array());
             }
         }
         dictionary = trainer.trainSamples();
+        System.out.println(String.format("dictionary.length: %d", dictionary.length));
     }
 
     @Benchmark
@@ -52,11 +55,11 @@ public class CompressionBenchmark extends BaseRecordBatchBenchmark {
         }
     }
 
-    // Use blackhole
-    // Close stream
+    // Use blackhole <- we don't leak resources
+    // Close stream (done)
 
-    // Pick a random value for each record, but let it be an integer (same type) <--
-    // Pick 3 random values for keys and on each record pick one of those randomly <--
-    // Headers should be similar to keys (3/4 values) <--
-    // Double-check whether we are filling up the dictionary <--
+    // Pick a random value for each record, but let it be an integer (same type) <-- (done)
+    // Pick 3 random values for keys and on each record pick one of those randomly <-- we don't use keys
+    // Headers should be similar to keys (3/4 values) <-- (done)
+    // Double-check whether we are filling up the dictionary <-- (done)
 }
