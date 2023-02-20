@@ -56,7 +56,7 @@ import org.apache.kafka.image.{LocalReplicaChanges, MetadataImage, TopicsDelta}
 import org.apache.kafka.metadata.LeaderConstants.NO_LEADER
 import org.apache.kafka.server.common.MetadataVersion._
 import org.apache.kafka.server.util.{Scheduler, ShutdownableThread}
-import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, RecordValidationException}
+import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, OfflineLogDir, OfflineLogDirState, RecordValidationException}
 
 import java.io.File
 import java.nio.file.{Files, Paths}
@@ -235,7 +235,7 @@ class ReplicaManager(val config: KafkaConfig,
   private class LogDirFailureHandler(name: String, haltBrokerOnDirFailure: Boolean) extends ShutdownableThread(name) {
     override def doWork(): Unit = {
       val newOfflineLogDir = logDirFailureChannel.takeNextOfflineLogDir()
-      if (haltBrokerOnDirFailure) {
+      if (newOfflineLogDir.getState != OfflineLogDirState.CLOSED && haltBrokerOnDirFailure) {
         fatal(s"Halting broker because dir $newOfflineLogDir is offline")
         Exit.halt(1)
       }
@@ -1878,7 +1878,8 @@ class ReplicaManager(val config: KafkaConfig,
    * @param dir                     the absolute path of the log directory
    * @param sendZkNotification      check if we need to send notification to zookeeper node (needed for unit test)
    */
-  def handleLogDirFailure(dir: String, sendZkNotification: Boolean = true): Unit = {
+  def handleLogDirFailure(directory: OfflineLogDir, sendZkNotification: Boolean = true): Unit = {
+    val dir = directory.getLogDir
     if (!logManager.isLogDirOnline(dir))
       return
     warn(s"Stopping serving replicas in dir $dir")
@@ -1906,7 +1907,7 @@ class ReplicaManager(val config: KafkaConfig,
       warn(s"Broker $localBrokerId stopped fetcher for partitions ${newOfflinePartitions.mkString(",")} and stopped moving logs " +
            s"for partitions ${partitionsWithOfflineFutureReplica.mkString(",")} because they are in the failed log directory $dir.")
     }
-    logManager.handleLogDirFailure(dir)
+    logManager.handleLogDirFailure(directory)
 
     if (sendZkNotification)
       if (zkClient.isEmpty) {

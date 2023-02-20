@@ -1242,6 +1242,11 @@ class Partition(val topicPartition: TopicPartition,
     val (info, leaderHWIncremented) = inReadLock(leaderIsrUpdateLock) {
       leaderLogIfLocal match {
         case Some(leaderLog) =>
+
+          if (logManager.isLogClosedToWrites(leaderLog.topicPartition)) {
+            throw new KafkaStorageException("The log is closed to writes due to disk full")
+          }
+
           val minIsr = leaderLog.config.minInSyncReplicas
           val inSyncSize = partitionState.isr.size
 
