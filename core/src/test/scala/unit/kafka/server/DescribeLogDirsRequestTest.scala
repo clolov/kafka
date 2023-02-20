@@ -18,12 +18,12 @@
 package kafka.server
 
 import java.io.File
-
 import kafka.utils._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.message.DescribeLogDirsRequestData
 import org.apache.kafka.common.protocol.Errors
 import org.apache.kafka.common.requests._
+import org.apache.kafka.storage.internals.log.{OfflineLogDir, OfflineLogDirState}
 import org.junit.jupiter.api.Assertions._
 import org.junit.jupiter.api.Test
 
@@ -42,7 +42,7 @@ class DescribeLogDirsRequestTest extends BaseRequestTest {
   def testDescribeLogDirsRequest(): Unit = {
     val onlineDir = new File(servers.head.config.logDirs.head).getAbsolutePath
     val offlineDir = new File(servers.head.config.logDirs.tail.head).getAbsolutePath
-    servers.head.replicaManager.handleLogDirFailure(offlineDir)
+    servers.head.replicaManager.handleLogDirFailure(new OfflineLogDir(offlineDir, OfflineLogDirState.OFFLINE))
     createTopic(topic, partitionNum, 1)
     TestUtils.generateAndProduceMessages(servers, topic, 10)
 
