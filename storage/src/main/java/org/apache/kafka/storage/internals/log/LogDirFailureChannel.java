@@ -59,14 +59,11 @@ public class LogDirFailureChannel {
      * @param e Exception instance.
      */
     public void maybeAddOfflineLogDir(String logDir, String msg, IOException e) {
-//        log.error(msg, e);
         String localErrorMsg = e.getMessage();
-        if (offlineLogDirs.putIfAbsent(logDir, logDir) == null) {
-            if (localErrorMsg != null && localErrorMsg.contains(errorMsg)) {
-                offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.CLOSED));
-            } else {
-                offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.OFFLINE));
-            }
+        if (localErrorMsg != null && localErrorMsg.contains(errorMsg)) {
+            offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.CLOSED));
+        } else if (offlineLogDirs.putIfAbsent(logDir, logDir) == null) {
+            offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.OFFLINE));
         }
     }
 

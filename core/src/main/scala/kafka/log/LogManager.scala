@@ -229,7 +229,10 @@ class LogManager(logDirs: Seq[File],
           }
           val removedLog = removeLogAndMetrics(logs, topicPartition)
           removedLog.foreach {
-            log => log.closeHandlers()
+            log =>
+              if (directory.getState != OfflineLogDirState.CLOSED) {
+                log.closeHandlers()
+              }
           }
         }}
 
