@@ -63,10 +63,10 @@ public class LogDirFailureChannel {
         String localErrorMsg = e.getMessage();
         if (offlineLogDirs.putIfAbsent(logDir, logDir) == null) {
             if (localErrorMsg != null && localErrorMsg.contains(errorMsg)) {
-//                log.info("Hello mine turtle!");
                 offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.CLOSED));
+            } else {
+                offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.OFFLINE));
             }
-            offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.OFFLINE));
         }
     }
 

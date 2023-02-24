@@ -239,7 +239,11 @@ class ReplicaManager(val config: KafkaConfig,
         fatal(s"Halting broker because dir $newOfflineLogDir is offline")
         Exit.halt(1)
       }
-      handleLogDirFailure(newOfflineLogDir)
+      if (newOfflineLogDir.getState == OfflineLogDirState.CLOSED) {
+        handleLogDirFailure(newOfflineLogDir, false)
+      } else {
+        handleLogDirFailure(newOfflineLogDir)
+      }
     }
   }
 

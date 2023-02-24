@@ -850,7 +850,7 @@ class LogManager(logDirs: Seq[File],
   }
 
   def isLogClosedToWrites(topicPartition: TopicPartition): Boolean = {
-    return closedToWriteLogs.contains(topicPartition)
+    closedToWriteLogs.contains(topicPartition)
   }
 
   /**
@@ -1143,7 +1143,14 @@ class LogManager(logDirs: Seq[File],
                   isFuture: Boolean = false,
                   checkpoint: Boolean = true): Option[UnifiedLog] = {
     val removedLog: Option[UnifiedLog] = logCreationOrDeletionLock synchronized {
-      removeLogAndMetrics(if (isFuture) futureLogs else currentLogs, topicPartition)
+//      removeLogAndMetrics(if (isFuture) futureLogs else currentLogs, topicPartition)
+      if (isFuture) {
+        removeLogAndMetrics(futureLogs, topicPartition)
+      } else if (currentLogs.contains(topicPartition)) {
+        removeLogAndMetrics(currentLogs, topicPartition)
+      } else {
+        removeLogAndMetrics(closedToWriteLogs, topicPartition)
+      }
     }
     removedLog match {
       case Some(removedLog) =>
