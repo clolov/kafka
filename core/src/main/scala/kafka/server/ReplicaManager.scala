@@ -1901,7 +1901,9 @@ class ReplicaManager(val config: KafkaConfig,
 
       partitionsWithOfflineFutureReplica.foreach(partition => partition.removeFutureLocalReplica(deleteFromLogDir = false))
       newOfflinePartitions.foreach { topicPartition =>
-        markPartitionOffline(topicPartition)
+        if (directory.getState != OfflineLogDirState.CLOSED) {
+          markPartitionOffline(topicPartition)
+        }
       }
       newOfflinePartitions.map(_.topic).foreach { topic: String =>
         maybeRemoveTopicMetrics(topic)

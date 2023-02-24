@@ -213,14 +213,20 @@ class LogManager(logDirs: Seq[File],
 
       recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
       logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
-      if (cleaner != null)
-        cleaner.handleLogDirFailure(dir)
+      if (cleaner != null) {
+        if (directory.getState != OfflineLogDirState.CLOSED ) {
+          cleaner.handleLogDirFailure(dir)
+        }
+      }
 
       def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog]): Iterable[TopicPartition] = {
         val offlineTopicPartitions: Iterable[TopicPartition] = logs.collect {
           case (tp, log) if log.parentDir == dir => tp
         }
         offlineTopicPartitions.foreach { topicPartition => {
+          if (directory.getState == OfflineLogDirState.CLOSED) {
+            closedToWriteLogs.put(topicPartition, logs.get(topicPartition))
+          }
           val removedLog = removeLogAndMetrics(logs, topicPartition)
           removedLog.foreach {
             log => log.closeHandlers()
@@ -843,10 +849,13 @@ class LogManager(logDirs: Seq[File],
    * @param isFuture True iff the future log of the specified partition should be returned
    */
   def getLog(topicPartition: TopicPartition, isFuture: Boolean = false): Option[UnifiedLog] = {
-    if (isFuture)
+    if (isFuture) {
       Option(futureLogs.get(topicPartition))
-    else
-      Option(currentLogs.get(topicPartition)).orElse(Option(closedToWriteLogs.get(topicPartition)))
+    } else if (currentLogs.contains(topicPartition)) {
+      Option(currentLogs.get(topicPartition))
+    } else {
+      Option(closedToWriteLogs.get(topicPartition))
+    }
   }
 
   def isLogClosedToWrites(topicPartition: TopicPartition): Boolean = {
@@ -1203,7 +1212,9 @@ class LogManager(logDirs: Seq[File],
           asyncDelete(topicPartition, isFuture = true, checkpoint = false)
         }
       } catch {
-        case e: Throwable => errorHandler(topicPartition, e)
+        case e: Throwable =>
+          info("asyncDelete => encountered an exception")
+          errorHandler(topicPartition, e)
       }
     }
 
