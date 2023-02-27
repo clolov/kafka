@@ -1908,7 +1908,13 @@ class ReplicaManager(val config: KafkaConfig,
       newOfflinePartitions.map(_.topic).foreach { topic: String =>
         maybeRemoveTopicMetrics(topic)
       }
-      highWatermarkCheckpoints = highWatermarkCheckpoints.filter { case (checkpointDir, _) => checkpointDir != dir }
+      highWatermarkCheckpoints = highWatermarkCheckpoints.filter { case (checkpointDir, _) =>
+        if (directory.getState != OfflineLogDirState.CLOSED) {
+          checkpointDir != dir
+        } else {
+          true
+        }
+      }
 
       warn(s"Broker $localBrokerId stopped fetcher for partitions ${newOfflinePartitions.mkString(",")} and stopped moving logs " +
            s"for partitions ${partitionsWithOfflineFutureReplica.mkString(",")} because they are in the failed log directory $dir.")
