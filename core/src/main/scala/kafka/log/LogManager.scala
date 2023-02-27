@@ -133,6 +133,17 @@ class LogManager(logDirs: Seq[File],
   @volatile private var _cleaner: LogCleaner = _
   private[kafka] def cleaner: LogCleaner = _cleaner
 
+  private val execService: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+
+  private def moveClosedToWriteToCurrent(): Unit = {
+    logCreationOrDeletionLock synchronized {
+      closedToWriteLogs.foreach(entry => currentLogs.put(entry._1, entry._2))
+      closedToWriteLogs.clear()
+    }
+  }
+
+  execService.scheduleAtFixedRate(() => moveClosedToWriteToCurrent(), 0, 30000L, TimeUnit.MILLISECONDS)
+
   newGauge("OfflineLogDirectoryCount", () => offlineLogDirs.size)
 
   for (dir <- logDirs) {
