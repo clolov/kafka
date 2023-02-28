@@ -1943,6 +1943,7 @@ class ReplicaManager(val config: KafkaConfig,
         if (directory.getState != OfflineLogDirState.CLOSED) {
           markPartitionOffline(topicPartition)
         } else {
+          info(s"Marking ${topicPartition} as degraded")
           markPartitionDegraded(topicPartition)
         }
       }
@@ -1954,7 +1955,7 @@ class ReplicaManager(val config: KafkaConfig,
       warn(s"Broker $localBrokerId stopped fetcher for partitions ${newOfflinePartitions.mkString(",")} and stopped moving logs " +
            s"for partitions ${partitionsWithOfflineFutureReplica.mkString(",")} because they are in the failed log directory $dir.")
     }
-    logManager.handleLogDirFailure(dir)
+    logManager.handleLogDirFailure(directory)
 
     if (sendZkNotification)
       if (zkClient.isEmpty) {
