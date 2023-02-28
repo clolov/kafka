@@ -211,7 +211,7 @@ class LogManager(logDirs: Seq[File],
 
       recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
       logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
-      if (cleaner != null)
+      if (cleaner != null && directory.getLogDir == OfflineLogDirState.OFFLINE)
         cleaner.handleLogDirFailure(dir)
 
       def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog]): Iterable[TopicPartition] = {
@@ -226,7 +226,7 @@ class LogManager(logDirs: Seq[File],
             }
           }
           removedLog.foreach {
-            log => log.closeHandlers()
+            log => if (directory.getState == OfflineLogDirState.OFFLINE) log.closeHandlers()
           }
         }}
 
@@ -1144,7 +1144,7 @@ class LogManager(logDirs: Seq[File],
                   isFuture: Boolean = false,
                   checkpoint: Boolean = true): Option[UnifiedLog] = {
     val removedLog: Option[UnifiedLog] = logCreationOrDeletionLock synchronized {
-      removeLogAndMetrics(if (isFuture) futureLogs else currentLogs, topicPartition)
+      removeLogAndMetrics(if (isFuture) futureLogs else if (currentLogs.contains(topicPartition)) currentLogs else degradedLogs, topicPartition)
     }
     removedLog match {
       case Some(removedLog) =>
