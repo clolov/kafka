@@ -240,7 +240,7 @@ class ControllerContext extends ControllerChannelContext {
       if (includeShuttingDownBrokers) liveOrShuttingDownBrokerIds.contains(brokerId)
       else liveBrokerIds.contains(brokerId)
     }
-    brokerOnline && !replicasOnOfflineDirs.getOrElse(brokerId, Set.empty).contains(topicPartition)
+    brokerOnline
   }
 
   def replicasOnBrokers(brokerIds: Set[Int]): Set[PartitionAndReplica] = {

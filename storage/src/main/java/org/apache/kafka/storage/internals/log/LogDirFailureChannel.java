@@ -38,7 +38,8 @@ import org.slf4j.LoggerFactory;
 public class LogDirFailureChannel {
     private static final Logger log = LoggerFactory.getLogger(LogDirFailureChannel.class);
     private final ConcurrentMap<String, String> offlineLogDirs;
-    private final BlockingQueue<String> offlineLogDirQueue;
+    private final BlockingQueue<OfflineLogDir> offlineLogDirQueue;
+    private final String errorMsg = "No space left on device";
 
     public LogDirFailureChannel(int logDirNum) {
         this.offlineLogDirs = new ConcurrentHashMap<>();
@@ -58,9 +59,11 @@ public class LogDirFailureChannel {
      * @param e Exception instance.
      */
     public void maybeAddOfflineLogDir(String logDir, String msg, IOException e) {
-        log.error(msg, e);
-        if (offlineLogDirs.putIfAbsent(logDir, logDir) == null) {
-            offlineLogDirQueue.add(logDir);
+        String localErrorMsg = e.getMessage();
+        if (localErrorMsg != null && localErrorMsg.contains(errorMsg)) {
+            offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.CLOSED));
+        } else if (offlineLogDirs.putIfAbsent(logDir, logDir) == null) {
+            offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.OFFLINE));
         }
     }
 
@@ -71,7 +74,7 @@ public class LogDirFailureChannel {
      * @return The next offline log dir.
      * @throws InterruptedException
      */
-    public String takeNextOfflineLogDir() throws InterruptedException {
+    public OfflineLogDir takeNextOfflineLogDir() throws InterruptedException {
         return offlineLogDirQueue.take();
     }
 }

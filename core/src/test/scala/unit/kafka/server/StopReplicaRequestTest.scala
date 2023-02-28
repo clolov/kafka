@@ -24,6 +24,7 @@ import org.apache.kafka.common.message.StopReplicaRequestData.{StopReplicaPartit
 import org.apache.kafka.common.protocol.ApiKeys
 import org.apache.kafka.common.protocol.Errors
 import org.apache.kafka.common.requests._
+import org.apache.kafka.storage.internals.log.{OfflineLogDir, OfflineLogDirState}
 import org.junit.jupiter.api.Assertions._
 import org.junit.jupiter.api.Test
 
@@ -46,7 +47,7 @@ class StopReplicaRequestTest extends BaseRequestTest {
 
     val server = servers.head
     val offlineDir = server.logManager.getLog(tp1).get.dir.getParent
-    server.replicaManager.handleLogDirFailure(offlineDir, sendZkNotification = false)
+    server.replicaManager.handleLogDirFailure(new OfflineLogDir(offlineDir, OfflineLogDirState.OFFLINE), sendZkNotification = false)
 
     val topicStates = Seq(
       new StopReplicaTopicState()
