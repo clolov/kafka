@@ -43,7 +43,7 @@ import java.util.Properties
 import org.apache.kafka.server.common.MetadataVersion
 import org.apache.kafka.storage.internals.log.LogConfig.MessageFormatVersion
 import org.apache.kafka.server.util.Scheduler
-import org.apache.kafka.storage.internals.log.{CleanerConfig, LogConfig, LogDirFailureChannel, ProducerStateManagerConfig}
+import org.apache.kafka.storage.internals.log.{CleanerConfig, LogConfig, LogDirFailureChannel, OfflineLogDir, OfflineLogDirState, ProducerStateManagerConfig}
 
 import scala.annotation.nowarn
 
@@ -88,6 +88,7 @@ class LogManager(logDirs: Seq[File],
   // from one log directory to another log directory on the same broker. The directory of the future log will be renamed
   // to replace the current log of the partition after the future log catches up with the current log
   private val futureLogs = new Pool[TopicPartition, UnifiedLog]()
+  private val degradedLogs = new Pool[TopicPartition, UnifiedLog]()
   // Each element in the queue contains the log object to be deleted and the time it is scheduled for deletion.
   private val logsToBeDeleted = new LinkedBlockingQueue[(UnifiedLog, Long)]()
 
@@ -198,7 +199,8 @@ class LogManager(logDirs: Seq[File],
    *
    * @param dir        the absolute path of the log directory
    */
-  def handleLogDirFailure(dir: String): Unit = {
+  def handleLogDirFailure(directory: OfflineLogDir): Unit = {
+    val dir: String = directory.getLogDir
     warn(s"Stopping serving logs in dir $dir")
     logCreationOrDeletionLock synchronized {
       _liveLogDirs.remove(new File(dir))
@@ -218,6 +220,11 @@ class LogManager(logDirs: Seq[File],
         }
         offlineTopicPartitions.foreach { topicPartition => {
           val removedLog = removeLogAndMetrics(logs, topicPartition)
+          if (directory.getState == OfflineLogDirState.CLOSED) {
+            removedLog match {
+              case Some(unifiedLog: UnifiedLog) => degradedLogs.put(topicPartition, unifiedLog)
+            }
+          }
           removedLog.foreach {
             log => log.closeHandlers()
           }
@@ -841,8 +848,10 @@ class LogManager(logDirs: Seq[File],
   def getLog(topicPartition: TopicPartition, isFuture: Boolean = false): Option[UnifiedLog] = {
     if (isFuture)
       Option(futureLogs.get(topicPartition))
-    else
+    else if (currentLogs.contains(topicPartition))
       Option(currentLogs.get(topicPartition))
+    else
+      Option(degradedLogs.get(topicPartition))
   }
 
   /**
