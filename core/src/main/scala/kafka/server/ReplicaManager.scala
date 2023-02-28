@@ -513,6 +513,14 @@ class ReplicaManager(val config: KafkaConfig,
               hostedPartition.partition.delete()
             }
 
+          case hostedPartition: HostedPartition.Degraded =>
+            if (allPartitions.remove(topicPartition, hostedPartition)) {
+              maybeRemoveTopicMetrics(topicPartition.topic)
+              // Logs are not deleted here. They are deleted in a single batch later on.
+              // This is done to avoid having to checkpoint for every deletions.
+              hostedPartition.partition.delete()
+            }
+
           case _ =>
         }
         partitionsToDelete += topicPartition

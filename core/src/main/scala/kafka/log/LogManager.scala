@@ -223,6 +223,7 @@ class LogManager(logDirs: Seq[File],
           if (directory.getState == OfflineLogDirState.CLOSED) {
             removedLog match {
               case Some(unifiedLog: UnifiedLog) => degradedLogs.put(topicPartition, unifiedLog)
+              case None =>
             }
           }
           removedLog.foreach {
