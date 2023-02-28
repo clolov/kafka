@@ -56,7 +56,7 @@ import org.apache.kafka.image.{LocalReplicaChanges, MetadataImage, TopicsDelta}
 import org.apache.kafka.metadata.LeaderConstants.NO_LEADER
 import org.apache.kafka.server.common.MetadataVersion._
 import org.apache.kafka.server.util.{Scheduler, ShutdownableThread}
-import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, LogReadInfo, RecordValidationException}
+import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, OfflineLogDir, OfflineLogDirState, LogReadInfo, RecordValidationException}
 
 import java.io.File
 import java.nio.file.{Files, Paths}
@@ -165,6 +165,8 @@ object HostedPartition {
    * This broker hosts the partition and it is online.
    */
   final case class Online(partition: Partition) extends HostedPartition
+
+  final case class Degraded(partition: Partition) extends HostedPartition
 
   /**
    * This broker hosts the partition, but it is in an offline log directory.
@@ -315,6 +317,7 @@ class ReplicaManager(val config: KafkaConfig,
   private def maybeRemoveTopicMetrics(topic: String): Unit = {
     val topicHasNonOfflinePartition = allPartitions.values.exists {
       case online: HostedPartition.Online => topic == online.partition.topic
+      case degraded: HostedPartition.Degraded => topic == degraded.partition.topic
       case HostedPartition.None | HostedPartition.Offline => false
     }
     if (!topicHasNonOfflinePartition) // nothing online or deferred
@@ -395,6 +398,34 @@ class ReplicaManager(val config: KafkaConfig,
                 s"epoch $controllerEpoch for partition $topicPartition as the local replica for the " +
                 "partition is in an offline log directory")
               responseMap.put(topicPartition, Errors.KAFKA_STORAGE_ERROR)
+
+            case HostedPartition.Degraded(partition) =>
+              val currentLeaderEpoch = partition.getLeaderEpoch
+              val requestLeaderEpoch = partitionState.leaderEpoch
+              // When a topic is deleted, the leader epoch is not incremented. To circumvent this,
+              // a sentinel value (EpochDuringDelete) overwriting any previous epoch is used.
+              // When an older version of the StopReplica request which does not contain the leader
+              // epoch, a sentinel value (NoEpoch) is used and bypass the epoch validation.
+              if (requestLeaderEpoch == LeaderAndIsr.EpochDuringDelete ||
+                requestLeaderEpoch == LeaderAndIsr.NoEpoch ||
+                requestLeaderEpoch >= currentLeaderEpoch) {
+                stoppedPartitions += topicPartition -> deletePartition
+                // Assume that everything will go right. It is overwritten in case of an error.
+                responseMap.put(topicPartition, Errors.NONE)
+              } else if (requestLeaderEpoch < currentLeaderEpoch) {
+                stateChangeLogger.warn(s"Ignoring StopReplica request (delete=$deletePartition) from " +
+                  s"controller $controllerId with correlation id $correlationId " +
+                  s"epoch $controllerEpoch for partition $topicPartition since its associated " +
+                  s"leader epoch $requestLeaderEpoch is smaller than the current " +
+                  s"leader epoch $currentLeaderEpoch")
+                responseMap.put(topicPartition, Errors.FENCED_LEADER_EPOCH)
+              } else {
+                stateChangeLogger.info(s"Ignoring StopReplica request (delete=$deletePartition) from " +
+                  s"controller $controllerId with correlation id $correlationId " +
+                  s"epoch $controllerEpoch for partition $topicPartition since its associated " +
+                  s"leader epoch $requestLeaderEpoch matches the current leader epoch")
+                responseMap.put(topicPartition, Errors.FENCED_LEADER_EPOCH)
+              }
 
             case HostedPartition.Online(partition) =>
               val currentLeaderEpoch = partition.getLeaderEpoch
@@ -555,7 +586,7 @@ class ReplicaManager(val config: KafkaConfig,
       case HostedPartition.Online(partition) =>
         Right(partition)
 
-      case HostedPartition.Offline =>
+      case HostedPartition.Offline | HostedPartition.Degraded(_) =>
         Left(Errors.KAFKA_STORAGE_ERROR)
 
       case HostedPartition.None if metadataCache.contains(topicPartition) =>
@@ -758,7 +789,7 @@ class ReplicaManager(val config: KafkaConfig,
             case HostedPartition.Offline =>
               throw new KafkaStorageException(s"Partition $topicPartition is offline")
 
-            case HostedPartition.None => // Do nothing
+            case HostedPartition.None | HostedPartition.Degraded(_) => // Do nothing
           }
 
           // If the log for this partition has not been created yet:
@@ -1371,7 +1402,7 @@ class ReplicaManager(val config: KafkaConfig,
           requestPartitionStates.foreach { partitionState =>
             val topicPartition = new TopicPartition(partitionState.topicName, partitionState.partitionIndex)
             val partitionOpt = getPartition(topicPartition) match {
-              case HostedPartition.Offline =>
+              case HostedPartition.Offline | HostedPartition.Degraded(_) =>
                 stateChangeLogger.warn(s"Ignoring LeaderAndIsr request from " +
                   s"controller $controllerId with correlation id $correlationId " +
                   s"epoch $controllerEpoch for partition $topicPartition as the local replica for the " +
@@ -1875,13 +1906,23 @@ class ReplicaManager(val config: KafkaConfig,
     }
   }
 
+  def markPartitionDegraded(tp: TopicPartition): Unit = replicaStateChangeLock synchronized {
+    allPartitions.put(tp, HostedPartition.Offline) match {
+      case HostedPartition.Online(partition) =>
+        partition.markOffline()
+        allPartitions.put(tp, HostedPartition.Degraded(partition))
+      case _ => // Nothing
+    }
+  }
+
   /**
    * The log directory failure handler for the replica
    *
    * @param dir                     the absolute path of the log directory
    * @param sendZkNotification      check if we need to send notification to zookeeper node (needed for unit test)
    */
-  def handleLogDirFailure(dir: String, sendZkNotification: Boolean = true): Unit = {
+  def handleLogDirFailure(directory: OfflineLogDir, sendZkNotification: Boolean = true): Unit = {
+    val dir = directory.getLogDir
     if (!logManager.isLogDirOnline(dir))
       return
     warn(s"Stopping serving replicas in dir $dir")
@@ -1899,7 +1940,11 @@ class ReplicaManager(val config: KafkaConfig,
 
       partitionsWithOfflineFutureReplica.foreach(partition => partition.removeFutureLocalReplica(deleteFromLogDir = false))
       newOfflinePartitions.foreach { topicPartition =>
-        markPartitionOffline(topicPartition)
+        if (directory.getState != OfflineLogDirState.CLOSED) {
+          markPartitionOffline(topicPartition)
+        } else {
+          markPartitionDegraded(topicPartition)
+        }
       }
       newOfflinePartitions.map(_.topic).foreach { topic: String =>
         maybeRemoveTopicMetrics(topic)
@@ -1998,7 +2043,7 @@ class ReplicaManager(val config: KafkaConfig,
               offsetForLeaderPartition.leaderEpoch,
               fetchOnlyFromLeader = true)
 
-          case HostedPartition.Offline =>
+          case HostedPartition.Offline | HostedPartition.Degraded(_) =>
             new EpochEndOffset()
               .setPartition(offsetForLeaderPartition.partition)
               .setErrorCode(Errors.KAFKA_STORAGE_ERROR.code)
@@ -2075,7 +2120,7 @@ class ReplicaManager(val config: KafkaConfig,
                                           delta: TopicsDelta,
                                           topicId: Uuid): Option[(Partition, Boolean)] = {
     getPartition(tp) match {
-      case HostedPartition.Offline =>
+      case HostedPartition.Offline | HostedPartition.Degraded(_) =>
         stateChangeLogger.warn(s"Unable to bring up new local leader $tp " +
           s"with topic id $topicId because it resides in an offline log " +
           "directory.")
