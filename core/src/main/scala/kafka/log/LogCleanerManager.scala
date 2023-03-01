@@ -368,26 +368,27 @@ private[log] class LogCleanerManager(val logDirs: Seq[File],
                         partitionToUpdateOrAdd: Option[(TopicPartition, Long)] = None,
                         partitionToRemove: Option[TopicPartition] = None): Unit = {
     inLock(lock) {
-      val checkpoint = checkpoints(dataDir)
-      if (checkpoint != null) {
-        try {
-          val currentCheckpoint = checkpoint.read().filter { case (tp, _) => logs.keys.contains(tp) }.toMap
-          // remove the partition offset if any
-          var updatedCheckpoint = partitionToRemove match {
-            case Some(topicPartition) => currentCheckpoint - topicPartition
-            case None => currentCheckpoint
-          }
-          // update or add the partition offset if any
-          updatedCheckpoint = partitionToUpdateOrAdd match {
-            case Some(updatedOffset) => updatedCheckpoint + updatedOffset
-            case None => updatedCheckpoint
-          }
+      checkpoints.get(dataDir) match {
+        case Some(checkpoint) =>
+          try {
+            val currentCheckpoint = checkpoint.read().filter { case (tp, _) => logs.keys.contains(tp) }.toMap
+            // remove the partition offset if any
+            var updatedCheckpoint = partitionToRemove match {
+              case Some(topicPartition) => currentCheckpoint - topicPartition
+              case None => currentCheckpoint
+            }
+            // update or add the partition offset if any
+            updatedCheckpoint = partitionToUpdateOrAdd match {
+              case Some(updatedOffset) => updatedCheckpoint + updatedOffset
+              case None => updatedCheckpoint
+            }
 
-          checkpoint.write(updatedCheckpoint)
-        } catch {
-          case e: KafkaStorageException =>
-            error(s"Failed to access checkpoint file ${checkpoint.file.getName} in dir ${checkpoint.file.getParentFile.getAbsolutePath}", e)
-        }
+            checkpoint.write(updatedCheckpoint)
+          } catch {
+            case e: KafkaStorageException =>
+              error(s"Failed to access checkpoint file ${checkpoint.file.getName} in dir ${checkpoint.file.getParentFile.getAbsolutePath}", e)
+          }
+        case None => _
       }
     }
   }
