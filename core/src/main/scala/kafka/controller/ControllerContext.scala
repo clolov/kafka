@@ -232,15 +232,19 @@ class ControllerContext extends ControllerChannelContext {
   }
 
   def isReplicaOnline(brokerId: Int, topicPartition: TopicPartition): Boolean = {
-    isReplicaOnline(brokerId, topicPartition, includeShuttingDownBrokers = false)
+    isReplicaOnline(brokerId, topicPartition, includeShuttingDownBrokers = false, isConcerningDeletion = false)
   }
 
-  def isReplicaOnline(brokerId: Int, topicPartition: TopicPartition, includeShuttingDownBrokers: Boolean): Boolean = {
+  def isReplicaOnline(brokerId: Int, topicPartition: TopicPartition, isConcerningDeletion: Boolean): Boolean = {
+    isReplicaOnline(brokerId, topicPartition, includeShuttingDownBrokers = false, isConcerningDeletion = true)
+  }
+
+  def isReplicaOnline(brokerId: Int, topicPartition: TopicPartition, includeShuttingDownBrokers: Boolean, isConcerningDeletion: Boolean): Boolean = {
     val brokerOnline = {
       if (includeShuttingDownBrokers) liveOrShuttingDownBrokerIds.contains(brokerId)
       else liveBrokerIds.contains(brokerId)
     }
-    brokerOnline
+    brokerOnline && (isConcerningDeletion || !replicasOnOfflineDirs.getOrElse(brokerId, Set.empty).contains(topicPartition))
   }
 
   def replicasOnBrokers(brokerIds: Set[Int]): Set[PartitionAndReplica] = {
