@@ -217,7 +217,7 @@ class LogManager(logDirs: Seq[File],
 
       recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
       logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
-      if (cleaner != null && directory.getLogDir == OfflineLogDirState.OFFLINE)
+      if (cleaner != null)
         cleaner.handleLogDirFailure(dir)
 
       def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog]): Iterable[TopicPartition] = {
@@ -1251,9 +1251,15 @@ class LogManager(logDirs: Seq[File],
     val deletableLogs = {
       if (cleaner != null) {
         // prevent cleaner from working on same partitions when changing cleanup policy
-        cleaner.pauseCleaningForNonCompactedPartitions()
+        cleaner.pauseCleaningForNonCompactedPartitions() ++
+        degradedLogs.filter {
+          case (_, log) => !log.config.compact
+        }
       } else {
         currentLogs.filter {
+          case (_, log) => !log.config.compact
+        } ++
+        degradedLogs.filter {
           case (_, log) => !log.config.compact
         }
       }

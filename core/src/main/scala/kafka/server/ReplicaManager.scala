@@ -1914,10 +1914,9 @@ class ReplicaManager(val config: KafkaConfig,
     }
   }
 
-  def markPartitionDegraded(tp: TopicPartition): Unit = replicaStateChangeLock synchronized {
-    allPartitions.put(tp, HostedPartition.Offline) match {
+  def markOnlinePartitionDegraded(tp: TopicPartition): Unit = replicaStateChangeLock synchronized {
+    allPartitions.get(tp) match {
       case HostedPartition.Online(partition) =>
-        partition.markOffline()
         allPartitions.put(tp, HostedPartition.Degraded(partition))
       case _ => // Nothing
     }
@@ -1952,7 +1951,7 @@ class ReplicaManager(val config: KafkaConfig,
           markPartitionOffline(topicPartition)
         } else {
           info(s"Marking ${topicPartition} as degraded")
-          markPartitionDegraded(topicPartition)
+          markOnlinePartitionDegraded(topicPartition)
         }
       }
       newOfflinePartitions.map(_.topic).foreach { topic: String =>
