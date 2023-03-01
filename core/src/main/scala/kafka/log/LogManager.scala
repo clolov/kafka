@@ -21,7 +21,7 @@ import kafka.log.remote.RemoteIndexCache
 
 import java.io._
 import java.nio.file.Files
-import java.util.concurrent._
+import java.util.concurrent.{ConcurrentLinkedQueue, _}
 import java.util.concurrent.atomic.AtomicInteger
 import kafka.metrics.KafkaMetricsGroup
 import kafka.server.checkpoints.OffsetCheckpointFile
@@ -93,6 +93,7 @@ class LogManager(logDirs: Seq[File],
   private val logsToBeDeleted = new LinkedBlockingQueue[(UnifiedLog, Long)]()
 
   private val _liveLogDirs: ConcurrentLinkedQueue[File] = createAndValidateLogDirs(logDirs, initialOfflineDirs)
+  private val _degradedLogDirs: ConcurrentLinkedQueue[File] = new ConcurrentLinkedQueue[File]()
   @volatile private var _currentDefaultConfig = initialDefaultConfig
   @volatile private var numRecoveryThreadsPerDataDir = recoveryThreadsPerDataDir
 
@@ -204,7 +205,12 @@ class LogManager(logDirs: Seq[File],
     warn(s"Stopping serving logs in dir $dir")
     logCreationOrDeletionLock synchronized {
       _liveLogDirs.remove(new File(dir))
-      if (_liveLogDirs.isEmpty) {
+
+      if (directory.getState == OfflineLogDirState.CLOSED) {
+        _degradedLogDirs.add(new File(dir))
+      }
+
+      if (_liveLogDirs.isEmpty && _degradedLogDirs.isEmpty) {
         fatal(s"Shutdown broker because all log dirs in ${logDirs.mkString(", ")} have failed")
         Exit.halt(1)
       }
