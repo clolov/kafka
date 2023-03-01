@@ -139,7 +139,7 @@ object Election {
                                           controllerContext: ControllerContext): ElectionResult = {
     val assignment = controllerContext.partitionReplicaAssignment(partition)
     val liveOrShuttingDownReplicas = assignment.filter(replica =>
-      controllerContext.isReplicaOnline(replica, partition, includeShuttingDownBrokers = true))
+      controllerContext.isReplicaOnline(replica, partition, includeShuttingDownBrokers = true, isConcerningDeletion = false))
     val isr = leaderAndIsr.isr
     val leaderOpt = PartitionLeaderElectionAlgorithms.controlledShutdownPartitionLeaderElection(assignment, isr,
       liveOrShuttingDownReplicas.toSet, shuttingDownBrokerIds)
