@@ -388,7 +388,7 @@ private[log] class LogCleanerManager(val logDirs: Seq[File],
             case e: KafkaStorageException =>
               error(s"Failed to access checkpoint file ${checkpoint.file.getName} in dir ${checkpoint.file.getParentFile.getAbsolutePath}", e)
           }
-        case None => _
+        case None =>
       }
     }
   }
