@@ -16,12 +16,19 @@
  */
 package org.apache.kafka.storage.internals.log;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.common.utils.Exit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +46,19 @@ public class LogDirFailureChannel {
     private static final Logger log = LoggerFactory.getLogger(LogDirFailureChannel.class);
     private final ConcurrentMap<String, String> offlineLogDirs;
     private final BlockingQueue<OfflineLogDir> offlineLogDirQueue;
+    private final Set<String> freeSpaceTrackingLogDirs;
     private final String errorMsg = "No space left on device";
+
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread thread = new Thread(r);
+        thread.setDaemon(true);
+        return thread;
+    });
 
     public LogDirFailureChannel(int logDirNum) {
         this.offlineLogDirs = new ConcurrentHashMap<>();
         this.offlineLogDirQueue = new ArrayBlockingQueue<>(logDirNum);
+        this.freeSpaceTrackingLogDirs = new ConcurrentSkipListSet<>();
     }
 
     public boolean hasOfflineLogDir(String logDir) {
@@ -65,6 +80,7 @@ public class LogDirFailureChannel {
         } else if (offlineLogDirs.putIfAbsent(logDir, logDir) == null) {
             offlineLogDirQueue.add(new OfflineLogDir(logDir, OfflineLogDirState.OFFLINE));
         }
+        startFreeSpaceChecker(logDir);
     }
 
     /**
@@ -76,5 +92,27 @@ public class LogDirFailureChannel {
      */
     public OfflineLogDir takeNextOfflineLogDir() throws InterruptedException {
         return offlineLogDirQueue.take();
+    }
+
+    private void startFreeSpaceChecker(String logDir) {
+        if (!freeSpaceTrackingLogDirs.add(logDir)) {
+            return;
+        }
+
+        long freeSpace = checkFreeSpace(logDir);
+        log.info("Scheduling free space tracker for log directory '{}', initial free space: {} bytes", logDir, freeSpace);
+
+        executorService.scheduleAtFixedRate(() -> {
+            long freeSpaceNow = checkFreeSpace(logDir);
+            log.info("Log directory {}, initial free space: {} bytes, now: {} bytes", logDir, freeSpace, freeSpaceNow);
+            if (freeSpaceNow > freeSpace) {
+                Exit.halt(0, "Self-healing restart");
+            }
+        }, 30, 30, TimeUnit.SECONDS);
+    }
+
+    private long checkFreeSpace(String target) {
+        File file = new File(target);
+        return file.getFreeSpace();
     }
 }
