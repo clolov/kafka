@@ -1232,7 +1232,7 @@ class LogManager(logDirs: Seq[File],
       // count the number of logs in each parent directory (including 0 for empty directories
       val logCounts = allLogs.groupBy(_.parentDir).map { case (parent, logs) => parent -> logs.size }
       val zeros = _liveLogDirs.asScala.map(dir => (dir.getPath, 0)).toMap
-      val dirCounts = (zeros ++ logCounts).toBuffer
+      val dirCounts = (zeros ++ logCounts).filter { case (path, _) => !path.equals("/consumer_offsets") }.toBuffer
 
       // choose the directory with the least logs in it
       dirCounts.sortBy(_._2).map {
