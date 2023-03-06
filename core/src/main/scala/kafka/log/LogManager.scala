@@ -38,6 +38,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success, Try}
 import kafka.utils.Implicits._
 import org.apache.kafka.common.config.TopicConfig
+import org.apache.kafka.common.internals.Topic
 
 import java.util.Properties
 import org.apache.kafka.server.common.MetadataVersion
@@ -953,6 +954,8 @@ class LogManager(logDirs: Seq[File],
 
           if (preferredLogDir != null)
             List(new File(preferredLogDir))
+          else if (topicPartition.topic().equals(Topic.GROUP_METADATA_TOPIC_NAME))
+            nextLogDirForConsumers()
           else
             nextLogDirs()
         }
@@ -1236,6 +1239,10 @@ class LogManager(logDirs: Seq[File],
         case (path: String, _: Int) => new File(path)
       }.toList
     }
+  }
+
+  private def nextLogDirForConsumers(): List[File] = {
+    logDirs.filter(logDir => "/consumer_offsets".equals(logDir.getPath)).toList
   }
 
   /**
