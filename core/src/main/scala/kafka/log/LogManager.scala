@@ -118,6 +118,10 @@ class LogManager(logDirs: Seq[File],
       _liveLogDirs.asScala.toBuffer
   }
 
+  def degradedLogDirs: Seq[File] = {
+    _degradedLogDirs.asScala.toBuffer
+  }
+
   private val dirLocks = lockLogDirs(liveLogDirs)
   @volatile private var recoveryPointCheckpoints = liveLogDirs.map(dir =>
     (dir, new OffsetCheckpointFile(new File(dir, RecoveryPointCheckpointFile), logDirFailureChannel))).toMap
@@ -216,12 +220,14 @@ class LogManager(logDirs: Seq[File],
         Exit.halt(1)
       }
 
-      recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
-      logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
+      if (directory.getState == OfflineLogDirState.OFFLINE) {
+        recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
+        logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
+      }
       if (cleaner != null)
         cleaner.handleLogDirFailure(dir)
 
-      def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog]): Iterable[TopicPartition] = {
+      def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog], isFuture: Boolean): Iterable[TopicPartition] = {
         val offlineTopicPartitions: Iterable[TopicPartition] = logs.collect {
           case (tp, log) if log.parentDir == dir => tp
         }
@@ -229,7 +235,10 @@ class LogManager(logDirs: Seq[File],
           val removedLog = removeLogAndMetrics(logs, topicPartition)
           if (directory.getState == OfflineLogDirState.CLOSED) {
             removedLog match {
-              case Some(unifiedLog: UnifiedLog) => degradedLogs.put(topicPartition, unifiedLog)
+              case Some(unifiedLog: UnifiedLog) =>
+                if (!isFuture) {
+                  degradedLogs.put(topicPartition, unifiedLog)
+                }
               case None =>
             }
           }
@@ -241,12 +250,25 @@ class LogManager(logDirs: Seq[File],
         offlineTopicPartitions
       }
 
-      val offlineCurrentTopicPartitions = removeOfflineLogs(currentLogs)
-      val offlineFutureTopicPartitions = removeOfflineLogs(futureLogs)
+      val offlineCurrentTopicPartitions = removeOfflineLogs(currentLogs, isFuture = false)
+      val offlineFutureTopicPartitions = removeOfflineLogs(futureLogs, isFuture = true)
 
       warn(s"Logs for partitions ${offlineCurrentTopicPartitions.mkString(",")} are offline and " +
            s"logs for future partitions ${offlineFutureTopicPartitions.mkString(",")} are offline due to failure on log directory $dir")
-      dirLocks.filter(_.file.getParent == dir).foreach(dir => CoreUtils.swallow(dir.destroy(), this))
+      dirLocks.filter(_.file.getParent == dir).foreach(dir =>
+        if (directory.getState == OfflineLogDirState.OFFLINE) {
+          CoreUtils.swallow(dir.destroy(), this)
+        }
+      )
+    }
+  }
+
+  def handleLogDirRecovery(): Unit = {
+    logCreationOrDeletionLock synchronized {
+      _degradedLogDirs.stream().map(degradedLogDir => _liveLogDirs.add(degradedLogDir))
+      _degradedLogDirs.clear()
+      degradedLogs.foreach(entry => currentLogs.put(entry._1, entry._2))
+      degradedLogs.clear()
     }
   }
 
@@ -768,7 +790,9 @@ class LogManager(logDirs: Seq[File],
         val recoveryOffsets = logsToCheckpoint.map { case (tp, log) => tp -> log.recoveryPoint }
         // checkpoint.write calls Utils.atomicMoveWithFallback, which flushes the parent
         // directory and guarantees crash consistency.
-        checkpoint.write(recoveryOffsets)
+        if (!_degradedLogDirs.contains(logDir)) {
+          checkpoint.write(recoveryOffsets)
+        }
       }
     } catch {
       case e: KafkaStorageException =>
@@ -791,7 +815,9 @@ class LogManager(logDirs: Seq[File],
         val logStartOffsets = logsToCheckpoint.collect {
           case (tp, log) if log.logStartOffset > log.logSegments.head.baseOffset => tp -> log.logStartOffset
         }
-        checkpoint.write(logStartOffsets)
+        if (!_degradedLogDirs.contains(logDir)) {
+          checkpoint.write(logStartOffsets)
+        }
       }
     } catch {
       case e: KafkaStorageException =>

@@ -56,12 +56,12 @@ import org.apache.kafka.image.{LocalReplicaChanges, MetadataImage, TopicsDelta}
 import org.apache.kafka.metadata.LeaderConstants.NO_LEADER
 import org.apache.kafka.server.common.MetadataVersion._
 import org.apache.kafka.server.util.{Scheduler, ShutdownableThread}
-import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, OfflineLogDir, OfflineLogDirState, LogReadInfo, RecordValidationException}
+import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, LogReadInfo, OfflineLogDir, OfflineLogDirState, RecordValidationException}
 
 import java.io.File
 import java.nio.file.{Files, Paths}
 import java.util
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.Lock
 import java.util.{Optional, OptionalInt, OptionalLong}
@@ -244,6 +244,8 @@ class ReplicaManager(val config: KafkaConfig,
       handleLogDirFailure(newOfflineLogDir)
     }
   }
+
+  private val executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
   // Visible for testing
   private[server] val replicaSelectorOpt: Option[ReplicaSelector] = createReplicaSelector()
@@ -569,6 +571,13 @@ class ReplicaManager(val config: KafkaConfig,
   private def onlinePartitionsIterator: Iterator[Partition] = {
     allPartitions.values.iterator.flatMap {
       case HostedPartition.Online(partition) => Some(partition)
+      case _ => None
+    }
+  }
+
+  private def degradedPartitionsIterator: Iterator[Partition] = {
+    allPartitions.values.iterator.flatMap {
+      case HostedPartition.Degraded(partition) => Some(partition)
       case _ => None
     }
   }
@@ -1922,6 +1931,14 @@ class ReplicaManager(val config: KafkaConfig,
     }
   }
 
+  def markDegradedPartitionOnline(tp: TopicPartition): Unit = replicaStateChangeLock synchronized {
+    allPartitions.get(tp) match {
+      case HostedPartition.Degraded(partition) =>
+        allPartitions.put(tp, HostedPartition.Online(partition))
+      case _ => // Nothing
+    }
+  }
+
   /**
    * The log directory failure handler for the replica
    *
@@ -1971,6 +1988,28 @@ class ReplicaManager(val config: KafkaConfig,
         zkClient.get.propagateLogDirEvent(localBrokerId)
       }
     warn(s"Stopped serving replicas in dir $dir")
+  }
+
+  executor.scheduleAtFixedRate(() => handleLogDirRecovery(), 30, 30, TimeUnit.SECONDS)
+
+  def handleLogDirRecovery(sendZkNotification: Boolean = true): Unit = {
+    val degradedLogDirsPaths = logManager.degradedLogDirs.map(degradedLogDir => degradedLogDir.getPath )
+
+    val newOnlinePartitions = degradedPartitionsIterator.filter { partition =>
+      partition.log.exists { log => degradedLogDirsPaths.contains(log.parentDir) }
+    }.map(_.topicPartition).toSet
+
+    newOnlinePartitions.foreach { topicPartition => markDegradedPartitionOnline(topicPartition) }
+
+    logManager.handleLogDirRecovery()
+
+    if (sendZkNotification)
+      if (zkClient.isEmpty) {
+        warn("Unable to propagate log dir failure via Zookeeper in KRaft mode")
+      } else {
+        zkClient.get.propagateLogDirEvent(localBrokerId)
+      }
+    warn(s"Started serving replicas in dirs ${degradedLogDirsPaths.mkString(",")}")
   }
 
   def removeMetrics(): Unit = {
