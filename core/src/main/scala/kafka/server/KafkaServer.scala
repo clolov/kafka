@@ -17,7 +17,7 @@
 
 package kafka.server
 
-import java.io.{File, IOException}
+import java.io.{File, IOException, RandomAccessFile}
 import java.net.{InetAddress, SocketTimeoutException}
 import java.util.concurrent._
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
@@ -167,6 +167,13 @@ class KafkaServer(
   val brokerMetadataCheckpoints = config.logDirs.map { logDir =>
     (logDir, new BrokerMetadataCheckpoint(new File(logDir + File.separator + brokerMetaPropsFile)))
   }.toMap
+  val reservedDiskSpaceFile = "reserved"
+  val reservedDiskSpace = config.logDirs.map { logDir =>
+    (logDir, new ReservedFile(new File(logDir + File.separator + reservedDiskSpaceFile)))
+  }.toMap
+  reservedDiskSpace.foreach { entry =>
+    entry._2.allocate()
+  }
 
   private var _clusterId: String = _
   @volatile var _brokerTopicStats: BrokerTopicStats = _
@@ -619,6 +626,7 @@ class KafkaServer(
       quotaManagers = quotaManagers,
       metadataCache = metadataCache,
       logDirFailureChannel = logDirFailureChannel,
+      reservedDiskSpace = reservedDiskSpace,
       alterPartitionManager = alterPartitionManager,
       brokerTopicStats = brokerTopicStats,
       isShuttingDown = isShuttingDown,
@@ -1042,5 +1050,19 @@ class KafkaServer(
         error("Failed to generate broker.id due to ", e)
         throw new GenerateBrokerIdException("Failed to generate broker.id", e)
     }
+  }
+}
+
+class ReservedFile(val file: File) extends Logging {
+  var randomAccessFile: Option[RandomAccessFile] = Option.empty[RandomAccessFile]
+
+  def allocate(): Unit = {
+    randomAccessFile = Option.apply(new RandomAccessFile(file, "w"))
+    randomAccessFile.foreach(randomAccessFile => randomAccessFile.setLength(5 * 1024 * 1024))
+  }
+
+  def delete(): Unit = {
+    randomAccessFile.foreach(randomAccessFile => randomAccessFile.close())
+    file.delete()
   }
 }

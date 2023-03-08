@@ -51,19 +51,19 @@ import org.apache.kafka.common.requests.FetchRequest.PartitionData
 import org.apache.kafka.common.requests.ProduceResponse.PartitionResponse
 import org.apache.kafka.common.requests._
 import org.apache.kafka.common.utils.Time
-import org.apache.kafka.common.{ElectionType, IsolationLevel, Node, TopicIdPartition, TopicPartition, Uuid}
+import org.apache.kafka.common._
 import org.apache.kafka.image.{LocalReplicaChanges, MetadataImage, TopicsDelta}
 import org.apache.kafka.metadata.LeaderConstants.NO_LEADER
 import org.apache.kafka.server.common.MetadataVersion._
 import org.apache.kafka.server.util.{Scheduler, ShutdownableThread}
-import org.apache.kafka.storage.internals.log.{AppendOrigin, FetchDataInfo, FetchParams, FetchPartitionData, LeaderHwChange, LogAppendInfo, LogConfig, LogDirFailureChannel, LogOffsetMetadata, LogReadInfo, OfflineLogDir, OfflineLogDirState, RecordValidationException}
+import org.apache.kafka.storage.internals.log._
 
 import java.io.File
 import java.nio.file.{Files, Paths}
 import java.util
-import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.Lock
+import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Optional, OptionalInt, OptionalLong}
 import scala.collection.{Map, Seq, Set, mutable}
 import scala.compat.java8.OptionConverters._
@@ -187,6 +187,7 @@ class ReplicaManager(val config: KafkaConfig,
                      quotaManagers: QuotaManagers,
                      val metadataCache: MetadataCache,
                      logDirFailureChannel: LogDirFailureChannel,
+                     reservedDiskSpace: Map[String, ReservedFile],
                      val alterPartitionManager: AlterPartitionManager,
                      val brokerTopicStats: BrokerTopicStats = new BrokerTopicStats(),
                      val isShuttingDown: AtomicBoolean = new AtomicBoolean(false),
@@ -1951,6 +1952,8 @@ class ReplicaManager(val config: KafkaConfig,
       return
     warn(s"Stopping serving replicas in dir $dir")
     replicaStateChangeLock synchronized {
+      reservedDiskSpace.get(dir).foreach(reservedFile => reservedFile.delete())
+
       val newOfflinePartitions = onlinePartitionsIterator.filter { partition =>
         partition.log.exists { _.parentDir == dir }
       }.map(_.topicPartition).toSet
