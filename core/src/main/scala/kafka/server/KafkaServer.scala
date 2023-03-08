@@ -365,6 +365,7 @@ class KafkaServer(
 
         // Start replica manager
         _replicaManager = createReplicaManager(isShuttingDown)
+        _replicaManager.setReservedDiskSpace(reservedDiskSpace)
         replicaManager.startup()
 
         val brokerInfo = createBrokerInfo
@@ -626,7 +627,6 @@ class KafkaServer(
       quotaManagers = quotaManagers,
       metadataCache = metadataCache,
       logDirFailureChannel = logDirFailureChannel,
-      reservedDiskSpace = reservedDiskSpace,
       alterPartitionManager = alterPartitionManager,
       brokerTopicStats = brokerTopicStats,
       isShuttingDown = isShuttingDown,

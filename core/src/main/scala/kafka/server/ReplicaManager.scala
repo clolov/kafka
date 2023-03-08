@@ -187,7 +187,6 @@ class ReplicaManager(val config: KafkaConfig,
                      quotaManagers: QuotaManagers,
                      val metadataCache: MetadataCache,
                      logDirFailureChannel: LogDirFailureChannel,
-                     reservedDiskSpace: Map[String, ReservedFile],
                      val alterPartitionManager: AlterPartitionManager,
                      val brokerTopicStats: BrokerTopicStats = new BrokerTopicStats(),
                      val isShuttingDown: AtomicBoolean = new AtomicBoolean(false),
@@ -214,6 +213,12 @@ class ReplicaManager(val config: KafkaConfig,
   val delayedElectLeaderPurgatory = delayedElectLeaderPurgatoryParam.getOrElse(
     DelayedOperationPurgatory[DelayedElectLeader](
       purgatoryName = "ElectLeader", brokerId = config.brokerId))
+
+  var _reservedDiskSpace: Map[String, ReservedFile] = _
+
+  def setReservedDiskSpace(reservedDiskSpace: Map[String, ReservedFile]): Unit = {
+    _reservedDiskSpace = reservedDiskSpace
+  }
 
   /* epoch of the controller that last changed the leader */
   @volatile private[server] var controllerEpoch: Int = KafkaController.InitialControllerEpoch
@@ -1952,7 +1957,7 @@ class ReplicaManager(val config: KafkaConfig,
       return
     warn(s"Stopping serving replicas in dir $dir")
     replicaStateChangeLock synchronized {
-      reservedDiskSpace.get(dir).foreach(reservedFile => reservedFile.delete())
+      _reservedDiskSpace.get(dir).foreach(reservedFile => reservedFile.delete())
 
       val newOfflinePartitions = onlinePartitionsIterator.filter { partition =>
         partition.log.exists { _.parentDir == dir }

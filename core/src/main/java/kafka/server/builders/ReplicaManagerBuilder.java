@@ -170,7 +170,6 @@ public class ReplicaManagerBuilder {
                              quotaManagers,
                              metadataCache,
                              logDirFailureChannel,
-                             new HashMap<>(),
                              alterPartitionManager,
                              brokerTopicStats,
                              isShuttingDown,
