@@ -510,6 +510,7 @@ class KafkaController(val config: KafkaConfig,
     // send LeaderAndIsrRequest for all replicas on those brokers to see if they are still online.
     info(s"Handling log directory failure for brokers ${brokerIds.mkString(",")}")
     val replicasOnBrokers = controllerContext.replicasOnBrokers(brokerIds.toSet)
+    partitionStateMachine.triggerOnlinePartitionStateChange()
     replicaStateMachine.handleStateChanges(replicasOnBrokers.toSeq, OnlineReplica)
   }
 

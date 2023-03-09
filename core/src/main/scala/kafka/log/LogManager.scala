@@ -268,7 +268,6 @@ class LogManager(logDirs: Seq[File],
       _degradedLogDirs.stream().map(degradedLogDir => {
         if (degradedLogDir.getFreeSpace > (10L * 1024 * 1024)) {
           _liveLogDirs.add(degradedLogDir)
-          degradedLogDir
         }
       })
       _degradedLogDirs.removeAll(_liveLogDirs)
