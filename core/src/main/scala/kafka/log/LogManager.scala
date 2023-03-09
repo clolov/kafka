@@ -612,7 +612,7 @@ class LogManager(logDirs: Seq[File],
                          InitialTaskDelayMs)
     }
     if (cleanerConfig.enableCleaner) {
-      _cleaner = new LogCleaner(cleanerConfig, liveLogDirs, currentLogs, logDirFailureChannel, time = time)
+      _cleaner = new LogCleaner(cleanerConfig, liveLogDirs, currentLogs, degradedLogs, logDirFailureChannel, time = time)
       _cleaner.startup()
     }
   }

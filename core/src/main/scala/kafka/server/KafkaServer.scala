@@ -1057,7 +1057,7 @@ class ReservedFile(val file: File) extends Logging {
   var randomAccessFile: Option[RandomAccessFile] = Option.empty[RandomAccessFile]
 
   def allocate(): Unit = {
-    randomAccessFile = Option.apply(new RandomAccessFile(file, "w"))
+    randomAccessFile = Option.apply(new RandomAccessFile(file, "rw"))
     randomAccessFile.foreach(randomAccessFile => {
       randomAccessFile.setLength(5 * 1024 * 1024)
       randomAccessFile.close()

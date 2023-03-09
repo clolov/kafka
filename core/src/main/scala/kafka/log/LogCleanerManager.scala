@@ -60,6 +60,7 @@ private[log] class LogCleaningException(val log: UnifiedLog,
   */
 private[log] class LogCleanerManager(val logDirs: Seq[File],
                                      val logs: Pool[TopicPartition, UnifiedLog],
+                                     val degradedLogs: Pool[TopicPartition, UnifiedLog],
                                      val logDirFailureChannel: LogDirFailureChannel) extends Logging with KafkaMetricsGroup {
   import LogCleanerManager._
 
@@ -221,7 +222,7 @@ private[log] class LogCleanerManager(val logDirs: Seq[File],
     */
   def pauseCleaningForNonCompactedPartitions(): Iterable[(TopicPartition, UnifiedLog)] = {
     inLock(lock) {
-      val deletableLogs = logs.filter {
+      val deletableLogs = (logs ++ degradedLogs).filter {
         case (_, log) => !log.config.compact // pick non-compacted logs
       }.filterNot {
         case (topicPartition, _) => inProgress.contains(topicPartition) // skip any logs already in-progress
