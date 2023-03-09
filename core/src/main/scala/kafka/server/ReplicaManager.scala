@@ -1957,8 +1957,6 @@ class ReplicaManager(val config: KafkaConfig,
       return
     warn(s"Stopping serving replicas in dir $dir")
     replicaStateChangeLock synchronized {
-      _reservedDiskSpace.get(dir).foreach(reservedFile => reservedFile.delete())
-
       val newOfflinePartitions = onlinePartitionsIterator.filter { partition =>
         partition.log.exists { _.parentDir == dir }
       }.map(_.topicPartition).toSet
@@ -1996,12 +1994,19 @@ class ReplicaManager(val config: KafkaConfig,
         zkClient.get.propagateLogDirEvent(localBrokerId)
       }
     warn(s"Stopped serving replicas in dir $dir")
+    _reservedDiskSpace.get(dir).foreach(reservedFile => reservedFile.delete())
   }
 
   executor.scheduleAtFixedRate(() => handleLogDirRecovery(), 30, 30, TimeUnit.SECONDS)
 
   def handleLogDirRecovery(sendZkNotification: Boolean = true): Unit = {
-    val degradedLogDirsPaths = logManager.degradedLogDirs.map(degradedLogDir => degradedLogDir.getPath )
+    warn(s"Attempting to recover replicas in dirs ${logManager.degradedLogDirs.map(degradedLogDir => degradedLogDir.getPath).mkString(",")}")
+
+    val degradedLogDirsPaths = logManager.degradedLogDirs.map(degradedLogDir => {
+      if (degradedLogDir.getFreeSpace > (10L * 1024 * 1024)) {
+        degradedLogDir.getPath
+      }
+    })
 
     val newOnlinePartitions = degradedPartitionsIterator.filter { partition =>
       partition.log.exists { log => degradedLogDirsPaths.contains(log.parentDir) }
@@ -2009,15 +2014,17 @@ class ReplicaManager(val config: KafkaConfig,
 
     newOnlinePartitions.foreach { topicPartition => markDegradedPartitionOnline(topicPartition) }
 
-    logManager.handleLogDirRecovery()
+    if (degradedLogDirsPaths.nonEmpty) {
+      logManager.handleLogDirRecovery()
 
-    if (sendZkNotification)
-      if (zkClient.isEmpty) {
-        warn("Unable to propagate log dir failure via Zookeeper in KRaft mode")
-      } else {
-        zkClient.get.propagateLogDirEvent(localBrokerId)
-      }
-    warn(s"Started serving replicas in dirs ${degradedLogDirsPaths.mkString(",")}")
+      if (sendZkNotification)
+        if (zkClient.isEmpty) {
+          warn("Unable to propagate log dir failure via Zookeeper in KRaft mode")
+        } else {
+          zkClient.get.propagateLogDirEvent(localBrokerId)
+        }
+      warn(s"Started serving replicas in dirs ${degradedLogDirsPaths.mkString(",")}")
+    }
   }
 
   def removeMetrics(): Unit = {

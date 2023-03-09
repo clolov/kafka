@@ -265,10 +265,21 @@ class LogManager(logDirs: Seq[File],
 
   def handleLogDirRecovery(): Unit = {
     logCreationOrDeletionLock synchronized {
-      _degradedLogDirs.stream().map(degradedLogDir => _liveLogDirs.add(degradedLogDir))
-      _degradedLogDirs.clear()
-      degradedLogs.foreach(entry => currentLogs.put(entry._1, entry._2))
-      degradedLogs.clear()
+      _degradedLogDirs.stream().map(degradedLogDir => {
+        if (degradedLogDir.getFreeSpace > (10L * 1024 * 1024)) {
+          _liveLogDirs.add(degradedLogDir)
+          degradedLogDir
+        }
+      })
+      _degradedLogDirs.removeAll(_liveLogDirs)
+      val liveLogDirsNames = mutable.Set.empty[String]
+      _liveLogDirs.forEach(liveLogDir => liveLogDirsNames += liveLogDir.getPath)
+      degradedLogs.foreach(entry => {
+        if (liveLogDirsNames.contains(entry._2.parentDir)) {
+          currentLogs.put(entry._1, entry._2)
+        }
+      })
+      degradedLogs.removeAll(currentLogs.keys)
     }
   }
 
