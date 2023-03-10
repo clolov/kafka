@@ -2002,11 +2002,9 @@ class ReplicaManager(val config: KafkaConfig,
   def handleLogDirRecovery(sendZkNotification: Boolean = true): Unit = {
     warn(s"Attempting to recover replicas in dirs ${logManager.degradedLogDirs.map(degradedLogDir => degradedLogDir.getPath).mkString(",")}")
 
-    val degradedLogDirsPaths = logManager.degradedLogDirs.map(degradedLogDir => {
-      if (degradedLogDir.getFreeSpace > (10L * 1024 * 1024)) {
-        degradedLogDir.getPath
-      }
-    })
+    val degradedLogDirsPaths = logManager.degradedLogDirs
+      .filter(degradedLogDir => degradedLogDir.getFreeSpace > (10L * 1024 * 1024))
+      .map(degradedLogDir => degradedLogDir.getPath)
 
     val newOnlinePartitions = degradedPartitionsIterator.filter { partition =>
       partition.log.exists { log => degradedLogDirsPaths.contains(log.parentDir) }

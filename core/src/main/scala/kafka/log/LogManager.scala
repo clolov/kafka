@@ -265,12 +265,17 @@ class LogManager(logDirs: Seq[File],
 
   def handleLogDirRecovery(): Unit = {
     logCreationOrDeletionLock synchronized {
-      _degradedLogDirs.stream().map(degradedLogDir => {
-        if (degradedLogDir.getFreeSpace > (10L * 1024 * 1024)) {
-          _liveLogDirs.add(degradedLogDir)
-        }
+      info(s"Current _liveLogDirs is ${_liveLogDirs}")
+      _degradedLogDirs.stream()
+        .filter(degradedLogDir => degradedLogDir.getFreeSpace > (10L * 1024 * 1024))
+        .forEach(degradedLogDir => _liveLogDirs.add(degradedLogDir))
+      info(s"_liveLogDirs after addition is ${_liveLogDirs}")
+      info(s"Current _degradedLogDirs is ${_degradedLogDirs}")
+      _liveLogDirs.stream().forEach(liveLogDir => {
+        val successfulRemoval = _degradedLogDirs.remove(liveLogDir)
+        info(s"Removal from _degradedLogDirs was $successfulRemoval")
       })
-      _degradedLogDirs.removeAll(_liveLogDirs)
+      info(s"_degradedLogDirs after removal is ${_degradedLogDirs}")
       val liveLogDirsNames = mutable.Set.empty[String]
       _liveLogDirs.forEach(liveLogDir => liveLogDirsNames += liveLogDir.getPath)
       degradedLogs.foreach(entry => {
@@ -1294,10 +1299,7 @@ class LogManager(logDirs: Seq[File],
     val deletableLogs = {
       if (cleaner != null) {
         // prevent cleaner from working on same partitions when changing cleanup policy
-        cleaner.pauseCleaningForNonCompactedPartitions() ++
-        degradedLogs.filter {
-          case (_, log) => !log.config.compact
-        }
+        cleaner.pauseCleaningForNonCompactedPartitions()
       } else {
         currentLogs.filter {
           case (_, log) => !log.config.compact
