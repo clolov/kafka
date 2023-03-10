@@ -1337,17 +1337,24 @@ class UnifiedLog(@volatile var logStartOffset: Long,
       if (numToDelete > 0) {
         // we must always have at least one segment, so if we are going to delete all the segments, create a new one first
         var segmentsToDelete = deletable
+        var localDeletable = deletable
         if (localLog.segments.numberOfSegments == numToDelete) {
+          if (numToDelete > 1) {
+            localLog.removeAndDeleteSegments(segmentsToDelete.take(1), asyncDelete = false, reason)
+            deleteProducerSnapshots(localDeletable.take(1), asyncDelete = false)
+            segmentsToDelete = segmentsToDelete.drop(1)
+            localDeletable = localDeletable.drop(1)
+          }
           val newSegment = roll()
-          if (deletable.last.baseOffset == newSegment.baseOffset) {
-            warn(s"Empty active segment at ${deletable.last.baseOffset} was deleted and recreated due to $reason")
-            segmentsToDelete = deletable.dropRight(1)
+          if (localDeletable.last.baseOffset == newSegment.baseOffset) {
+            warn(s"Empty active segment at ${localDeletable.last.baseOffset} was deleted and recreated due to $reason")
+            segmentsToDelete = localDeletable.dropRight(1)
           }
         }
         localLog.checkIfMemoryMappedBufferClosed()
         // remove the segments for lookups
         localLog.removeAndDeleteSegments(segmentsToDelete, asyncDelete = true, reason)
-        deleteProducerSnapshots(deletable, asyncDelete = true)
+        deleteProducerSnapshots(localDeletable, asyncDelete = true)
         maybeIncrementLogStartOffset(localLog.segments.firstSegmentBaseOffset.get, LogStartOffsetIncrementReason.SegmentDeletion)
       }
       numToDelete
