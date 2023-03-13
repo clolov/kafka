@@ -214,9 +214,9 @@ class ReplicaManager(val config: KafkaConfig,
     DelayedOperationPurgatory[DelayedElectLeader](
       purgatoryName = "ElectLeader", brokerId = config.brokerId))
 
-  var _reservedDiskSpace: Map[String, ReservedFile] = _
+  var _reservedDiskSpace: mutable.Map[String, ReservedFile] = _
 
-  def setReservedDiskSpace(reservedDiskSpace: Map[String, ReservedFile]): Unit = {
+  def setReservedDiskSpace(reservedDiskSpace: mutable.Map[String, ReservedFile]): Unit = {
     _reservedDiskSpace = reservedDiskSpace
   }
 
@@ -1994,7 +1994,7 @@ class ReplicaManager(val config: KafkaConfig,
         zkClient.get.propagateLogDirEvent(localBrokerId)
       }
     warn(s"Stopped serving replicas in dir $dir")
-    _reservedDiskSpace.get(dir).foreach(reservedFile => reservedFile.delete())
+    _reservedDiskSpace.remove(dir).foreach(reservedFile => reservedFile.delete())
   }
 
   executor.scheduleAtFixedRate(() => handleLogDirRecovery(), 30, 30, TimeUnit.SECONDS)
@@ -2003,8 +2003,15 @@ class ReplicaManager(val config: KafkaConfig,
     warn(s"Attempting to recover replicas in dirs ${logManager.degradedLogDirs.map(degradedLogDir => degradedLogDir.getPath).mkString(",")}")
 
     val degradedLogDirsPaths = logManager.degradedLogDirs
-      .filter(degradedLogDir => degradedLogDir.getFreeSpace > (10L * 1024 * 1024))
+      .filter(degradedLogDir => degradedLogDir.getFreeSpace > (60L * 1024 * 1024))
       .map(degradedLogDir => degradedLogDir.getPath)
+
+    val reservedDiskSpaceFile = "reserved"
+
+    degradedLogDirsPaths.foreach(degradedLogDirPath => {
+      _reservedDiskSpace.put(degradedLogDirPath, new ReservedFile(new File(degradedLogDirPath + File.separator + reservedDiskSpaceFile)))
+      _reservedDiskSpace.get(degradedLogDirPath).foreach(entry => entry.allocate())
+    })
 
     val newOnlinePartitions = degradedPartitionsIterator.filter { partition =>
       partition.log.exists { log => degradedLogDirsPaths.contains(log.parentDir) }

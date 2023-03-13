@@ -62,7 +62,7 @@ import org.apache.kafka.server.util.KafkaScheduler
 import org.apache.kafka.storage.internals.log.LogDirFailureChannel
 import org.apache.zookeeper.client.ZKClientConfig
 
-import scala.collection.{Map, Seq}
+import scala.collection.{Map, Seq, mutable}
 import scala.jdk.CollectionConverters._
 
 object KafkaServer {
@@ -1059,13 +1059,12 @@ class ReservedFile(val file: File) extends Logging {
   def allocate(): Unit = {
     randomAccessFile = Option.apply(new RandomAccessFile(file, "rw"))
     randomAccessFile.foreach(randomAccessFile => {
-      randomAccessFile.setLength(5 * 1024 * 1024)
-      randomAccessFile.close()
+      randomAccessFile.setLength(30 * 1024 * 1024)
     })
   }
 
   def delete(): Unit = {
-    //randomAccessFile.foreach(randomAccessFile => randomAccessFile.close())
+    randomAccessFile.foreach(randomAccessFile => randomAccessFile.close())
     file.delete()
   }
 }
