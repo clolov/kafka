@@ -170,7 +170,7 @@ class KafkaServer(
   val reservedDiskSpaceFile = "reserved"
   val reservedDiskSpace = config.logDirs.map { logDir =>
     (logDir, new ReservedFile(new File(logDir + File.separator + reservedDiskSpaceFile)))
-  }.toMap
+  }.to(mutable.Map)
   reservedDiskSpace.foreach { entry =>
     entry._2.allocate()
   }
