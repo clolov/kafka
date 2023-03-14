@@ -289,7 +289,7 @@ class TopicDeletionManager(config: KafkaConfig,
 
     topicsToBeDeleted.foreach { topic =>
       val (aliveReplicas, deadReplicas) = controllerContext.replicasForTopic(topic).partition { r =>
-        controllerContext.isReplicaOnline(r.replica, r.topicPartition)
+        controllerContext.isReplicaOnline(r.replica, r.topicPartition, isConcerningDeletion = true)
       }
 
       val successfullyDeletedReplicas = controllerContext.replicasInState(topic, ReplicaDeletionSuccessful)

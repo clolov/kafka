@@ -17,7 +17,7 @@
 
 package kafka.server
 
-import java.io.{File, IOException}
+import java.io.{File, IOException, RandomAccessFile}
 import java.net.{InetAddress, SocketTimeoutException}
 import java.util.concurrent._
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
@@ -62,7 +62,7 @@ import org.apache.kafka.server.util.KafkaScheduler
 import org.apache.kafka.storage.internals.log.LogDirFailureChannel
 import org.apache.zookeeper.client.ZKClientConfig
 
-import scala.collection.{Map, Seq}
+import scala.collection.{Map, Seq, mutable}
 import scala.jdk.CollectionConverters._
 
 object KafkaServer {
@@ -167,6 +167,13 @@ class KafkaServer(
   val brokerMetadataCheckpoints = config.logDirs.map { logDir =>
     (logDir, new BrokerMetadataCheckpoint(new File(logDir + File.separator + brokerMetaPropsFile)))
   }.toMap
+  val reservedDiskSpaceFile = "reserved"
+  val reservedDiskSpace = config.logDirs.map { logDir =>
+    (logDir, new ReservedFile(new File(logDir + File.separator + reservedDiskSpaceFile)))
+  }.to(mutable.Map)
+  reservedDiskSpace.foreach { entry =>
+    entry._2.allocate()
+  }
 
   private var _clusterId: String = _
   @volatile var _brokerTopicStats: BrokerTopicStats = _
@@ -358,6 +365,7 @@ class KafkaServer(
 
         // Start replica manager
         _replicaManager = createReplicaManager(isShuttingDown)
+        _replicaManager.setReservedDiskSpace(reservedDiskSpace)
         replicaManager.startup()
 
         val brokerInfo = createBrokerInfo
@@ -1040,5 +1048,21 @@ class KafkaServer(
         error("Failed to generate broker.id due to ", e)
         throw new GenerateBrokerIdException("Failed to generate broker.id", e)
     }
+  }
+}
+
+class ReservedFile(val file: File) extends Logging {
+  var randomAccessFile: Option[RandomAccessFile] = Option.empty[RandomAccessFile]
+
+  def allocate(): Unit = {
+    randomAccessFile = Option.apply(new RandomAccessFile(file, "rw"))
+    randomAccessFile.foreach(randomAccessFile => {
+      randomAccessFile.setLength(30 * 1024 * 1024)
+    })
+  }
+
+  def delete(): Unit = {
+    randomAccessFile.foreach(randomAccessFile => randomAccessFile.close())
+    file.delete()
   }
 }

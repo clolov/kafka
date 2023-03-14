@@ -1884,6 +1884,7 @@ class LogCleanerTest {
     val logCleaner = new LogCleaner(new CleanerConfig(true),
       logDirs = Array(TestUtils.tempDir()),
       logs = new Pool[TopicPartition, UnifiedLog](),
+      degradedLogs = new Pool[TopicPartition, UnifiedLog](),
       logDirFailureChannel = new LogDirFailureChannel(1),
       time = time)
 
@@ -1908,6 +1909,7 @@ class LogCleanerTest {
     val logCleaner = new LogCleaner(LogCleaner.cleanerConfig(new KafkaConfig(oldKafkaProps)),
       logDirs = Array(TestUtils.tempDir()),
       logs = new Pool[TopicPartition, UnifiedLog](),
+      degradedLogs = new Pool[TopicPartition, UnifiedLog](),
       logDirFailureChannel = new LogDirFailureChannel(1),
       time = time) {
       // shutdown() and startup() are called in LogCleaner.reconfigure().

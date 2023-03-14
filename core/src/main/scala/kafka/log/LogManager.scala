@@ -43,7 +43,7 @@ import org.apache.kafka.server.common.MetadataVersion
 import org.apache.kafka.storage.internals.log.LogConfig.MessageFormatVersion
 import org.apache.kafka.server.metrics.KafkaMetricsGroup
 import org.apache.kafka.server.util.Scheduler
-import org.apache.kafka.storage.internals.log.{CleanerConfig, LogConfig, LogDirFailureChannel, ProducerStateManagerConfig}
+import org.apache.kafka.storage.internals.log.{CleanerConfig, LogConfig, LogDirFailureChannel, OfflineLogDir, OfflineLogDirState, ProducerStateManagerConfig}
 
 import scala.annotation.nowarn
 
@@ -90,10 +90,12 @@ class LogManager(logDirs: Seq[File],
   // from one log directory to another log directory on the same broker. The directory of the future log will be renamed
   // to replace the current log of the partition after the future log catches up with the current log
   private val futureLogs = new Pool[TopicPartition, UnifiedLog]()
+  private val degradedLogs = new Pool[TopicPartition, UnifiedLog]()
   // Each element in the queue contains the log object to be deleted and the time it is scheduled for deletion.
   private val logsToBeDeleted = new LinkedBlockingQueue[(UnifiedLog, Long)]()
 
   private val _liveLogDirs: ConcurrentLinkedQueue[File] = createAndValidateLogDirs(logDirs, initialOfflineDirs)
+  private val _degradedLogDirs: ConcurrentLinkedQueue[File] = new ConcurrentLinkedQueue[File]()
   @volatile private var _currentDefaultConfig = initialDefaultConfig
   @volatile private var numRecoveryThreadsPerDataDir = recoveryThreadsPerDataDir
 
@@ -115,6 +117,10 @@ class LogManager(logDirs: Seq[File],
       logDirs
     else
       _liveLogDirs.asScala.toBuffer
+  }
+
+  def degradedLogDirs: Seq[File] = {
+    _degradedLogDirs.asScala.toBuffer
   }
 
   private val dirLocks = lockLogDirs(liveLogDirs)
@@ -200,40 +206,61 @@ class LogManager(logDirs: Seq[File],
    *
    * @param dir        the absolute path of the log directory
    */
-  def handleLogDirFailure(dir: String): Unit = {
+  def handleLogDirFailure(directory: OfflineLogDir): Unit = {
+    val dir: String = directory.getLogDir
     warn(s"Stopping serving logs in dir $dir")
     logCreationOrDeletionLock synchronized {
       _liveLogDirs.remove(new File(dir))
-      if (_liveLogDirs.isEmpty) {
+
+      if (directory.getState == OfflineLogDirState.CLOSED) {
+        _degradedLogDirs.add(new File(dir))
+      }
+
+      if (_liveLogDirs.isEmpty && _degradedLogDirs.isEmpty) {
         fatal(s"Shutdown broker because all log dirs in ${logDirs.mkString(", ")} have failed")
         Exit.halt(1)
       }
 
-      recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
-      logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
+      if (directory.getState == OfflineLogDirState.OFFLINE) {
+        recoveryPointCheckpoints = recoveryPointCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
+        logStartOffsetCheckpoints = logStartOffsetCheckpoints.filter { case (file, _) => file.getAbsolutePath != dir }
+      }
       if (cleaner != null)
         cleaner.handleLogDirFailure(dir)
 
-      def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog]): Iterable[TopicPartition] = {
+      def removeOfflineLogs(logs: Pool[TopicPartition, UnifiedLog], isFuture: Boolean): Iterable[TopicPartition] = {
         val offlineTopicPartitions: Iterable[TopicPartition] = logs.collect {
           case (tp, log) if log.parentDir == dir => tp
         }
         offlineTopicPartitions.foreach { topicPartition => {
           val removedLog = removeLogAndMetrics(logs, topicPartition)
+          if (directory.getState == OfflineLogDirState.CLOSED) {
+            removedLog match {
+              case Some(unifiedLog: UnifiedLog) =>
+                if (!isFuture) {
+                  degradedLogs.put(topicPartition, unifiedLog)
+                }
+              case None =>
+            }
+          }
           removedLog.foreach {
-            log => log.closeHandlers()
+            log => if (directory.getState == OfflineLogDirState.OFFLINE) log.closeHandlers()
           }
         }}
 
         offlineTopicPartitions
       }
 
-      val offlineCurrentTopicPartitions = removeOfflineLogs(currentLogs)
-      val offlineFutureTopicPartitions = removeOfflineLogs(futureLogs)
+      val offlineCurrentTopicPartitions = removeOfflineLogs(currentLogs, isFuture = false)
+      val offlineFutureTopicPartitions = removeOfflineLogs(futureLogs, isFuture = true)
 
       warn(s"Logs for partitions ${offlineCurrentTopicPartitions.mkString(",")} are offline and " +
            s"logs for future partitions ${offlineFutureTopicPartitions.mkString(",")} are offline due to failure on log directory $dir")
-      dirLocks.filter(_.file.getParent == dir).foreach(dir => CoreUtils.swallow(dir.destroy(), this))
+      dirLocks.filter(_.file.getParent == dir).foreach(dir =>
+        if (directory.getState == OfflineLogDirState.OFFLINE) {
+          CoreUtils.swallow(dir.destroy(), this)
+        }
+      )
     }
   }
 
@@ -566,7 +593,7 @@ class LogManager(logDirs: Seq[File],
                          InitialTaskDelayMs)
     }
     if (cleanerConfig.enableCleaner) {
-      _cleaner = new LogCleaner(cleanerConfig, liveLogDirs, currentLogs, logDirFailureChannel, time = time)
+      _cleaner = new LogCleaner(cleanerConfig, liveLogDirs, currentLogs, degradedLogs, logDirFailureChannel, time = time)
       _cleaner.startup()
     }
   }
@@ -755,7 +782,9 @@ class LogManager(logDirs: Seq[File],
         val recoveryOffsets = logsToCheckpoint.map { case (tp, log) => tp -> log.recoveryPoint }
         // checkpoint.write calls Utils.atomicMoveWithFallback, which flushes the parent
         // directory and guarantees crash consistency.
-        checkpoint.write(recoveryOffsets)
+        if (!_degradedLogDirs.contains(logDir)) {
+          checkpoint.write(recoveryOffsets)
+        }
       }
     } catch {
       case e: KafkaStorageException =>
@@ -778,7 +807,9 @@ class LogManager(logDirs: Seq[File],
         val logStartOffsets = logsToCheckpoint.collect {
           case (tp, log) if log.logStartOffset > log.logSegments.head.baseOffset => tp -> log.logStartOffset
         }
-        checkpoint.write(logStartOffsets)
+        if (!_degradedLogDirs.contains(logDir)) {
+          checkpoint.write(logStartOffsets)
+        }
       }
     } catch {
       case e: KafkaStorageException =>
@@ -843,8 +874,10 @@ class LogManager(logDirs: Seq[File],
   def getLog(topicPartition: TopicPartition, isFuture: Boolean = false): Option[UnifiedLog] = {
     if (isFuture)
       Option(futureLogs.get(topicPartition))
-    else
+    else if (currentLogs.contains(topicPartition))
       Option(currentLogs.get(topicPartition))
+    else
+      Option(degradedLogs.get(topicPartition))
   }
 
   /**
@@ -1137,7 +1170,7 @@ class LogManager(logDirs: Seq[File],
                   isFuture: Boolean = false,
                   checkpoint: Boolean = true): Option[UnifiedLog] = {
     val removedLog: Option[UnifiedLog] = logCreationOrDeletionLock synchronized {
-      removeLogAndMetrics(if (isFuture) futureLogs else currentLogs, topicPartition)
+      removeLogAndMetrics(if (isFuture) futureLogs else if (currentLogs.contains(topicPartition)) currentLogs else degradedLogs, topicPartition)
     }
     removedLog match {
       case Some(removedLog) =>
@@ -1240,6 +1273,9 @@ class LogManager(logDirs: Seq[File],
         cleaner.pauseCleaningForNonCompactedPartitions()
       } else {
         currentLogs.filter {
+          case (_, log) => !log.config.compact
+        } ++
+        degradedLogs.filter {
           case (_, log) => !log.config.compact
         }
       }

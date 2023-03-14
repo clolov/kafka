@@ -61,6 +61,7 @@ private[log] class LogCleaningException(val log: UnifiedLog,
   */
 private[log] class LogCleanerManager(val logDirs: Seq[File],
                                      val logs: Pool[TopicPartition, UnifiedLog],
+                                     val degradedLogs: Pool[TopicPartition, UnifiedLog],
                                      val logDirFailureChannel: LogDirFailureChannel) extends Logging {
   import LogCleanerManager._
 
@@ -223,7 +224,7 @@ private[log] class LogCleanerManager(val logDirs: Seq[File],
     */
   def pauseCleaningForNonCompactedPartitions(): Iterable[(TopicPartition, UnifiedLog)] = {
     inLock(lock) {
-      val deletableLogs = logs.filter {
+      val deletableLogs = (logs ++ degradedLogs).filter {
         case (_, log) => !log.config.compact // pick non-compacted logs
       }.filterNot {
         case (topicPartition, _) => inProgress.contains(topicPartition) // skip any logs already in-progress
@@ -370,26 +371,27 @@ private[log] class LogCleanerManager(val logDirs: Seq[File],
                         partitionToUpdateOrAdd: Option[(TopicPartition, Long)] = None,
                         partitionToRemove: Option[TopicPartition] = None): Unit = {
     inLock(lock) {
-      val checkpoint = checkpoints(dataDir)
-      if (checkpoint != null) {
-        try {
-          val currentCheckpoint = checkpoint.read().filter { case (tp, _) => logs.keys.contains(tp) }.toMap
-          // remove the partition offset if any
-          var updatedCheckpoint = partitionToRemove match {
-            case Some(topicPartition) => currentCheckpoint - topicPartition
-            case None => currentCheckpoint
-          }
-          // update or add the partition offset if any
-          updatedCheckpoint = partitionToUpdateOrAdd match {
-            case Some(updatedOffset) => updatedCheckpoint + updatedOffset
-            case None => updatedCheckpoint
-          }
+      checkpoints.get(dataDir) match {
+        case Some(checkpoint) =>
+          try {
+            val currentCheckpoint = checkpoint.read().filter { case (tp, _) => logs.keys.contains(tp) }.toMap
+            // remove the partition offset if any
+            var updatedCheckpoint = partitionToRemove match {
+              case Some(topicPartition) => currentCheckpoint - topicPartition
+              case None => currentCheckpoint
+            }
+            // update or add the partition offset if any
+            updatedCheckpoint = partitionToUpdateOrAdd match {
+              case Some(updatedOffset) => updatedCheckpoint + updatedOffset
+              case None => updatedCheckpoint
+            }
 
-          checkpoint.write(updatedCheckpoint)
-        } catch {
-          case e: KafkaStorageException =>
-            error(s"Failed to access checkpoint file ${checkpoint.file.getName} in dir ${checkpoint.file.getParentFile.getAbsolutePath}", e)
-        }
+            checkpoint.write(updatedCheckpoint)
+          } catch {
+            case e: KafkaStorageException =>
+              error(s"Failed to access checkpoint file ${checkpoint.file.getName} in dir ${checkpoint.file.getParentFile.getAbsolutePath}", e)
+          }
+        case None =>
       }
     }
   }

@@ -133,6 +133,7 @@ abstract class AbstractLogCleanerIntegrationTest {
     new LogCleaner(cleanerConfig,
       logDirs = Array(logDir),
       logs = logMap,
+      degradedLogs = new Pool[TopicPartition, UnifiedLog](),
       logDirFailureChannel = new LogDirFailureChannel(1),
       time = time)
   }

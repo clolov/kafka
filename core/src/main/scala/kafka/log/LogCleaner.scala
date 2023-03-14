@@ -95,6 +95,7 @@ import scala.util.control.ControlThrowable
 class LogCleaner(initialConfig: CleanerConfig,
                  val logDirs: Seq[File],
                  val logs: Pool[TopicPartition, UnifiedLog],
+                 val degradedLogs: Pool[TopicPartition, UnifiedLog],
                  val logDirFailureChannel: LogDirFailureChannel,
                  time: Time = Time.SYSTEM) extends Logging with BrokerReconfigurable {
   // Visible for test.
@@ -104,7 +105,7 @@ class LogCleaner(initialConfig: CleanerConfig,
   @volatile private var config = initialConfig
 
   /* for managing the state of partitions being cleaned. package-private to allow access in tests */
-  private[log] val cleanerManager = new LogCleanerManager(logDirs, logs, logDirFailureChannel)
+  private[log] val cleanerManager = new LogCleanerManager(logDirs, logs, degradedLogs, logDirFailureChannel)
 
   /* a throttle used to limit the I/O of all the cleaner threads to a user-specified maximum rate */
   private[log] val throttler = new Throttler(desiredRatePerSec = config.maxIoBytesPerSecond,
