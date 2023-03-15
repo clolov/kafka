@@ -62,6 +62,7 @@ import org.apache.kafka.server.util.KafkaScheduler
 import org.apache.kafka.storage.internals.log.LogDirFailureChannel
 import org.apache.zookeeper.client.ZKClientConfig
 
+import java.util.Random
 import scala.collection.{Map, Seq, mutable}
 import scala.jdk.CollectionConverters._
 
@@ -1057,7 +1058,10 @@ class ReservedFile(val file: File) extends Logging {
   def allocate(): Unit = {
     randomAccessFile = Option.apply(new RandomAccessFile(file, "rw"))
     randomAccessFile.foreach(randomAccessFile => {
-      randomAccessFile.setLength(30 * 1024 * 1024)
+      val gibberish: Array[Byte] = new Array[Byte](30 * 1024 * 1024)
+      new Random().nextBytes(gibberish)
+      randomAccessFile.write(gibberish)
+      randomAccessFile.getFD.sync()
     })
   }
 
