@@ -1310,7 +1310,7 @@ class LogManager(logDirs: Seq[File],
   def allLogs: Iterable[UnifiedLog] = currentLogs.values ++ futureLogs.values
 
   def logsByTopic(topic: String): Seq[UnifiedLog] = {
-    (currentLogs.toList ++ futureLogs.toList).collect {
+    (currentLogs.toList ++ futureLogs.toList ++ degradedLogs.toList).collect {
       case (topicPartition, log) if topicPartition.topic == topic => log
     }
   }
