@@ -148,6 +148,12 @@ class LogManager(logDirs: Seq[File],
       Map("logDirectory" -> dir.getAbsolutePath).asJava)
   }
 
+  for (dir <- logDirs) {
+    metricsGroup.newGauge("LogDirectoryDegraded",
+      () => if (_degradedLogDirs.contains(dir)) 0 else 1,
+      Map("logDirectory" -> dir.getAbsolutePath).asJava)
+  }
+
   /**
    * Create and check validity of the given directories that are not in the given offline directories, specifically:
    * <ol>
@@ -1307,7 +1313,7 @@ class LogManager(logDirs: Seq[File],
   /**
    * Get all the partition logs
    */
-  def allLogs: Iterable[UnifiedLog] = currentLogs.values ++ futureLogs.values
+  def allLogs: Iterable[UnifiedLog] = currentLogs.values ++ futureLogs.values ++ degradedLogs.values
 
   def logsByTopic(topic: String): Seq[UnifiedLog] = {
     (currentLogs.toList ++ futureLogs.toList ++ degradedLogs.toList).collect {
@@ -1328,6 +1334,7 @@ class LogManager(logDirs: Seq[File],
     }
     currentLogs.foreachEntry(addToDir)
     futureLogs.foreachEntry(addToDir)
+    degradedLogs.foreachEntry(addToDir)
     byDir
   }
 
@@ -1355,7 +1362,7 @@ class LogManager(logDirs: Seq[File],
   private def flushDirtyLogs(): Unit = {
     debug("Checking for dirty logs to flush...")
 
-    for ((topicPartition, log) <- currentLogs.toList ++ futureLogs.toList) {
+    for ((topicPartition, log) <- currentLogs.toList ++ futureLogs.toList ++ degradedLogs.toList) {
       try {
         val timeSinceLastFlush = time.milliseconds - log.lastFlushTime
         debug(s"Checking if flush is needed on ${topicPartition.topic} flush interval ${log.config.flushMs}" +
