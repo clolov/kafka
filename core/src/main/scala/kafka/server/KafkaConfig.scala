@@ -655,6 +655,9 @@ object KafkaConfig {
   /** Internal Configurations **/
   val UnstableApiVersionsEnableProp = "unstable.api.versions.enable"
 
+  /** Configuration Guardian **/
+  val GuardianClassProp = "guard.class"
+
   /* Documentation */
   /** ********* Zookeeper Configuration ***********/
   val ZkConnectDoc = "Specifies the ZooKeeper connection string in the form <code>hostname:port</code> where host and port are the " +
@@ -1139,6 +1142,12 @@ object KafkaConfig {
   val PasswordEncoderKeyLengthDoc =  "The key length used for encoding dynamically configured passwords."
   val PasswordEncoderIterationsDoc =  "The iteration count used for encoding dynamically configured passwords."
 
+  /** ********* Configuration Guardian ***********/
+  val GuardianClassDoc = "The fully qualified class name that implements ConfigurationGuardian. " +
+    "The broker intercepts APIs such as CreateTopics, AlterConfig, IncrementalAlterConfig, and AlterClientQuotas " +
+    "to verify whether the configuration entry matches the rules provided by the cluster administrator. " +
+    "By default, the broker uses the default implementation that accepts any configuration and quota changes."
+
   @nowarn("cat=deprecation")
   val configDef = {
     import ConfigDef.Importance._
@@ -1472,6 +1481,9 @@ object KafkaConfig {
       .define(RaftConfig.QUORUM_LINGER_MS_CONFIG, INT, Defaults.QuorumLingerMs, null, MEDIUM, RaftConfig.QUORUM_LINGER_MS_DOC)
       .define(RaftConfig.QUORUM_REQUEST_TIMEOUT_MS_CONFIG, INT, Defaults.QuorumRequestTimeoutMs, null, MEDIUM, RaftConfig.QUORUM_REQUEST_TIMEOUT_MS_DOC)
       .define(RaftConfig.QUORUM_RETRY_BACKOFF_MS_CONFIG, INT, Defaults.QuorumRetryBackoffMs, null, LOW, RaftConfig.QUORUM_RETRY_BACKOFF_MS_DOC)
+
+      /** ********* Configuration Guardian ***********/
+      .define(GuardianClassProp, STRING, null, LOW, GuardianClassDoc)
 
       /** Internal Configurations **/
       // This indicates whether unreleased APIs should be advertised by this broker.
@@ -1836,6 +1848,9 @@ class KafkaConfig private(doLog: Boolean, val props: java.util.Map[_, _], dynami
   def logFlushIntervalMs: java.lang.Long = Option(getLong(KafkaConfig.LogFlushIntervalMsProp)).getOrElse(getLong(KafkaConfig.LogFlushSchedulerIntervalMsProp))
   def minInSyncReplicas = getInt(KafkaConfig.MinInSyncReplicasProp)
   def logPreAllocateEnable: java.lang.Boolean = getBoolean(KafkaConfig.LogPreAllocateProp)
+
+  /** ********* Configuration Guardian ***********/
+  val guardianClassName = Option(getString(KafkaConfig.GuardianClassProp))
 
   // We keep the user-provided String as `MetadataVersion.fromVersionString` can choose a slightly different version (eg if `0.10.0`
   // is passed, `0.10.0-IV0` may be picked)

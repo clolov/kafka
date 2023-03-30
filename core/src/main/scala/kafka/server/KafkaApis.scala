@@ -31,6 +31,7 @@ import org.apache.kafka.clients.admin.{AlterConfigOp, ConfigEntry}
 import org.apache.kafka.common.acl.AclOperation._
 import org.apache.kafka.common.acl.AclOperation
 import org.apache.kafka.common.config.ConfigResource
+import org.apache.kafka.common.config.guardian.{ConfigEntity, ConfigurationGuardian, DefaultConfigurationGuardian, OperationType}
 import org.apache.kafka.common.errors._
 import org.apache.kafka.common.internals.Topic.{GROUP_METADATA_TOPIC_NAME, TRANSACTION_STATE_TOPIC_NAME, isInternal}
 import org.apache.kafka.common.internals.{FatalExitError, Topic}
@@ -53,6 +54,7 @@ import org.apache.kafka.common.message._
 import org.apache.kafka.common.metrics.Metrics
 import org.apache.kafka.common.network.{ListenerName, NetworkSend, Send}
 import org.apache.kafka.common.protocol.{ApiKeys, ApiMessage, Errors}
+import org.apache.kafka.common.quota.{ClientQuotaAlteration, ClientQuotaEntity}
 import org.apache.kafka.common.record._
 import org.apache.kafka.common.replica.ClientMetadata
 import org.apache.kafka.common.replica.ClientMetadata.DefaultClientMetadata
@@ -116,6 +118,14 @@ class KafkaApis(val requestChannel: RequestChannel,
   val requestHelper = new RequestHandlerHelper(requestChannel, quotas, time)
   val aclApis = new AclApis(authHelper, authorizer, requestHelper, "broker", config)
   val configManager = new ConfigAdminManager(brokerId, config, configRepository)
+  val configurationGuardian = {
+    val configurationGuardian =
+      if (config.guardianClassName.isEmpty) new DefaultConfigurationGuardian()
+      else CoreUtils.createObject[ConfigurationGuardian](config.guardianClassName.get)
+
+    configurationGuardian.configure(config.originals)
+    configurationGuardian
+  }
 
   def close(): Unit = {
     aclApis.close()
@@ -1945,7 +1955,22 @@ class KafkaApis(val requestChannel: RequestChannel,
       val toCreate = mutable.Map[String, CreatableTopic]()
       createTopicsRequest.data.topics.forEach { topic =>
         if (results.find(topic.name).errorCode == Errors.NONE.code) {
-          toCreate += topic.name -> topic
+          val configResource = new ConfigResource(ConfigResource.Type.TOPIC, topic.name())
+          var accepted = true
+          for (config <- topic.configs().asScala) {
+            val result = configurationGuardian.validateConfig(new ConfigEntity(configResource), config.name(), config.value())
+            if (result.isAccepted) {
+              config.setValue(result.getEnforcedValue)
+            } else {
+              results.find(topic.name)
+                .setErrorCode(Errors.INVALID_CONFIG.code)
+                .setErrorMessage(result.getReason)
+              accepted = false
+            }
+          }
+          if (accepted) {
+            toCreate += topic.name -> topic
+          }
         }
       }
       def handleCreateTopicsResults(errors: Map[String, ApiError]): Unit = {
@@ -2741,7 +2766,21 @@ class KafkaApis(val requestChannel: RequestChannel,
         case rt => throw new InvalidRequestException(s"Unexpected resource type $rt")
       }
     }
-    val authorizedResult = zkSupport.adminManager.alterConfigs(authorizedResources, alterConfigsRequest.validateOnly)
+
+    val rejectedResources = mutable.Map[ConfigResource, ApiError]()
+    authorizedResources.foreach((e) => {
+      val configResource = e._1
+      val config = e._2
+      config.entries().forEach(entry => {
+        val result = configurationGuardian.validateConfig(new ConfigEntity(configResource), entry.name(), entry.value())
+        if (!result.isAccepted) {
+          info(s"Rejecting $configResource, ${entry.name()} = ${entry.value()}, reason: ${result.getReason}")
+          rejectedResources += configResource -> new ApiError(Errors.INVALID_CONFIG, result.getReason)
+        }
+      })
+    })
+
+    val authorizedResult = zkSupport.adminManager.alterConfigs(authorizedResources.filter(e => !rejectedResources.contains(e._1)), alterConfigsRequest.validateOnly)
     val unauthorizedResult = unauthorizedResources.keys.map { resource =>
       resource -> configsAuthorizationApiError(resource)
     }
@@ -2884,13 +2923,21 @@ class KafkaApis(val requestChannel: RequestChannel,
     originalRequest: RequestChannel.Request,
     data: IncrementalAlterConfigsRequestData
   ): IncrementalAlterConfigsResponseData = {
+    val rejectedResources = mutable.Map[ConfigResource, ApiError]()
     val zkSupport = metadataSupport.requireZkOrThrow(KafkaApis.shouldAlwaysForward(originalRequest))
     val configs = data.resources.iterator.asScala.map { alterConfigResource =>
       val configResource = new ConfigResource(ConfigResource.Type.forId(alterConfigResource.resourceType),
         alterConfigResource.resourceName)
       configResource -> alterConfigResource.configs.iterator.asScala.map {
-        alterConfig => new AlterConfigOp(new ConfigEntry(alterConfig.name, alterConfig.value),
-          OpType.forId(alterConfig.configOperation))
+        alterConfig => {
+          val operation = OperationType.forId(alterConfig.configOperation)
+          val result = configurationGuardian.validateConfig(new ConfigEntity(configResource), operation, alterConfig.name, alterConfig.value)
+          if (!result.isAccepted) {
+            info(s"Rejecting $operation for $configResource, ${alterConfig.name} = ${alterConfig.value}, reason: ${result.getReason}")
+            rejectedResources += configResource -> new ApiError(Errors.INVALID_CONFIG, result.getReason)
+          }
+          new AlterConfigOp(new ConfigEntry(alterConfig.name, result.getEnforcedValue), OpType.forId(alterConfig.configOperation))
+        }
       }.toBuffer
     }.toMap
 
@@ -2904,11 +2951,11 @@ class KafkaApis(val requestChannel: RequestChannel,
       }
     }
 
-    val authorizedResult = zkSupport.adminManager.incrementalAlterConfigs(authorizedResources, data.validateOnly)
+    val authorizedResult = zkSupport.adminManager.incrementalAlterConfigs(authorizedResources.filter(e => !rejectedResources.contains(e._1)), data.validateOnly)
     val unauthorizedResult = unauthorizedResources.keys.map { resource =>
       resource -> configsAuthorizationApiError(resource)
     }
-    new IncrementalAlterConfigsResponse(0, (authorizedResult ++ unauthorizedResult).asJava).data()
+    new IncrementalAlterConfigsResponse(0, (authorizedResult ++ unauthorizedResult ++ rejectedResources).asJava).data()
   }
 
   def handleDescribeConfigsRequest(request: RequestChannel.Request): Unit = {
@@ -3325,10 +3372,40 @@ class KafkaApis(val requestChannel: RequestChannel,
     val alterClientQuotasRequest = request.body[AlterClientQuotasRequest]
 
     if (authHelper.authorize(request.context, ALTER_CONFIGS, CLUSTER, CLUSTER_NAME)) {
-      val result = zkSupport.adminManager.alterClientQuotas(alterClientQuotasRequest.entries.asScala,
-        alterClientQuotasRequest.validateOnly)
+      val acceptedQuotaAlteration = mutable.ListBuffer[ClientQuotaAlteration]()
+      val rejectedQuotaEntity = mutable.Map[ClientQuotaEntity, ApiError]()
 
-      val entriesData = result.iterator.map { case (quotaEntity, apiError) =>
+      alterClientQuotasRequest.entries.forEach(p => {
+        val entities = mutable.ListBuffer[ConfigEntity]()
+        p.entity().entries().forEach((entityType, entityName) => {
+          entities += new ConfigEntity(entityType, entityName)
+        })
+
+        val acceptedConfigItems = mutable.ListBuffer[ClientQuotaAlteration.Op]()
+        for (op <- p.ops().asScala) {
+          val result = configurationGuardian.validateQuota(
+            entities.asJava,
+            if (op.value() != null) OperationType.SET else OperationType.DELETE,
+            op.key(),
+            op.value()
+          )
+
+          if (result.isAccepted) {
+            acceptedConfigItems += new ClientQuotaAlteration.Op(op.key(), result.getEnforcedValue)
+          } else if (!rejectedQuotaEntity.contains(p.entity())) {
+            rejectedQuotaEntity += p.entity() -> new ApiError(Errors.INVALID_CONFIG, result.getReason)
+            info(s"Rejecting quota update for ${p.entity()}, ${op.key()} = ${op.value()}, reason: ${result.getReason}")
+          }
+        }
+
+        // if all ops accepted
+        if (!rejectedQuotaEntity.contains(p.entity())) {
+          acceptedQuotaAlteration += new ClientQuotaAlteration(p.entity(), acceptedConfigItems.asJava)
+        }
+      })
+
+      val result = zkSupport.adminManager.alterClientQuotas(acceptedQuotaAlteration, alterClientQuotasRequest.validateOnly)
+      val entriesData = (result ++ rejectedQuotaEntity).iterator.map { case (quotaEntity, apiError) =>
         val entityData = quotaEntity.entries.asScala.iterator.map { case (key, value) =>
           new AlterClientQuotasResponseData.EntityData()
             .setEntityType(key)
