@@ -215,12 +215,6 @@ class ReplicaManager(val config: KafkaConfig,
     DelayedOperationPurgatory[DelayedElectLeader](
       purgatoryName = "ElectLeader", brokerId = config.brokerId))
 
-  var _reservedDiskSpace: mutable.Map[String, ReservedFile] = _
-
-  def setReservedDiskSpace(reservedDiskSpace: mutable.Map[String, ReservedFile]): Unit = {
-    _reservedDiskSpace = reservedDiskSpace
-  }
-
   /* epoch of the controller that last changed the leader */
   @volatile private[server] var controllerEpoch: Int = KafkaController.InitialControllerEpoch
   protected val localBrokerId = config.brokerId
@@ -1978,7 +1972,6 @@ class ReplicaManager(val config: KafkaConfig,
         zkClient.get.propagateLogDirEvent(localBrokerId)
       }
     warn(s"Stopped serving replicas in dir $dir")
-    _reservedDiskSpace.remove(dir).foreach(reservedFile => reservedFile.delete())
   }
 
   def removeMetrics(): Unit = {
