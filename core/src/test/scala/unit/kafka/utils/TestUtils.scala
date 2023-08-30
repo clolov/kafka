@@ -2391,7 +2391,8 @@ object TestUtils extends Logging {
       AdminClientUnitTestEnv.kafkaAdminClientNetworkThreadPrefix(),
       AbstractCoordinator.HEARTBEAT_THREAD_PREFIX,
       QuorumTestHarness.ZkClientEventThreadSuffix,
-      QuorumController.CONTROLLER_THREAD_SUFFIX
+      QuorumController.CONTROLLER_THREAD_SUFFIX,
+      "data-plane-kafka-socket-acceptor-"
     )
 
     def unexpectedThreads: Set[String] = {

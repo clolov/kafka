@@ -109,6 +109,7 @@ abstract class IntegrationTestHarness extends KafkaServerTestHarness {
 
   @BeforeEach
   override def setUp(testInfo: TestInfo): Unit = {
+    kafka.utils.TestUtils.verifyNoUnexpectedThreads("init")
     doSetup(testInfo, createOffsetsTopic = true)
   }
 
@@ -233,6 +234,8 @@ abstract class IntegrationTestHarness extends KafkaServerTestHarness {
     adminClients.clear()
 
     super.tearDown()
+
+    kafka.utils.TestUtils.verifyNoUnexpectedThreads("teardown")
   }
 
 }
