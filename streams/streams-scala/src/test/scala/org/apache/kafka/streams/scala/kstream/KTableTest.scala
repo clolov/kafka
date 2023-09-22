@@ -18,7 +18,7 @@ package org.apache.kafka.streams.scala.kstream
 
 import org.apache.kafka.streams.kstream.Suppressed.BufferConfig
 import org.apache.kafka.streams.kstream.{
-  Named,
+  Named => _Named,
   SessionWindows,
   SlidingWindows,
   Suppressed => JSuppressed,
@@ -452,7 +452,7 @@ class KTableTest extends TestDriver {
 
     val table = builder.stream[String, String](sourceTopic).groupBy((key, _) => key).count()
     table
-      .filter((key, value) => key.equals("a") && value == 1, Named.as("my-name"))
+      .filter((key, value) => key.equals("a") && value == 1, _Named.as("my-name"))
       .toStream
       .to(sinkTopic)
 
@@ -468,7 +468,7 @@ class KTableTest extends TestDriver {
     val sourceTopic = "source"
     val sinkTopic = "sink"
 
-    val table = builder.stream[String, String](sourceTopic).groupBy((key, _) => key).count(Named.as("my-name"))
+    val table = builder.stream[String, String](sourceTopic).groupBy((key, _) => key).count(_Named.as("my-name"))
     table.toStream.to(sinkTopic)
 
     import scala.jdk.CollectionConverters._
@@ -487,7 +487,7 @@ class KTableTest extends TestDriver {
     val table1 = builder.stream[String, String](sourceTopic1).groupBy((key, _) => key).count()
     val table2 = builder.stream[String, String](sourceTopic2).groupBy((key, _) => key).count()
     table1
-      .join(table2, Named.as("my-name"))((a, b) => a + b)
+      .join(table2, _Named.as("my-name"))((a, b) => a + b)
       .toStream
       .to(sinkTopic)
 

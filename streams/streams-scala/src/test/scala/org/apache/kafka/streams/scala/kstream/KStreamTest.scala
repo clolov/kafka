@@ -21,7 +21,7 @@ import java.time.{Duration, Instant}
 import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.kstream.{
   JoinWindows,
-  Named,
+  Named => _Named,
   Transformer,
   ValueTransformer,
   ValueTransformerSupplier,
@@ -402,7 +402,7 @@ class KStreamTest extends TestDriver {
 
     builder
       .stream[String, String](sourceTopic)
-      .filter((_, value) => value != "value2", Named.as("my-name"))
+      .filter((_, value) => value != "value2", _Named.as("my-name"))
       .to(sinkTopic)
 
     import scala.jdk.CollectionConverters._
@@ -419,7 +419,7 @@ class KStreamTest extends TestDriver {
 
     builder
       .stream[String, String](sourceTopic1)
-      .toTable(Named.as("my-name"))
+      .toTable(_Named.as("my-name"))
       .toStream
       .to(sinkTopic)
 
@@ -439,7 +439,7 @@ class KStreamTest extends TestDriver {
     val stream = builder.stream[String, String](sourceTopic1)
     val table = builder.globalTable[String, String](sourceGTable)
     stream
-      .join(table, Named.as("my-name"))((a, b) => s"$a-$b", (a, b) => a + b)
+      .join(table, _Named.as("my-name"))((a, b) => s"$a-$b", (a, b) => a + b)
       .to(sinkTopic)
 
     import scala.jdk.CollectionConverters._
@@ -465,7 +465,7 @@ class KStreamTest extends TestDriver {
 
     val stream = builder.stream[String, String](sourceTopic)
     stream
-      .transform(() => new TestTransformer, Named.as("my-name"))
+      .transform(() => new TestTransformer, _Named.as("my-name"))
       .to(sinkTopic)
 
     val transformNode = builder.build().describe().subtopologies().asScala.head.nodes().asScala.toList(1)

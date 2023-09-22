@@ -16,7 +16,7 @@
  */
 package org.apache.kafka.streams.scala.kstream
 
-import org.apache.kafka.streams.kstream.Named
+import org.apache.kafka.streams.kstream.{Named => _Named}
 import org.apache.kafka.streams.scala.ImplicitConversions._
 import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.serialization.Serdes._
@@ -36,7 +36,7 @@ class KStreamSplitTest extends TestDriver {
 
     val m = builder
       .stream[Integer, Integer](sourceTopic)
-      .split(Named.as("_"))
+      .split(_Named.as("_"))
       .branch((_, v) => v % 2 == 0)
       .branch((_, v) => v % 3 == 0)
       .defaultBranch()
@@ -68,7 +68,7 @@ class KStreamSplitTest extends TestDriver {
 
     val m = builder
       .stream[Integer, Integer](sourceTopic)
-      .split(Named.as("_"))
+      .split(_Named.as("_"))
       .branch((_, v) => v % 2 == 0, Branched.withConsumer(ks => ks.to("even"), "consumedEvens"))
       .branch((_, v) => v % 3 == 0, Branched.withFunction(ks => ks.mapValues(x => x * x), "mapped"))
       .noDefaultBranch()
@@ -99,7 +99,7 @@ class KStreamSplitTest extends TestDriver {
 
     val m = builder
       .stream[Integer, Integer](sourceTopic)
-      .split(Named.as("_"))
+      .split(_Named.as("_"))
       .branch((_, v) => v % 2 == 0, Branched.withConsumer(ks => ks.to("even")))
       .branch((_, v) => v % 3 == 0, Branched.withFunction(ks => ks.mapValues(x => x * x)))
       .noDefaultBranch()
