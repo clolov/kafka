@@ -330,6 +330,7 @@ class LogManager(logDirs: Seq[File],
                            defaultConfig: LogConfig,
                            topicConfigOverrides: Map[String, LogConfig],
                            numRemainingSegments: ConcurrentMap[String, Integer],
+                           topicPartitionsNotOnBroker: Set[TopicPartition],
                            isStray: UnifiedLog => Boolean): UnifiedLog = {
     val topicPartition = UnifiedLog.parseTopicPartitionName(logDir)
     val config = topicConfigOverrides.getOrElse(topicPartition.topic, defaultConfig)
@@ -354,7 +355,7 @@ class LogManager(logDirs: Seq[File],
       numRemainingSegments = numRemainingSegments,
       remoteStorageSystemEnable = remoteStorageSystemEnable)
 
-    if (logDir.getName.endsWith(UnifiedLog.DeleteDirSuffix)) {
+    if (logDir.getName.endsWith(UnifiedLog.DeleteDirSuffix) || topicPartitionsNotOnBroker.contains(topicPartition)) {
       addLogToBeDeleted(log)
     } else if (logDir.getName.endsWith(UnifiedLog.StrayDirSuffix)) {
       addStrayLog(topicPartition, log)
@@ -412,7 +413,8 @@ class LogManager(logDirs: Seq[File],
   /**
    * Recover and load all logs in the given data directories
    */
-  private[log] def loadLogs(defaultConfig: LogConfig, topicConfigOverrides: Map[String, LogConfig], isStray: UnifiedLog => Boolean): Unit = {
+  private[log] def loadLogs(defaultConfig: LogConfig, topicConfigOverrides: Map[String, LogConfig],
+                            topicPartitionsNotOnBroker: Set[TopicPartition], isStray: UnifiedLog => Boolean): Unit = {
     info(s"Loading logs from log dirs $liveLogDirs")
     val startMs = time.hiResClockMs()
     val threadPools = ArrayBuffer.empty[ExecutorService]
@@ -493,7 +495,7 @@ class LogManager(logDirs: Seq[File],
             val logLoadStartMs = time.hiResClockMs()
             try {
               log = Some(loadLog(logDir, hadCleanShutdown, recoveryPoints, logStartOffsets,
-                defaultConfig, topicConfigOverrides, numRemainingSegments, isStray))
+                defaultConfig, topicConfigOverrides, numRemainingSegments, topicPartitionsNotOnBroker, isStray))
             } catch {
               case e: IOException =>
                 handleIOException(logDirAbsolutePath, e)
@@ -577,10 +579,10 @@ class LogManager(logDirs: Seq[File],
   /**
    *  Start the background threads to flush logs and do log cleanup
    */
-  def startup(topicNames: Set[String], isStray: UnifiedLog => Boolean = _ => false): Unit = {
+  def startup(topicNames: Set[String], topicPartitionsNotOnBroker: Set[TopicPartition], isStray: UnifiedLog => Boolean = _ => false): Unit = {
     // ensure consistency between default config and overrides
     val defaultConfig = currentDefaultConfig
-    startupWithConfigOverrides(defaultConfig, fetchTopicConfigOverrides(defaultConfig, topicNames), isStray)
+    startupWithConfigOverrides(defaultConfig, fetchTopicConfigOverrides(defaultConfig, topicNames), topicPartitionsNotOnBroker, isStray)
   }
 
   // visible for testing
@@ -622,8 +624,9 @@ class LogManager(logDirs: Seq[File],
   private[log] def startupWithConfigOverrides(
     defaultConfig: LogConfig,
     topicConfigOverrides: Map[String, LogConfig],
+    topicPartitionsNotOnBroker: Set[TopicPartition],
     isStray: UnifiedLog => Boolean): Unit = {
-    loadLogs(defaultConfig, topicConfigOverrides, isStray) // this could take a while if shutdown was not clean
+    loadLogs(defaultConfig, topicConfigOverrides, topicPartitionsNotOnBroker, isStray) // this could take a while if shutdown was not clean
 
     /* Schedule the cleanup task to delete old logs */
     if (scheduler != null) {

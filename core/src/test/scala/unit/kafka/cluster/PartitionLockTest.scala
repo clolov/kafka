@@ -272,7 +272,7 @@ class PartitionLockTest extends Logging {
     val offsetCheckpoints: OffsetCheckpoints = mock(classOf[OffsetCheckpoints])
     val alterIsrManager: AlterPartitionManager = mock(classOf[AlterPartitionManager])
 
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
     val partition = new Partition(topicPartition,
       replicaLagTimeMaxMs = ReplicationConfigs.REPLICA_LAG_TIME_MAX_MS_DEFAULT,
       interBrokerProtocolVersion = MetadataVersion.latestTesting,

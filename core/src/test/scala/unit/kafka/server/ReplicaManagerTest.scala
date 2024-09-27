@@ -2725,7 +2725,7 @@ class ReplicaManagerTest {
 
     try {
 
-      logManager.startup(Set.empty[String])
+      logManager.startup(Set.empty[String], Set.empty[TopicPartition])
 
       // Create a hosted topic, a hosted topic that will become stray
       createHostedLogs("hosted-topic", numLogs = 2, replicaManager).toSet
@@ -2808,7 +2808,7 @@ class ReplicaManagerTest {
       threadNamePrefix = Option(this.getClass.getName))
 
     try {
-      logManager.startup(Set.empty[String])
+      logManager.startup(Set.empty[String], Set.empty[TopicPartition])
 
       // Create a hosted topic, a hosted topic that will become stray, and a stray topic
       val validLogs = createHostedLogs("hosted-topic", numLogs = 2, replicaManager).toSet
@@ -6703,7 +6703,7 @@ class ReplicaManagerTest {
       zkClient = Option(mockZkClient),
     )
     try {
-      logManager.startup(Set.empty[String])
+      logManager.startup(Set.empty[String], Set.empty[TopicPartition])
       replicaManager.startup()
 
       Exit.setHaltProcedure((_, _) => fail("Test failure, broker should not have halted"))

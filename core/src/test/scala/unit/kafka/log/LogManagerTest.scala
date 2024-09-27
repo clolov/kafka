@@ -80,7 +80,7 @@ class LogManagerTest {
   def setUp(): Unit = {
     logDir = TestUtils.tempDir()
     logManager = createLogManager()
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
     assertEquals(initialTaskDelayMs, logManager.initialTaskDelayMs)
   }
 
@@ -170,7 +170,7 @@ class LogManagerTest {
       logManagerForTest = Some(createLogManager(Seq(logDir1, logDir2)))
 
       assertEquals(2, logManagerForTest.get.liveLogDirs.size)
-      logManagerForTest.get.startup(Set.empty)
+      logManagerForTest.get.startup(Set.empty, Set.empty)
 
       val log1 = logManagerForTest.get.getOrCreateLog(new TopicPartition(name, 0), topicId = None)
       val log2 = logManagerForTest.get.getOrCreateLog(new TopicPartition(name, 1), topicId = None)
@@ -210,7 +210,7 @@ class LogManagerTest {
       logManagerForTest = Some(createLogManager(Seq(logDir1, logDir2)))
 
       assertEquals(2, logManagerForTest.get.liveLogDirs.size)
-      logManagerForTest.get.startup(Set.empty)
+      logManagerForTest.get.startup(Set.empty, Set.empty)
       logManagerForTest.get.getOrCreateLog(new TopicPartition(name, 0), topicId = None)
       logManagerForTest.get.getOrCreateLog(new TopicPartition(name, 1), topicId = None)
 
@@ -265,10 +265,10 @@ class LogManagerTest {
       invocation.callRealMethod().asInstanceOf[UnifiedLog]
       loadLogCalled = loadLogCalled + 1
     }.when(logManager).loadLog(any[File], any[Boolean], any[util.Map[TopicPartition, JLong]], any[util.Map[TopicPartition, JLong]],
-      any[LogConfig], any[Map[String, LogConfig]], any[ConcurrentMap[String, Integer]], any[UnifiedLog => Boolean]())
+      any[LogConfig], any[Map[String, LogConfig]], any[ConcurrentMap[String, Integer]], any[Set[TopicPartition]], any[UnifiedLog => Boolean]())
 
     val t = new Thread() {
-      override def run(): Unit = { logManager.startup(Set.empty) }
+      override def run(): Unit = { logManager.startup(Set.empty, Set.empty) }
     }
     t.start()
 
@@ -295,7 +295,7 @@ class LogManagerTest {
 
     logManager.shutdown()
     logManager = createLogManager(dirs)
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
 
     val log = logManager.getOrCreateLog(new TopicPartition(name, 0), isNew = true, topicId = None)
     val logFile = new File(logDir, name + "-0")
@@ -325,7 +325,7 @@ class LogManagerTest {
         invocation.callRealMethod().asInstanceOf[Try[File]]
       }
     }.when(logManager).createLogDirectory(any(), any())
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
 
     // Request creating a new log.
     // LogManager should try using all configured log directories until one succeeds.
@@ -402,7 +402,7 @@ class LogManagerTest {
     val configRepository = MockConfigRepository.forTopic(name, properties)
 
     logManager = createLogManager(configRepository = configRepository)
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
 
     // create a log
     val log = logManager.getOrCreateLog(new TopicPartition(name, 0), topicId = None)
@@ -482,7 +482,7 @@ class LogManagerTest {
     val configRepository = MockConfigRepository.forTopic(name, TopicConfig.FLUSH_MS_CONFIG, "1000")
 
     logManager = createLogManager(configRepository = configRepository)
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
     val log = logManager.getOrCreateLog(new TopicPartition(name, 0), topicId = None)
     val lastFlush = log.lastFlushTime
     for (_ <- 0 until 200) {
@@ -523,7 +523,7 @@ class LogManagerTest {
     val remoteIndexCache = new File(logDir, RemoteIndexCache.DIR_NAME)
     remoteIndexCache.mkdir()
     logManager = createLogManager(Seq(logDir))
-    logManager.loadLogs(logConfig, Map.empty, _ => false)
+    logManager.loadLogs(logConfig, Map.empty, Set.empty, _ => false)
   }
 
   @Test
@@ -540,7 +540,7 @@ class LogManagerTest {
       true
     }
 
-    logManager.loadLog(log.dir, hadCleanShutdown = true, Collections.emptyMap[TopicPartition, JLong], Collections.emptyMap[TopicPartition, JLong], logConfig, Map.empty, new ConcurrentHashMap[String, Integer](),  providedIsStray)
+    logManager.loadLog(log.dir, hadCleanShutdown = true, Collections.emptyMap[TopicPartition, JLong], Collections.emptyMap[TopicPartition, JLong], logConfig, Map.empty, new ConcurrentHashMap[String, Integer](),  Set.empty, providedIsStray)
     assertEquals(1, invokedCount)
     assertTrue(
       logDir.listFiles().toSet
@@ -571,7 +571,7 @@ class LogManagerTest {
   def testRecoveryDirectoryMappingWithTrailingSlash(): Unit = {
     logManager.shutdown()
     logManager = TestUtils.createLogManager(logDirs = Seq(new File(TestUtils.tempDir().getAbsolutePath + File.separator)))
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
     verifyCheckpointRecovery(Seq(new TopicPartition("test-a", 1)), logManager, logManager.liveLogDirs.head)
   }
 
@@ -582,7 +582,7 @@ class LogManagerTest {
   def testRecoveryDirectoryMappingWithRelativeDirectory(): Unit = {
     logManager.shutdown()
     logManager = createLogManager(Seq(new File("data", logDir.getName).getAbsoluteFile))
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
     verifyCheckpointRecovery(Seq(new TopicPartition("test-a", 1)), logManager, logManager.liveLogDirs.head)
   }
 
@@ -979,13 +979,13 @@ class LogManagerTest {
         numRemainingSegments = mockMap)
 
     }.when(spyLogManager).loadLog(any[File], any[Boolean], any[util.Map[TopicPartition, JLong]], any[util.Map[TopicPartition, JLong]],
-      any[LogConfig], any[Map[String, LogConfig]], any[ConcurrentMap[String, Integer]], any[UnifiedLog => Boolean]())
+      any[LogConfig], any[Map[String, LogConfig]], any[ConcurrentMap[String, Integer]], any[Set[TopicPartition]], any[UnifiedLog => Boolean]())
 
     // do nothing for removeLogRecoveryMetrics for metrics verification
     doNothing().when(spyLogManager).removeLogRecoveryMetrics()
 
     // start the logManager to do log recovery
-    spyLogManager.startup(Set.empty)
+    spyLogManager.startup(Set.empty, Set.empty)
 
     // make sure log recovery metrics are added and removed
     verify(spyLogManager, times(1)).addLogRecoveryMetrics(any[ConcurrentMap[String, Int]], any[ConcurrentMap[String, Integer]])
@@ -1014,7 +1014,7 @@ class LogManagerTest {
     assertEquals(2, spyLogManager.liveLogDirs.size)
 
     // start the logManager to do log recovery
-    spyLogManager.startup(Set.empty)
+    spyLogManager.startup(Set.empty, Set.empty)
 
     // make sure log recovery metrics are added and removed once
     verify(spyLogManager, times(1)).addLogRecoveryMetrics(any[ConcurrentMap[String, Int]], any[ConcurrentMap[String, Integer]])
@@ -1063,7 +1063,7 @@ class LogManagerTest {
     val dir1 = TestUtils.tempDir()
     val dir2 = TestUtils.tempDir()
     logManager = createLogManager(Seq(dir1, dir2))
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
 
     val topicName = "future-log"
     def logMetrics: mutable.Set[MetricName] = KafkaYammerMetrics.defaultRegistry.allMetrics.keySet.asScala.
@@ -1388,7 +1388,7 @@ class LogManagerTest {
       initialTaskDelayMs = 0)
 
     scheduler.startup()
-    tmpLogManager.startup(Set.empty)
+    tmpLogManager.startup(Set.empty, Set.empty)
     val stopLogManager: Executable = () => tmpLogManager.shutdown()
     val stopScheduler: Executable = () => scheduler.shutdown()
     assertTimeoutPreemptively(Duration.ofMillis(5000), stopLogManager)

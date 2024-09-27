@@ -290,6 +290,7 @@ class BrokerMetadataPublisher(
       // recovery-from-unclean-shutdown if required.
       logManager.startup(
         metadataCache.getAllTopics(),
+        Set.empty[TopicPartition],
         isStray = log => LogManager.isStrayKraftReplica(brokerId, newImage.topics(), log)
       )
 

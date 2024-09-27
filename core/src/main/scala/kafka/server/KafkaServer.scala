@@ -325,7 +325,17 @@ class KafkaServer(
           logDirFailureChannel,
           config.usesTopicId)
         _brokerState = BrokerState.RECOVERY
-        logManager.startup(zkClient.getAllTopicsInCluster())
+
+        val allTopicsInCluster = zkClient.getAllTopicsInCluster()
+        val topicPartitionsNotOnBroker = zkClient.getPartitionAssignmentForTopics(allTopicsInCluster)
+          .flatMap { case (topic, partitionAssignments) =>
+            partitionAssignments.collect {
+              case (partition, replicas) if !replicas.replicas.contains(config.brokerId) =>
+                new TopicPartition(topic, partition)
+            }
+          }.toSet
+
+        logManager.startup(allTopicsInCluster, topicPartitionsNotOnBroker)
 
         remoteLogManagerOpt = createRemoteLogManager()
 

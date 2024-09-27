@@ -3069,7 +3069,7 @@ class PartitionTest extends AbstractPartitionTest {
     logManager = TestUtils.createLogManager(
       logDirs = Seq(logDir1, logDir2), defaultConfig = logConfig, configRepository = spyConfigRepository,
       cleanerConfig = new CleanerConfig(false), time = time)
-    logManager.startup(Set.empty)
+    logManager.startup(Set.empty, Set.empty)
 
     val spyLogManager = spy(logManager)
     doAnswer((_: InvocationOnMock) => {
