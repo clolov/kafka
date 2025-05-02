@@ -124,6 +124,10 @@ class BrokerServer(
 
   var groupConfigManager: GroupConfigManager = _
 
+  var diskCheckerManager: DiskCheckerManager = _
+
+  var shutdownDataPlane: Boolean = false
+
   var transactionCoordinator: TransactionCoordinator = _
 
   var shareCoordinator: Option[ShareCoordinator] = None
@@ -363,6 +367,10 @@ class BrokerServer(
       /* initializing the groupConfigManager */
       groupConfigManager = new GroupConfigManager(config.groupCoordinatorConfig.extractGroupConfigMap(config.shareGroupConfig))
 
+      shutdownDataPlane = false
+
+      diskCheckerManager = createDiskCheckerManager(config.logDirs.asJava)
+
       /* create share coordinator */
       shareCoordinator = createShareCoordinator()
 
@@ -465,7 +473,10 @@ class BrokerServer(
         tokenManager = tokenManager,
         apiVersionManager = apiVersionManager,
         clientMetricsManager = clientMetricsManager,
-        groupConfigManager = groupConfigManager)
+        groupConfigManager = groupConfigManager,
+        shutdownDataPlane = _ => shutdownDataPlane)
+
+      diskCheckerManager.start()
 
       dataPlaneRequestHandlerPool = new KafkaRequestHandlerPool(config.nodeId,
         socketServer.dataPlaneRequestChannel, dataPlaneRequestProcessor, time,
@@ -631,6 +642,18 @@ class BrokerServer(
       .build()
   }
 
+  private def createDiskCheckerManager(logDirs: util.List[String]): DiskCheckerManager = {
+    new DiskCheckerManager(logDirs, createDiskChecker(), () => triggerShutdownDataPlane())
+  }
+
+  private def createDiskChecker(): DiskChecker = {
+    new DiskChecker(0.6f, 0.5f)
+  }
+
+  private def triggerShutdownDataPlane(): Unit = {
+    shutdownDataPlane = true
+  }
+
   private def createShareCoordinator(): Option[ShareCoordinator] = {
     if (config.shareGroupConfig.isShareGroupEnabled &&
       config.shareGroupConfig.shareGroupPersisterClassName().nonEmpty) {
@@ -763,6 +786,8 @@ class BrokerServer(
       if (dataPlaneRequestProcessor != null)
         CoreUtils.swallow(dataPlaneRequestProcessor.close(), this)
       authorizerPlugin.foreach(Utils.closeQuietly(_, "authorizer plugin"))
+
+      CoreUtils.swallow(diskCheckerManager.shutdown(), this)
 
       /**
        * We must shutdown the scheduler early because otherwise, the scheduler could touch other

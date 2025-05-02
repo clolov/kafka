@@ -109,7 +109,8 @@ class KafkaApis(val requestChannel: RequestChannel,
                 val tokenManager: DelegationTokenManager,
                 val apiVersionManager: ApiVersionManager,
                 val clientMetricsManager: ClientMetricsManager,
-                val groupConfigManager: GroupConfigManager
+                val groupConfigManager: GroupConfigManager,
+                val shutdownDataPlane: Unit => Boolean = _ => false,
 ) extends ApiRequestHandler with Logging {
 
   type FetchResponseStats = Map[TopicPartition, RecordValidationStats]
@@ -397,6 +398,7 @@ class KafkaApis(val requestChannel: RequestChannel,
     val unauthorizedTopicResponses = mutable.Map[TopicPartition, PartitionResponse]()
     val nonExistingTopicResponses = mutable.Map[TopicPartition, PartitionResponse]()
     val invalidRequestResponses = mutable.Map[TopicPartition, PartitionResponse]()
+    val authorizedButDataPlaneDownResponses = mutable.Map[TopicPartition, PartitionResponse]()
     val authorizedRequestInfo = mutable.Map[TopicPartition, MemoryRecords]()
     // cache the result to avoid redundant authorization calls
     val authorizedTopics = authHelper.filterByAuthorized(request.context, WRITE, TOPIC,
@@ -413,12 +415,16 @@ class KafkaApis(val requestChannel: RequestChannel,
       else if (!metadataCache.contains(topicPartition))
         nonExistingTopicResponses += topicPartition -> new PartitionResponse(Errors.UNKNOWN_TOPIC_OR_PARTITION)
       else
-        try {
-          ProduceRequest.validateRecords(request.header.apiVersion, memoryRecords)
-          authorizedRequestInfo += (topicPartition -> memoryRecords)
-        } catch {
-          case e: ApiException =>
-            invalidRequestResponses += topicPartition -> new PartitionResponse(Errors.forException(e))
+        if (shutdownDataPlane()) {
+          authorizedButDataPlaneDownResponses += (topicPartition -> new PartitionResponse(Errors.KAFKA_STORAGE_ERROR))
+        } else {
+          try {
+            ProduceRequest.validateRecords(request.header.apiVersion, memoryRecords)
+            authorizedRequestInfo += (topicPartition -> memoryRecords)
+          } catch {
+            case e: ApiException =>
+              invalidRequestResponses += topicPartition -> new PartitionResponse(Errors.forException(e))
+          }
         }
     })
 
@@ -428,7 +434,7 @@ class KafkaApis(val requestChannel: RequestChannel,
     // https://issues.apache.org/jira/browse/KAFKA-10730
     @nowarn("cat=deprecation")
     def sendResponseCallback(responseStatus: Map[TopicPartition, PartitionResponse]): Unit = {
-      val mergedResponseStatus = responseStatus ++ unauthorizedTopicResponses ++ nonExistingTopicResponses ++ invalidRequestResponses
+      val mergedResponseStatus = responseStatus ++ unauthorizedTopicResponses ++ nonExistingTopicResponses ++ invalidRequestResponses ++ authorizedButDataPlaneDownResponses
       var errorInResponse = false
 
       val nodeEndpoints = new mutable.HashMap[Int, Node]

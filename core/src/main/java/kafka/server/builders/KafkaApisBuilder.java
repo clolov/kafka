@@ -45,7 +45,9 @@ import org.apache.kafka.storage.log.metrics.BrokerTopicStats;
 import java.util.Map;
 import java.util.Optional;
 
+import scala.Function1;
 import scala.jdk.javaapi.OptionConverters;
+import scala.runtime.BoxedUnit;
 
 public class KafkaApisBuilder {
     private RequestChannel requestChannel = null;
@@ -230,6 +232,22 @@ public class KafkaApisBuilder {
                              tokenManager,
                              apiVersionManager,
                              clientMetricsManager,
-                             groupConfigManager);
+                             groupConfigManager,
+                             new Function1<BoxedUnit, Object>() {
+                                 @Override
+                                 public Object apply(BoxedUnit v1) {
+                                     return false;
+                                 }
+
+                                 @Override
+                                 public <A> Function1<A, Object> compose(Function1<A, BoxedUnit> g) {
+                                     return Function1.super.compose(g);
+                                 }
+
+                                 @Override
+                                 public <A> Function1<BoxedUnit, A> andThen(Function1<Object, A> g) {
+                                     return Function1.super.andThen(g);
+                                 }
+                             });
     }
 }
