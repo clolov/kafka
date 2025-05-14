@@ -124,6 +124,8 @@ class BrokerServer(
 
   var groupConfigManager: GroupConfigManager = _
 
+  var diskCheckerManager: DiskCheckerManager = _
+
   var transactionCoordinator: TransactionCoordinator = _
 
   var shareCoordinator: ShareCoordinator = _
@@ -369,6 +371,8 @@ class BrokerServer(
       /* initializing the groupConfigManager */
       groupConfigManager = new GroupConfigManager(config.groupCoordinatorConfig.extractGroupConfigMap(config.shareGroupConfig))
 
+      diskCheckerManager = createDiskCheckerManager(config.logDirs.asJava)
+
       /* create share coordinator */
       shareCoordinator = createShareCoordinator()
 
@@ -469,6 +473,8 @@ class BrokerServer(
         clientMetricsManager = clientMetricsManager,
         groupConfigManager = groupConfigManager)
 
+      diskCheckerManager.start()
+
       dataPlaneRequestHandlerPool = new KafkaRequestHandlerPool(config.nodeId,
         socketServer.dataPlaneRequestChannel, dataPlaneRequestProcessor, time,
         config.numIoThreads, "RequestHandlerAvgIdlePercent")
@@ -564,7 +570,7 @@ class BrokerServer(
       // from RECOVERY state to RUNNING state, once the controller unfences the broker.
       FutureUtils.waitWithLogging(logger.underlying, logIdent,
         "the broker to be unfenced",
-        lifecycleManager.setReadyToUnfence(), startupDeadline, time)
+        lifecycleManager.setFirstReadyToUnfence(), startupDeadline, time)
 
       // Enable inbound TCP connections. Each endpoint will be started only once its matching
       // authorizer future is completed.
@@ -631,6 +637,14 @@ class BrokerServer(
       .withPersister(persister)
       .withAuthorizerPlugin(authorizerPlugin.toJava)
       .build()
+  }
+
+  private def createDiskCheckerManager(logDirs: util.List[String]): DiskCheckerManager = {
+    new DiskCheckerManager(logDirs, createDiskChecker(), () => lifecycleManager.setReadyToUnfence(), () => lifecycleManager.clearReadyToUnfence())
+  }
+
+  private def createDiskChecker(): DiskChecker = {
+    new DiskChecker(0.6f, 0.5f)
   }
 
   private def createShareCoordinator(): ShareCoordinator = {

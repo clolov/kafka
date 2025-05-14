@@ -243,9 +243,17 @@ class BrokerLifecycleManager(
       channelManager, clusterId, advertisedListeners, supportedFeatures))
   }
 
-  def setReadyToUnfence(): CompletableFuture[Void] = {
-    eventQueue.append(new SetReadyToUnfenceEvent())
+  def setFirstReadyToUnfence(): CompletableFuture[Void] = {
+    setReadyToUnfence()
     initialUnfenceFuture
+  }
+
+  def setReadyToUnfence(): Unit = {
+    eventQueue.append(new SetReadyToUnfenceEvent())
+  }
+
+  def clearReadyToUnfence(): Unit = {
+    eventQueue.append(new ClearReadyToUnfenceEvent())
   }
 
   /**
@@ -321,6 +329,13 @@ class BrokerLifecycleManager(
   private class SetReadyToUnfenceEvent extends EventQueue.Event {
     override def run(): Unit = {
       readyToUnfence = true
+      scheduleNextCommunicationImmediately()
+    }
+  }
+
+  private class ClearReadyToUnfenceEvent extends EventQueue.Event {
+    override def run(): Unit = {
+      readyToUnfence = false
       scheduleNextCommunicationImmediately()
     }
   }
