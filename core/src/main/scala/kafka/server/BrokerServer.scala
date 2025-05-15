@@ -644,7 +644,7 @@ class BrokerServer(
   }
 
   private def createDiskChecker(): DiskChecker = {
-    new DiskChecker(0.6f, 0.5f)
+    new DiskChecker(0.005f, 0.004f)
   }
 
   private def createShareCoordinator(): ShareCoordinator = {

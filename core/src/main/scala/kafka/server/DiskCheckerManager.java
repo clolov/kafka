@@ -66,8 +66,10 @@ public class DiskCheckerManager {
                 }
             } catch (DiskChecker.DiskOutOfSpaceException e) {
                 // Here we will set the value reference of the value passed to us
-                this.shutdownDataPlane.run();
-                this.wasShutdown = true;
+                if (!wasShutdown) {
+                    this.shutdownDataPlane.run();
+                    this.wasShutdown = true;
+                }
             } catch (DiskChecker.DiskWarnThresholdException e) {
                 // noop
             } catch (DiskChecker.DiskErrorException e) {
