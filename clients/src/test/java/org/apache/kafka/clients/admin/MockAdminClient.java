@@ -459,6 +459,13 @@ public class MockAdminClient extends AdminClient {
     }
 
     @Override
+    public HelloResult hello() {
+        KafkaFutureImpl<String> future = new KafkaFutureImpl<>();
+        future.complete("Hello World!");
+        return new HelloResult(future);
+    }
+
+    @Override
     public synchronized DescribeTopicsResult describeTopics(TopicCollection topics, DescribeTopicsOptions options) {
         if (topics instanceof TopicIdCollection)
             return DescribeTopicsResult.ofTopicIds(new HashMap<>(handleDescribeTopicsUsingIds(((TopicIdCollection) topics).topicIds())));

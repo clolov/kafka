@@ -161,13 +161,19 @@ object ConfigCommand extends Logging {
       throw new IllegalArgumentException(s"An entity name must be specified for every entity type")
 
     try {
-      if (opts.options.has(opts.alterOpt))
+      if (opts.options.has(opts.helloOpt))
+        hello(adminClient)
+      else if (opts.options.has(opts.alterOpt))
         alterConfig(adminClient, opts)
       else if (opts.options.has(opts.describeOpt))
         describeConfig(adminClient, opts)
     } finally {
       adminClient.close()
     }
+  }
+
+  def hello(admin: Admin): Unit = {
+    System.out.println(admin.hello().hello().get)
   }
 
   def alterConfig(adminClient: Admin, opts: ConfigCommandOptions): Unit = {
@@ -515,6 +521,7 @@ object ConfigCommand extends Logging {
       .withRequiredArg
       .describedAs("command config property file")
       .ofType(classOf[String])
+    val helloOpt: OptionSpecBuilder = parser.accepts("hello", "Hello World!")
     val alterOpt: OptionSpecBuilder = parser.accepts("alter", "Alter the configuration for the entity.")
     val describeOpt: OptionSpecBuilder = parser.accepts("describe", "List configs for the given entity.")
     val allOpt: OptionSpecBuilder = parser.accepts("all", "List all configs for the given entity, including static configs if available.")
@@ -609,6 +616,8 @@ object ConfigCommand extends Logging {
     }
 
     def checkArgs(): Unit = {
+      if (options.has(helloOpt))
+        return
       // should have exactly one action
       val actions = Seq(alterOpt, describeOpt).count(options.has _)
       if (actions != 1)

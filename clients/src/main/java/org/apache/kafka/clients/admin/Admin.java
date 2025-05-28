@@ -282,6 +282,8 @@ public interface Admin extends AutoCloseable {
      */
     ListTopicsResult listTopics(ListTopicsOptions options);
 
+    HelloResult hello();
+
     /**
      * Describe some topics in the cluster, with the default options.
      * <p>

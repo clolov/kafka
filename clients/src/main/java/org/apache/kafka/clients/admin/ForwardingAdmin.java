@@ -74,6 +74,11 @@ public class ForwardingAdmin implements Admin {
     }
 
     @Override
+    public HelloResult hello() {
+        return delegate.hello();
+    }
+
+    @Override
     public DescribeTopicsResult describeTopics(TopicCollection topics, DescribeTopicsOptions options) {
         return delegate.describeTopics(topics, options);
     }

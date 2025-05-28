@@ -1,0 +1,9 @@
+{
+  "apiKey": 94,
+  "type": "request",
+  "listeners": ["broker", "controller"],
+  "name": "HelloRequest",
+  "validVersions": "0",
+  "flexibleVersions": "0+",
+  "fields": []
+}

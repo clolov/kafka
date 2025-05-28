@@ -244,6 +244,7 @@ class KafkaApis(val requestChannel: RequestChannel,
         case ApiKeys.DELETE_SHARE_GROUP_OFFSETS => handleDeleteShareGroupOffsetsRequest(request).exceptionally(handleError)
         case ApiKeys.STREAMS_GROUP_DESCRIBE => handleStreamsGroupDescribe(request).exceptionally(handleError)
         case ApiKeys.STREAMS_GROUP_HEARTBEAT => handleStreamsGroupHeartbeat(request).exceptionally(handleError)
+        case ApiKeys.HELLO => handleHello(request)
         case _ => throw new IllegalStateException(s"No handler for request api key ${request.header.apiKey}")
       }
     } catch {
@@ -263,6 +264,10 @@ class KafkaApis(val requestChannel: RequestChannel,
 
   override def tryCompleteActions(): Unit = {
     replicaManager.tryCompleteActions()
+  }
+
+  def handleHello(request: RequestChannel.Request): Unit = {
+    requestHelper.sendResponseExemptThrottle(request, new HelloResponse(new HelloResponseData().setHello("Hello!")))
   }
 
   /**

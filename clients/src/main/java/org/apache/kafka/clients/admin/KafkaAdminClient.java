@@ -158,6 +158,7 @@ import org.apache.kafka.common.message.DescribeUserScramCredentialsRequestData;
 import org.apache.kafka.common.message.DescribeUserScramCredentialsRequestData.UserName;
 import org.apache.kafka.common.message.DescribeUserScramCredentialsResponseData;
 import org.apache.kafka.common.message.ExpireDelegationTokenRequestData;
+import org.apache.kafka.common.message.HelloRequestData;
 import org.apache.kafka.common.message.LeaveGroupRequestData.MemberIdentity;
 import org.apache.kafka.common.message.ListConfigResourcesRequestData;
 import org.apache.kafka.common.message.ListGroupsRequestData;
@@ -230,6 +231,8 @@ import org.apache.kafka.common.requests.ElectLeadersRequest;
 import org.apache.kafka.common.requests.ElectLeadersResponse;
 import org.apache.kafka.common.requests.ExpireDelegationTokenRequest;
 import org.apache.kafka.common.requests.ExpireDelegationTokenResponse;
+import org.apache.kafka.common.requests.HelloRequest;
+import org.apache.kafka.common.requests.HelloResponse;
 import org.apache.kafka.common.requests.IncrementalAlterConfigsRequest;
 import org.apache.kafka.common.requests.IncrementalAlterConfigsResponse;
 import org.apache.kafka.common.requests.JoinGroupRequest;
@@ -2129,6 +2132,31 @@ public class KafkaAdminClient extends AdminClient {
             }
         }, now);
         return new ListTopicsResult(topicListingFuture);
+    }
+
+    @Override
+    public HelloResult hello() {
+        final KafkaFutureImpl<String> helloFuture = new KafkaFutureImpl<>();
+        final long now = time.milliseconds();
+        runnable.call(new Call("hello", calcDeadlineMs(now, 60000), new LeastLoadedNodeProvider()) {
+            @Override
+            AbstractRequest.Builder<?> createRequest(int timeoutMs) {
+                return new HelloRequest.Builder(new HelloRequestData());
+            }
+
+            @Override
+            void handleResponse(AbstractResponse abstractResponse) {
+                HelloResponse response = (HelloResponse) abstractResponse;
+                helloFuture.complete(response.data().hello());
+            }
+
+            @Override
+            void handleFailure(Throwable throwable) {
+                helloFuture.completeExceptionally(throwable);
+            }
+        }, now);
+
+        return new HelloResult(helloFuture);
     }
 
     @Override
