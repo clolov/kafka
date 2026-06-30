@@ -102,6 +102,28 @@ public class RemoteIndexCache implements Closeable {
     private int fileDeleteDelayMs = 10_000;
 
     /**
+     * Number of memory-mapped regions opened per cache entry. Both the offset index and the time index are
+     * memory-mapped ({@link AbstractIndex}); the transaction index is not. Each mapping counts against the OS
+     * memory-map limit (e.g. Linux {@code vm.max_map_count}), which is the resource that gets exhausted under a
+     * many-small-segments workload long before the byte budget is reached.
+     */
+    private static final int PER_ENTRY_MMAP_COUNT = 2;
+
+    /**
+     * Default mmap-count budget used by the convenience constructor (mirrors
+     * {@code RemoteLogManagerConfig.DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT}). The production path always
+     * passes an explicit value from configuration.
+     */
+    private static final long DEFAULT_MAX_MMAPS = 32768L;
+
+    /**
+     * The two eviction budgets, enforced simultaneously by a single composite weigher (see {@link #weigh}).
+     * Marked volatile because they are read by the weigher on every insert and updated by {@link #resizeCacheSize}.
+     */
+    private volatile long maxBytes;
+    private volatile long maxMmaps;
+
+    /**
      * Actual cache implementation that this file wraps around.
      *
      * The requirements for this internal cache is as follows:
@@ -122,35 +144,39 @@ public class RemoteIndexCache implements Closeable {
      * @param logDir               log directory
      */
     public RemoteIndexCache(long maxSize, RemoteStorageManager remoteStorageManager, String logDir) throws IOException {
-        this(maxSize, -1L, false, remoteStorageManager, logDir);
+        this(maxSize, DEFAULT_MAX_MMAPS, -1L, false, remoteStorageManager, logDir);
     }
 
     /**
      * Creates RemoteIndexCache with the given configs.
      *
      * @param maxSize              maximum bytes size of segment index entries to be cached.
+     * @param maxMmaps             maximum number of memory-mapped index regions to keep across all cached entries.
      * @param ttlMs                maximum time in milliseconds an entry can remain in cache after last access. -1 to disable.
      * @param recordStats          whether to record cache statistics. Recording statistics requires bookkeeping with each operation.
      * @param remoteStorageManager RemoteStorageManager instance, to be used in fetching indexes.
      * @param logDir               log directory
      */
-    public RemoteIndexCache(long maxSize, long ttlMs, boolean recordStats, RemoteStorageManager remoteStorageManager, String logDir) throws IOException {
-        this(maxSize, ttlMs, recordStats, remoteStorageManager, logDir, null);
+    public RemoteIndexCache(long maxSize, long maxMmaps, long ttlMs, boolean recordStats, RemoteStorageManager remoteStorageManager, String logDir) throws IOException {
+        this(maxSize, maxMmaps, ttlMs, recordStats, remoteStorageManager, logDir, null);
     }
 
     /**
      * Creates RemoteIndexCache with the given configs and custom ticker (for testing).
      *
      * @param maxSize              maximum bytes size of segment index entries to be cached.
+     * @param maxMmaps             maximum number of memory-mapped index regions to keep across all cached entries.
      * @param ttlMs                maximum time in milliseconds an entry can remain in cache after last access. -1 to disable.
      * @param recordStats          whether to record cache statistics. Recording statistics requires bookkeeping with each operation.
      * @param remoteStorageManager RemoteStorageManager instance, to be used in fetching indexes.
      * @param logDir               log directory
      * @param ticker               custom ticker for testing time-based eviction (null for system ticker)
      */
-    public RemoteIndexCache(long maxSize, long ttlMs, boolean recordStats, RemoteStorageManager remoteStorageManager, String logDir,
+    public RemoteIndexCache(long maxSize, long maxMmaps, long ttlMs, boolean recordStats, RemoteStorageManager remoteStorageManager, String logDir,
                            Ticker ticker) throws IOException {
         this.remoteStorageManager = remoteStorageManager;
+        this.maxBytes = maxSize;
+        this.maxMmaps = maxMmaps;
         cacheDir = new File(logDir, DIR_NAME);
 
         internalCache = initEmptyCache(maxSize, ttlMs, recordStats, ticker);
@@ -158,9 +184,28 @@ public class RemoteIndexCache implements Closeable {
         cleanerScheduler.startup();
     }
 
+    /**
+     * Resizes the cache budgets. Both the byte budget and the mmap-count budget are enforced together by the
+     * composite weigher; either one reaching its limit triggers eviction.
+     *
+     * @param remoteLogIndexFileCacheSize maximum bytes size of segment index entries to be cached.
+     * @param remoteLogIndexFileCacheMmaps maximum number of memory-mapped index regions across all cached entries.
+     */
+    /**
+     * Resizes only the byte budget, keeping the current mmap-count budget. Convenience overload.
+     */
     public void resizeCacheSize(long remoteLogIndexFileCacheSize) {
+        resizeCacheSize(remoteLogIndexFileCacheSize, maxMmaps);
+    }
+
+    public void resizeCacheSize(long remoteLogIndexFileCacheSize, long remoteLogIndexFileCacheMmaps) {
         lock.writeLock().lock();
         try {
+            this.maxBytes = remoteLogIndexFileCacheSize;
+            this.maxMmaps = remoteLogIndexFileCacheMmaps;
+            // maximumWeight is expressed in bytes (see weigh); setting it re-evaluates the eviction policy against the
+            // new budgets. Note that Caffeine does not re-weigh already-cached entries, so the mmap dimension of the
+            // new budget only takes full effect as entries are re-inserted; the byte ceiling applies immediately.
             internalCache.policy().eviction().orElseThrow(() -> new NoSuchElementException("No eviction policy is set for the remote index cache.")
             ).setMaximum(remoteLogIndexFileCacheSize);
         } finally {
@@ -168,10 +213,27 @@ public class RemoteIndexCache implements Closeable {
         }
     }
 
+    /**
+     * Computes the eviction weight of an entry, expressed in bytes, so that a single Caffeine byte budget enforces
+     * both the byte ceiling and the mmap-count ceiling at once.
+     * <p>
+     * Each dimension is scaled to a common unit (bytes): the data size of the entry, and the entry's "fair share" of
+     * the byte budget implied by its mmap footprint ({@code perEntryMmaps * maxBytes / maxMmaps}). Taking the larger
+     * of the two means the more constrained dimension drives eviction. Because {@code weight >= byteCost} for every
+     * entry, {@code sum(weight) <= maxBytes} implies {@code sum(bytes) <= maxBytes}; the same argument on the mmap term
+     * implies {@code sum(mmaps) <= maxMmaps}. Both ceilings therefore hold simultaneously.
+     */
+    private int weigh(long entryBytes) {
+        long bytesPerMmap = Math.max(1L, maxBytes / maxMmaps);
+        long mmapCost = (long) PER_ENTRY_MMAP_COUNT * bytesPerMmap;
+        long weight = Math.max(entryBytes, mmapCost);
+        return (int) Math.min(weight, Integer.MAX_VALUE);
+    }
+
     private Cache<Uuid, Entry> initEmptyCache(long maxSize, long ttlMs, boolean recordStats, Ticker ticker) {
         Caffeine<Uuid, Entry> builder = Caffeine.newBuilder()
                 .maximumWeight(maxSize)
-                .weigher((Uuid key, Entry entry) -> (int) entry.entrySizeBytes);
+                .weigher((Uuid key, Entry entry) -> weigh(entry.entrySizeBytes));
 
         if (recordStats) {
             builder.recordStats();
@@ -389,10 +451,38 @@ public class RemoteIndexCache implements Closeable {
         lock.readLock().lock();
         try {
             throwIfCacheClosed(uuid);
-            return internalCache.get(uuid, k -> createCacheEntry(metadata));
+            try {
+                return internalCache.get(uuid, k -> createCacheEntry(metadata));
+            } catch (RuntimeException | Error e) {
+                // The composite weigher keeps the cache below the configured mmap-count budget proactively, but a
+                // transient burst or a misconfigured OS limit (vm.max_map_count) can still make a fresh memory mapping
+                // fail. Rather than let a single failed mapping fail the fetch, shed cached entries to free mappings
+                // and retry once. This is a last-resort backstop, not the primary defense.
+                if (!isMapFailure(e)) throw e;
+                log.warn("Failed to create index entry for segment-id = {} due to memory-map exhaustion; " +
+                        "shedding cached entries and retrying once.", uuid, e);
+                internalCache.cleanUp();
+                return internalCache.get(uuid, k -> createCacheEntry(metadata));
+            }
         } finally {
             lock.readLock().unlock();
         }
+    }
+
+    /**
+     * Returns true if the throwable (or any of its causes) indicates exhaustion of the OS memory-map limit or
+     * process address space, i.e. a failure to create a new {@link java.nio.MappedByteBuffer}. The JDK surfaces this
+     * as an {@link OutOfMemoryError} with the message "Map failed" or as an {@link IOException} carrying the same.
+     */
+    private static boolean isMapFailure(Throwable t) {
+        for (Throwable cause = t; cause != null && cause != cause.getCause(); cause = cause.getCause()) {
+            String message = cause.getMessage();
+            boolean mapFailedMessage = message != null && message.contains("Map failed");
+            if ((cause instanceof OutOfMemoryError || cause instanceof IOException) && mapFailedMessage) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void throwIfCacheClosed(Uuid uuid) {

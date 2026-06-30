@@ -934,7 +934,7 @@ class DynamicBrokerConfigTest {
     props.put(RemoteLogManagerConfig.REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_SIZE_BYTES_PROP, "4")
     config.dynamicConfig.updateDefaultConfig(props)
     assertEquals(4L, config.remoteLogManagerConfig.remoteLogIndexFileCacheTotalSizeBytes())
-    Mockito.verify(remoteLogManager).resizeCacheSize(4)
+    Mockito.verify(remoteLogManager).resizeCacheSize(4, RemoteLogManagerConfig.DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT)
 
     Mockito.verifyNoMoreInteractions(remoteLogManager)
   }
@@ -1034,7 +1034,7 @@ class DynamicBrokerConfigTest {
     assertEquals(4, config.remoteLogManagerConfig.remoteLogIndexFileCacheTotalSizeBytes())
     assertEquals(100, config.remoteLogManagerConfig.remoteLogManagerCopyMaxBytesPerSecond())
     assertEquals(200, config.remoteLogManagerConfig.remoteLogManagerFetchMaxBytesPerSecond())
-    verify(remoteLogManager).resizeCacheSize(4)
+    verify(remoteLogManager).resizeCacheSize(4, RemoteLogManagerConfig.DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT)
     verify(remoteLogManager).updateCopyQuota(100)
     verify(remoteLogManager).updateFetchQuota(200)
 
@@ -1046,7 +1046,7 @@ class DynamicBrokerConfigTest {
     assertEquals(8, config.remoteLogManagerConfig.remoteLogIndexFileCacheTotalSizeBytes())
     assertEquals(200, config.remoteLogManagerConfig.remoteLogManagerCopyMaxBytesPerSecond())
     assertEquals(400, config.remoteLogManagerConfig.remoteLogManagerFetchMaxBytesPerSecond())
-    verify(remoteLogManager).resizeCacheSize(8)
+    verify(remoteLogManager).resizeCacheSize(8, RemoteLogManagerConfig.DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT)
     verify(remoteLogManager).updateCopyQuota(200)
     verify(remoteLogManager).updateFetchQuota(400)
 

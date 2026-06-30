@@ -248,6 +248,7 @@ public class RemoteLogManager implements Closeable, AsyncOffsetReader {
 
         indexCache = new RemoteIndexCache(
             rlmConfig.remoteLogIndexFileCacheTotalSizeBytes(),
+            rlmConfig.remoteLogIndexFileCacheTotalMmapCount(),
             rlmConfig.remoteLogIndexFileCacheTtlMs(),
             false,
             remoteStorageManagerPlugin.get(),
@@ -275,8 +276,8 @@ public class RemoteLogManager implements Closeable, AsyncOffsetReader {
         this.delayedRemoteListOffsetsPurgatory = delayedRemoteListOffsetsPurgatory;
     }
 
-    public void resizeCacheSize(long remoteLogIndexFileCacheSize) {
-        indexCache.resizeCacheSize(remoteLogIndexFileCacheSize);
+    public void resizeCacheSize(long remoteLogIndexFileCacheSize, long remoteLogIndexFileCacheMmaps) {
+        indexCache.resizeCacheSize(remoteLogIndexFileCacheSize, remoteLogIndexFileCacheMmaps);
     }
 
     public void updateCopyQuota(long quota) {

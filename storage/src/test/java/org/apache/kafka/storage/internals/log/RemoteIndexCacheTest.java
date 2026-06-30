@@ -691,6 +691,87 @@ public class RemoteIndexCacheTest {
         assertCacheSize(1);
     }
 
+    @Test
+    public void testEvictionIsTriggeredByMmapCountForSmallEntries() throws IOException, InterruptedException {
+        // Give the cache a byte budget far larger than the tiny test index files need (so it would never bind), but a
+        // tiny mmap budget so that eviction is driven purely by the number of memory-mapped regions. With a budget of
+        // 4 mmaps and 2 mmaps per entry, only 2 entries fit regardless of how small the index files are. This is the
+        // scenario the byte-only budget failed to protect. The byte budget is kept well under Integer.MAX_VALUE so the
+        // per-entry weight (dominated by the mmap term, ~ maxBytes/2 here) does not get clamped by the int weigher.
+        long mmapBudget = 4L;
+        Utils.closeQuietly(cache, "RemoteIndexCache created for unit test");
+        cache = new RemoteIndexCache(defaultRemoteIndexCacheSizeBytes, mmapBudget, -1L, false, rsm, logDir.toString());
+        cache.setFileDeleteDelayMs(20);
+
+        TopicIdPartition tpId = new TopicIdPartition(Uuid.randomUuid(), new TopicPartition("foo", 0));
+        List<RemoteLogSegmentMetadata> metadataList = generateRemoteLogSegmentMetadata(5, tpId);
+
+        for (RemoteLogSegmentMetadata metadata : metadataList) {
+            cache.getIndexEntry(metadata);
+        }
+
+        // Despite the huge byte budget, the cache must cap at 2 entries (= 4 mmaps) because of the mmap budget.
+        assertCacheSize(2);
+    }
+
+    @Test
+    public void testEvictionIsTriggeredByBytesForLargeEntries() throws IOException, InterruptedException, RemoteStorageException {
+        // With a generous mmap budget but a byte budget that holds only 2 entries, eviction must be driven by bytes,
+        // i.e. the composite weigher must not change the existing byte-based behavior for large index files.
+        long estimateEntryBytesSize = estimateOneEntryBytesSize();
+        Utils.closeQuietly(cache, "RemoteIndexCache created for unit test");
+        cache = new RemoteIndexCache(2 * estimateEntryBytesSize, Long.MAX_VALUE / 2, -1L, false, rsm, logDir.toString());
+        cache.setFileDeleteDelayMs(20);
+
+        TopicIdPartition tpId = new TopicIdPartition(Uuid.randomUuid(), new TopicPartition("foo", 0));
+        List<RemoteLogSegmentMetadata> metadataList = generateRemoteLogSegmentMetadata(5, tpId);
+
+        for (RemoteLogSegmentMetadata metadata : metadataList) {
+            cache.getIndexEntry(metadata);
+        }
+
+        assertCacheSize(2);
+    }
+
+    @Test
+    public void testGetIndexEntryRetriesAfterMmapExhaustion() throws IOException, RemoteStorageException, InterruptedException {
+        // Simulate a transient memory-map exhaustion: the first attempt to create an entry fails with an
+        // OutOfMemoryError("Map failed"), the retry (after the cache sheds entries) succeeds. getIndexEntry must not
+        // propagate the failure to the caller.
+        Utils.closeQuietly(cache, "RemoteIndexCache created for unit test");
+        AtomicInteger fetchAttempts = new AtomicInteger(0);
+        RemoteStorageManager flakyRsm = mock(RemoteStorageManager.class);
+        when(flakyRsm.fetchIndex(any(RemoteLogSegmentMetadata.class), any(IndexType.class))).thenAnswer(ans -> {
+            // Fail only the very first fetch to emulate the address space being momentarily exhausted.
+            if (fetchAttempts.getAndIncrement() == 0) {
+                throw new OutOfMemoryError("Map failed");
+            }
+            RemoteLogSegmentMetadata metadata = ans.getArgument(0);
+            IndexType indexType = ans.getArgument(1);
+            OffsetIndex offsetIdx = createOffsetIndexForSegmentMetadata(metadata, tpDir);
+            TimeIndex timeIdx = createTimeIndexForSegmentMetadata(metadata, tpDir);
+            TransactionIndex txnIdx = createTxIndexForSegmentMetadata(metadata, tpDir);
+            maybeAppendIndexEntries(offsetIdx, timeIdx);
+            return switch (indexType) {
+                case OFFSET -> new FileInputStream(offsetIdx.file());
+                case TIMESTAMP -> new FileInputStream(timeIdx.file());
+                case TRANSACTION -> new FileInputStream(txnIdx.file());
+                case LEADER_EPOCH -> null;
+                case PRODUCER_SNAPSHOT -> null;
+            };
+        });
+        cache = new RemoteIndexCache(defaultRemoteIndexCacheSizeBytes, 32768L, -1L, false, flakyRsm, logDir.toString());
+        cache.setFileDeleteDelayMs(20);
+
+        TopicIdPartition tpId = new TopicIdPartition(Uuid.randomUuid(), new TopicPartition("foo", 0));
+        RemoteLogSegmentMetadata metadata = generateRemoteLogSegmentMetadata(1, tpId).get(0);
+
+        RemoteIndexCache.Entry entry = cache.getIndexEntry(metadata);
+        assertNotNull(entry);
+        assertTrue(fetchAttempts.get() >= 2, "Expected a retry after the simulated mmap exhaustion");
+        assertCacheSize(1);
+    }
+
     private List<RemoteLogSegmentMetadata> getRemoteLogSegMetadataIsKept(List<RemoteLogSegmentMetadata> metadataToVerify) {
         return metadataToVerify
                 .stream()
@@ -1316,7 +1397,7 @@ public class RemoteIndexCacheTest {
         // Test that TTL can be disabled by setting it to -1
         long ttlMs = -1L;
         FakeTicker fakeTicker = new FakeTicker();
-        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
+        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, 32768L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
         try {
             RemoteIndexCache.Entry entry = ttlCache.getIndexEntry(rlsMetadata);
             assertNotNull(entry);
@@ -1335,7 +1416,7 @@ public class RemoteIndexCacheTest {
     public void testCacheTtlEviction() throws IOException {
         long ttlMs = TimeUnit.SECONDS.toMillis(10);
         FakeTicker fakeTicker = new FakeTicker();
-        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
+        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, 32768L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
         try {
             RemoteIndexCache.Entry entry = ttlCache.getIndexEntry(rlsMetadata);
             assertNotNull(entry);
@@ -1356,7 +1437,7 @@ public class RemoteIndexCacheTest {
     public void testCacheTtlRefreshOnAccess() throws IOException {
         long ttlMs = TimeUnit.SECONDS.toMillis(10);
         FakeTicker fakeTicker = new FakeTicker();
-        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
+        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, 32768L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
         try {
             ttlCache.getIndexEntry(rlsMetadata);
 
@@ -1377,7 +1458,7 @@ public class RemoteIndexCacheTest {
     public void testCacheTtlWithMultipleEntries() throws IOException, RemoteStorageException {
         long ttlMs = TimeUnit.SECONDS.toMillis(10);
         FakeTicker fakeTicker = new FakeTicker();
-        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
+        RemoteIndexCache ttlCache = new RemoteIndexCache(1024 * 1024L, 32768L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
         try {
             RemoteLogSegmentId remoteLogSegmentId2 = RemoteLogSegmentId.generateNew(idPartition);
             RemoteLogSegmentMetadata rlsMetadata2 = new RemoteLogSegmentMetadata(remoteLogSegmentId2, baseOffset + 100, lastOffset + 100,
@@ -1402,7 +1483,7 @@ public class RemoteIndexCacheTest {
         long estimateEntryBytesSize = estimateOneEntryBytesSize();
         long ttlMs = TimeUnit.SECONDS.toMillis(10);
         FakeTicker fakeTicker = new FakeTicker();
-        RemoteIndexCache ttlCache = new RemoteIndexCache(2 * estimateEntryBytesSize, ttlMs, false, rsm, logDir.toString(), fakeTicker);
+        RemoteIndexCache ttlCache = new RemoteIndexCache(2 * estimateEntryBytesSize, 32768L, ttlMs, false, rsm, logDir.toString(), fakeTicker);
 
         try {
             TopicIdPartition tpId = new TopicIdPartition(Uuid.randomUuid(), new TopicPartition("foo", 0));

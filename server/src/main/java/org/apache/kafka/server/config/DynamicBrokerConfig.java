@@ -269,6 +269,7 @@ public class DynamicBrokerConfig {
     public static class DynamicRemoteLogConfig {
         public static final Set<String> RECONFIGURABLE_CONFIGS = Set.of(
                 RemoteLogManagerConfig.REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_SIZE_BYTES_PROP,
+                RemoteLogManagerConfig.REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT_PROP,
                 RemoteLogManagerConfig.REMOTE_FETCH_MAX_WAIT_MS_PROP,
                 RemoteLogManagerConfig.REMOTE_LOG_MANAGER_COPY_MAX_BYTES_PER_SECOND_PROP,
                 RemoteLogManagerConfig.REMOTE_LOG_MANAGER_FETCH_MAX_BYTES_PER_SECOND_PROP,

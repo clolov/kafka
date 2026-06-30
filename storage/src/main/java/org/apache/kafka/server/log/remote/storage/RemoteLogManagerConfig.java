@@ -92,6 +92,16 @@ public final class RemoteLogManagerConfig {
             "from remote storage in the local storage.";
     public static final long DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_SIZE_BYTES = 1024 * 1024 * 1024L;
 
+    public static final String REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT_PROP = "remote.log.index.file.cache.total.mmap.count";
+    public static final String REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT_DOC = "The maximum number of memory-mapped index regions the remote index cache may " +
+            "hold across all cached entries. Each cached segment opens one memory-mapped region for its offset index and one for its time index, so this limit " +
+            "bounds the cache to roughly half this value in segments. This is enforced alongside " + REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_SIZE_BYTES_PROP + ": an " +
+            "entry is evicted when either the byte budget or the mmap-count budget would be exceeded. The limit exists because a workload with many small index " +
+            "files can exhaust the OS memory-map limit (e.g. Linux vm.max_map_count, which is shared with all local log segment mappings) long before the byte " +
+            "budget is reached. Keep this comfortably below vm.max_map_count to leave headroom for local log segments.";
+    // ~16k cached segments by default; with the 1 GiB byte default this yields bytesPerMmap of ~32 KiB and stays well under the common 65530 vm.max_map_count.
+    public static final long DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT = 32768L;
+
     public static final String REMOTE_LOG_INDEX_FILE_CACHE_TTL_MS_PROP = "remote.log.index.file.cache.ttl.ms";
     public static final String REMOTE_LOG_INDEX_FILE_CACHE_TTL_MS_DOC = "The maximum time in milliseconds an index file entry can remain in the cache " +
             "after its last access. After this duration, the entry will be evicted even if there is available space. " +
@@ -292,6 +302,12 @@ public final class RemoteLogManagerConfig {
                         atLeast(1),
                         LOW,
                         REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_SIZE_BYTES_DOC)
+                .define(REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT_PROP,
+                        LONG,
+                        DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT,
+                        atLeast(1),
+                        LOW,
+                        REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT_DOC)
                 .defineInternal(REMOTE_LOG_INDEX_FILE_CACHE_TTL_MS_PROP,
                         LONG,
                         DEFAULT_REMOTE_LOG_INDEX_FILE_CACHE_TTL_MS,
@@ -572,6 +588,10 @@ public final class RemoteLogManagerConfig {
 
     public long remoteLogIndexFileCacheTotalSizeBytes() {
         return config.getLong(REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_SIZE_BYTES_PROP);
+    }
+
+    public long remoteLogIndexFileCacheTotalMmapCount() {
+        return config.getLong(REMOTE_LOG_INDEX_FILE_CACHE_TOTAL_MMAP_COUNT_PROP);
     }
 
     public long remoteLogIndexFileCacheTtlMs() {
